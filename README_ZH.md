@@ -1,6 +1,6 @@
-# AI Coding Hub（默认中文）
+# AI Coding Hub（中文）
 
-[中文独立版](./README_ZH.md) | [English Version](./README_EN.md)
+[默认中文 README](./README.md) | [English Version](./README_EN.md)
 
 AI Coding Hub 是一个面向开发者的 AI 编程工具教程与文档站点，当前覆盖 `Claude Code`、`Gemini CLI`、`OpenCode`、`Codex` 和 `AI Playbook`（技巧手册）板块，支持中英双语切换与 MDX 内容渲染。
 
