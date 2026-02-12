@@ -1,0 +1,238 @@
+---
+title: "快速启动和安装"
+description: "了解如何快速安装、配置和开始使用 Gemini CLI，包括标准安装、Docker 沙箱和从源代码运行。"
+tool: "gemini-cli"
+slug: "quickstart-installation"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 开始使用Gemini CLI
+
+欢迎来到Gemini CLI！本指南将帮助您安装、配置和启动
+使用 Gemini CLI 直接从终端增强您的工作流程。
+
+<AdPlaceholder />
+
+## 快速入门：安装、验证、配置和使用Gemini CLI
+
+Gemini CLI 将高级语言模型的强大功能直接带入您的命令中
+线接口。作为人工智能助手，Gemini CLI 可以帮助您
+各种任务，从理解和生成代码到审查和
+编辑文档。
+
+## 安装
+
+安装和运行Gemini CLI 的标准方法使用`npm`：
+```
+bas
+h
+npm install -g @google/gemini-cli
+```
+安装 Gemini CLI 后，从命令行运行 Gemini CLI：
+```
+bas
+h
+gemini
+```
+有关更多安装选项，请参阅[Gemini CLI Installation](/docs/get-started/installation)。
+
+## 验证
+
+要开始使用 Gemini CLI，您必须通过 Google 服务进行身份验证。在大多数
+情况下，您可以使用现有的 Google 帐户登录：
+
+1. 安装后运行Gemini CLI：
+```
+bas
+h
+   gemini
+   
+```
+2
+. 当被问及“您想如何对该项目进行身份验证？”时选择**1。
+   使用谷歌登录**。
+
+3. 选择您的 Google 帐户。
+
+4. 单击“**登录**”。
+
+某些账户类型可能需要您配置 Google Cloud 项目。对于
+更多信息，包括其他身份验证方法，请参阅
+[Gemini CLI Authentication Setup](/docs/get-started/authentication)。
+
+## 配置
+
+Gemini CLI 提供了多种配置其行为的方法，包括环境
+变量、命令行参数和设置文件。
+
+要探索您的配置选项，请参阅
+[Gemini CLI Configuration](/docs/get-started/configuration)。
+
+＃＃ 使用安装并通过身份验证后，您可以通过发出命令开始使用 Gemini CLI
+终端中的命令和提示。要求它生成代码、解释文件、
+等等。
+
+要探索Gemini CLI 的强大功能，请参阅[Gemini CLI examples](/docs/get-started/examples)。
+
+## 接下来是什么？
+
+- 了解更多关于[Gemini CLI's tools](/docs/tools)的信息。
+- 回顾[Gemini CLI's commands](/docs/cli/commands)。
+- 了解如何[get started with Gemini 3](/docs/get-started/Gemini-3)。
+
+# Gemini CLI 安装、执行和部署
+
+安装并运行 Gemini CLI。本文档提供Gemini CLI 的概述
+安装方法和部署架构。
+
+## 如何安装和/或运行 Gemini CLI
+
+有多种方法可以运行 Gemini CLI。推荐的选项取决于如何
+您打算使用Gemini CLI。- 作为标准安装。这是最直接的使用方法
+  Gemini CLI。
+- 在沙箱中。此方法提供了更高的安全性和隔离性。
+——从源头来说。建议该项目的贡献者这样做。
+
+### 1.标准安装（推荐标准用户）
+
+这是最终用户安装 Gemini CLI 的推荐方法。它涉及到
+从 NPM 注册表下载 Gemini CLI 包。
+
+- **全局安装：**
+```
+bas
+h
+  npm install -g @google/gemini-cli
+  
+```
+然后，从任何地方运行 CLI：
+```
+bas
+h
+  gemini
+  
+```
+-
+ **NPX 执行：**
+```
+bas
+h
+  # Execute the latest version from NPM without a global install
+  npx @google/gemini-cli
+  
+```
+### 2. 在沙箱中运行（Docker/Podman）
+
+为了安全和隔离，Gemini CLI 可以在容器内运行。这是
+CLI 执行可能产生副作用的工具的默认方式。
+
+- **直接从注册表：** 可以运行发布的沙箱镜像
+  直接。这对于只有 Docker 且想要的环境很有用
+  运行 CLI。
+```
+bas
+h
+  # Run the published sandbox image
+  docker run --rm -it us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.1.1
+  
+```
+-
+ **使用 `--sandbox` 标志：** 如果您本地安装了 Gemini CLI
+  （使用上述标准安装），您可以指示它
+  在沙箱容器内运行。
+```
+bas
+h
+  gemini --sandbox -y -p "your prompt here"
+  
+```
+### 3. 从源代码运行（推荐 Gemini CLI 贡献者）
+
+该项目的贡献者希望直接从源代码运行 CLI
+代码。
+
+- **开发模式：** 该方法提供热重载，适用于
+  积极发展。
+```
+bas
+h
+  # From the root of the repository
+  npm run start
+  
+```
+-
+ **类生产模式（链接包）：**此方法模拟全局
+  通过链接本地包进行安装。这对于测试本地很有用
+  构建生产工作流程。
+```
+bas
+h
+  # Link the local cli package to your global node_modules
+  npm link packages/cli
+
+  # Now you can run your local version using the `gemini` command
+  gemini
+  
+```
+--
+-
+
+### 4. 从 GitHub 运行最新的 Gemini CLI 提交
+
+您可以直接从以下位置运行最近提交的 Gemini CLI 版本：
+GitHub 存储库。这对于测试仍在开发中的功能很有用。
+```
+bas
+h
+# Execute the CLI directly from the main branch on GitHub
+npx https://github.com/google-gemini/gemini-cli
+```
+## 部署架构
+
+上述执行方法通过以下方式成为可能
+架构组件和流程：
+
+**NPM 包**
+
+Gemini CLI 项目是一个 monorepo，将两个核心包发布到 NPM
+注册表：
+
+- `@google/Gemini-cli-core`：后端，处理逻辑和工具执行。
+- `@google/Gemini-cli`：面向用户的前端。
+
+这些软件包在执行标准安装时使用
+从源运行 Gemini CLI。
+
+**构建和打包过程**
+
+根据发行版的不同，使用两种不同的构建过程
+频道：- **NPM 发布：** 用于发布到 NPM 注册表、TypeScript 源
+  `@google/Gemini-cli-core` 和 `@google/Gemini-cli` 中的代码被转译为
+  使用 TypeScript 编译器 (`tsc`) 的标准 JavaScript。由此产生的
+  `dist/` 目录是在 NPM 包中发布的内容。这是一个
+  TypeScript 库的标准方法。
+
+- **GitHub `npx` 执行：** 运行最新版本的 Gemini CLI 时
+  直接来自 GitHub，`prepare` 脚本触发不同的过程
+  在`package.json`。该脚本使用`esbuild`来捆绑整个应用程序
+  及其依赖项到一个独立的 JavaScript 文件中。这个
+  捆绑包是在用户计算机上即时创建的，并且不会签入
+  存储库。
+
+**Docker 沙箱镜像**`Gemini-cli-sandbox`支持基于Docker的执行方式
+容器图像。该映像已发布到容器注册表并包含
+预安装的Gemini CLI 的全球版本。
+
+## 发布流程
+
+发布过程通过 GitHub Actions 实现自动化。发布工作流程
+执行以下操作：
+
+1. 使用`tsc` 构建NPM 包。
+2. 将 NPM 包发布到工件注册表。
+3. 使用捆绑资产创建 GitHub 版本。
+
+<AdPlaceholder />

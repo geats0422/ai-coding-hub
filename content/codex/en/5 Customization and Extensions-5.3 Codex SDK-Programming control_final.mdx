@@ -1,0 +1,72 @@
+---
+title: "Programming control"
+description: "Learn how to use the Codex SDK for programmatic control, including how to install and use the TypeScript library"
+tool: "codex"
+slug: "codex-sdk"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex SDK
+
+If you use Codex via the Codex CLI, IDE extension, or Codex Web, you can also control it programmatically.
+
+Use the SDK when:
+
+- Control Codex as part of CI/CD pipeline
+- Create your own agents that can interact with Codex to perform complex engineering tasks
+- Build Codex into your own internal tools and workflows
+- Integrate Codex in your own applications
+
+<AdPlaceholder />
+
+## TypeScript library
+
+TypeScript libraries provide a way to control Codex within an application that is more comprehensive and flexible than the non-interactive mode.
+
+Use this on the server side; it requires Node.js 18 or higher.
+
+### Installation
+
+To get started, install the Codex SDK using `npm`:
+```bas
+npm install @openai/codex-sdk
+```
+### Use
+
+Start a thread and run it with your prompt word.
+```t
+s
+
+
+const codex = new Codex();
+const thread = codex.startThread();
+const result = await thread.run(
+  "Make a plan to diagnose and fix the CI failures"
+);
+
+console.log(result);
+```Call
+ `run()` again to continue the same thread, or resume the past thread by providing the thread ID.
+```t
+s
+// 运行同一个线程
+const result = await thread.run("Implement the plan");
+
+console.log(result);
+
+// 恢复过去的线程
+
+const threadId = "<thread-id>";
+const thread2 = codex.resumeThread(threadId);
+const result2 = await thread2.run("Pick up where you left off");
+
+console.log(result2);
+```
+<Callout type="tip">
+See [TypeScript 仓库](https://github.com/openai/codex/tree/main/sdk/typescript) for more details.
+</Callout>
+
+<AdPlaceholder />

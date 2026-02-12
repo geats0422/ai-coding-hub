@@ -1,0 +1,70 @@
+---
+title: "System prompt word coverage"
+description: "Learn how to override system prompt words in the Gemini CLI to customize AI behavior."
+tool: "gemini-cli"
+slug: "system-prompt-override"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# System Prompt Override
+
+This document provides information about the System Prompt Override feature in Gemini CLI.
+
+<Callout type="note">
+Note: This is a placeholder document. The actual content for system prompt
+override functionality should be added here.
+</Callout>
+
+<AdPlaceholder />
+
+## Overview
+
+The System Prompt Override feature allows advanced users to customize or replace
+the default system prompt used by Gemini CLI. This enables fine-tuned control over
+the AI's behavior and responses.
+
+## Usage
+
+To override the system prompt, you can:
+
+1. Use command-line flags
+2. Configure through settings.json
+3. Set environment variables
+
+### Command-line usage
+
+```bas
+gemini --system-prompt "Your custom system prompt here"
+```
+
+### Configuration
+
+Add custom system prompts to your `settings.json`:
+
+```jso
+{
+  "systemPrompt": {
+    "custom": "Your custom system prompt...",
+    "enabled": true
+  }
+}
+```
+
+## Considerations
+
+- Custom system prompts may significantly alter AI behavior
+- Test thoroughly before production use
+- Be aware of potential security implications
+- Consider the impact on tool usage and responses
+
+## Best practices
+
+- Start with small modifications
+- Test in a safe environment
+- Document your custom prompts
+- Review changes regularly
+
+<AdPlaceholder />

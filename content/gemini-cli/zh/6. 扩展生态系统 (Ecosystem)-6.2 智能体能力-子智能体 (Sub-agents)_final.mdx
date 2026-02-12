@@ -1,0 +1,291 @@
+---
+title: "分代理"
+description: "探索 Gemini CLI 的子代理功能，并了解如何创建和使用专用代理来处理复杂的任务。"
+tool: "gemini-cli"
+slug: "sub-agents"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 子代理（实验性）
+
+子代理是在主 Gemini CLI 中运行的专门代理
+会议。它们旨在处理特定的复杂任务，例如深层代码库
+分析、文档查找或特定领域的推理——不混乱
+主要代理的上下文或工具集。
+
+<Callout type="warning">
+注意：子代理目前是一个实验性功能。
+
+要使用自定义子代理，您必须在您的
+`settings.json`：
+```
+jso
+n
+{
+  "experimental": { "enableAgents": true }
+}
+```
+警告：分代理目前在以下地区运营
+["YOLO mode"](/docs/get-started/configuration#command-line-arguments)，意思是
+他们可以在没有单独用户确认每个步骤的情况下执行工具。
+使用强大的工具（例如
+`run_shell_command` 或`write_file`。
+</Callout>
+
+<AdPlaceholder />
+
+## 什么是子代理？
+
+子代理是主 Gemini 代理可以为特定任务雇用的“专家”
+工作。
+
+- **重点上下文：** 每个子代理都有自己的系统提示和角色。
+- **专用工具：** 子代理可以拥有一组受限或专门的工具
+  工具。
+- **独立上下文窗口：** 与子代理的交互发生在
+  单独的上下文循环，将令牌保存在主对话历史记录中。子代理作为同名工具暴露给主代理。当
+主代理调用该工具，它将任务委托给子代理。一旦
+子代理完成其任务，它向主代理报告其
+调查结果。
+
+## 内置子代理
+
+Gemini CLI 附带以下内置子代理：
+
+### 代码库调查员
+
+- **姓名：** `codebase_investigator`
+- **目的：** 分析代码库、逆向工程并理解复杂的情况
+  依赖关系。
+- **何时使用：**“身份验证系统如何工作？”，“绘制出
+  `AgentRegistry` 类的依赖项。”
+- **配置：** 默认启用。您可以将其配置在
+  `settings.json`。示例（强制特定模型）：
+```
+jso
+n
+  {
+    "experimental": {
+      "codebaseInvestigatorSettings": {
+        "enabled": true,
+        "maxNumTurns": 20,
+        "model": "gemini-2.5-pro"
+      }
+    }
+  }
+  
+```
+### CLI 帮助代理
+
+- **姓名：** `cli_help`
+- **目的：** 获得有关 Gemini CLI 本身及其命令的专业知识，
+  配置和文档。
+- **何时使用：**“如何配置代理？”、“`/rewind` 有何作用？
+  命令做什么？”
+- **配置：** 默认启用。
+
+### 多面手代理
+
+- **姓名：** `generalist_agent`
+- **目的：** 将任务路由到适当的专业子代理。
+- **何时使用：** 由主代理隐式用于路由。不直接
+  由用户调用。
+- **配置：** 默认启用。没有具体的配置选项。
+
+## 创建自定义子代理
+
+您可以创建自己的子代理来自动化特定的工作流程或强制执行
+特定人物角色。要使用自定义子代理，您必须在您的
+`settings.json`：
+```
+jso
+n
+{
+  "experimental": {
+    "enableAgents": true
+  }
+}
+```
+### 代理定义文件
+
+自定义代理被定义为带有 YAML frontmatter 的 Markdown 文件 (`.md`)。你
+可以将它们放置在：
+
+1. **项目级别：** `.Gemini/agents/*.md`（与您的团队共享）
+2. **用户级别：** `~/.Gemini/agents/*.md`（个人代理）
+
+### 文件格式
+
+文件 **必须** 以包含在三破折号 `---` 中的 YAML frontmatter 开头。
+降价文件的正文成为代理的**系统提示**。
+
+**示例：`.Gemini/agents/security-auditor.md`**
+```
+markdow
+n
+---
+name: security-auditor
+description: Specialized in finding security vulnerabilities in code.
+kind: local
+tools:
+  - read_file
+  - grep_search
+model: gemini-2.5-pro
+temperature: 0.2
+max_turns: 10
+---
+
+You are a ruthless Security Auditor. Your job is to analyze code for potential
+vulnerabilities.
+
+Focus on:
+
+1.  SQL Injection
+2.  XSS (Cross-Site Scripting)
+3.  Hardcoded credentials
+4.  Unsafe file operations
+
+When you find a vulnerability, explain it clearly and suggest a fix. Do not fix
+it yourself; just report it.
+```
+### 配置架构|领域|类型 |必填|描述 |
+| :------------- | :-----| :----- | :------------------------------------------------------------------------------------------------------------------------ |
+| `name` |字符串|是的 |用作代理工具名称的唯一标识符 (slug)。仅限小写字母、数字、连字符和下划线。   |
+| `description` |字符串|是的 |代理所做工作的简短描述。这对于主代理来说是可见的，以帮助它决定何时调用该子代理。 |
+| `kind` |字符串|没有 | `local`（默认）或`remote`。                                                                                             |
+| `tools` |数组|没有 |该代理可以使用的工具名称列表。如果省略，它可以访问默认集。                                    |
+| `model` |字符串|没有 |要使用的特定型号（例如`Gemini-2.5-pro`）。默认为`inherit`（使用主会话模型）。                       |
+| `temperature` |数量 |没有 |模型温度 (0.0 - 2.0)。                                                                                             |
+| `max_turns` |数量 |没有 |该代理必须返回之前允许的最大对话轮数。默认为`15`。                       |
+| `timeout_mins` |数量 |没有 |最大执行时间（以分钟为单位）。默认为`5`。                                                                        |### 优化您的子代理
+
+当主代理的系统提示鼓励其使用专家子代理时，
+可用。它根据代理人是否是相关专家来决定
+代理人的描述。您可以提高使用代理的可靠性
+通过更新描述以更清楚地表明：
+
+- 其专业领域。
+- 何时应该使用。
+- 一些示例场景。
+
+例如，下面的子代理描述应该被公平地调用
+一致地进行 Git 操作。
+
+> Git 专家代理，应用于所有本地和远程 git 操作。
+> 例如：
+>
+> - 进行提交
+> - 用二等分搜索回归
+> - 与源代码控制和问题提供商（例如 GitHub）交互。如果您需要进一步调整子代理，可以通过选择模型来实现
+使用 `/model` 进行优化，然后询问模型为什么它不认为
+您的子代理已通过特定提示和给定描述进行呼叫。
+
+## 远程子代理 (Agent2Agent)（实验性）
+
+Gemini CLI 还可以使用 Agent-to-Agent 将任务委派给远程子代理
+（A2A）协议。
+
+<Callout type="note">
+注意：远程子代理目前是一个实验性功能。
+</Callout>
+
+详细见[Remote Subagents documentation](/docs/core/remote-agents)
+配置和使用说明。
+
+## 扩展子代理
+
+扩展可以捆绑和分发子代理。请参阅
+[Extensions documentation](/docs/extensions#sub-agents) 了解如何操作的详细信息
+将代理程序打包到扩展中。# 远程子代理（实验性）
+
+Gemini CLI 支持使用代理到代理连接到远程子代理
+（A2A）协议。这允许 Gemini CLI 与其他代理交互，扩展
+通过将任务委派给远程服务来发挥其功能。
+
+Gemini CLI 可以连接到任何兼容的 A2A 代理。您可以找到 A2A 的示例
+以下存储库中的代理：
+
+-[ADK Samples (Python)](https://github.com/google/adk-samples/tree/main/python)
+-[ADK Python Contributing Samples](https://github.com/google/adk-python/tree/main/contributing/samples)
+
+<Callout type="note">
+注意：远程子代理目前是一个实验性功能。
+</Callout>
+
+## 配置
+
+要使用远程子代理，您必须在您的
+`settings.json`：
+```
+jso
+n
+{
+  "experimental": {
+    "enableAgents": true
+  }
+}
+```
+## 定义远程子代理
+
+远程子代理被定义为带有 YAML frontmatter 的 Markdown 文件 (`.md`)。
+您可以将它们放置在：
+
+1. **项目级别：** `.Gemini/agents/*.md`（与您的团队共享）
+2. **用户级别：** `~/.Gemini/agents/*.md`（个人代理）
+
+### 配置架构|领域|类型 |必填|描述 |
+| ：-------------- | :-----| :----- | :------------------------------------------------------------------------------------------------------------ |
+| `kind` |字符串|是的 |必须是`remote`。                                                                                              |
+| `name` |字符串|是的 |代理的唯一名称。必须是有效的 slug（仅限小写字母、数字、连字符和下划线）。 |
+| `agent_card_url` |字符串|是的 |代理的 A2A 卡端点的 URL。                                                                      |
+
+### 单子代理示例
+```
+markdow
+n
+---
+kind: remote
+name: my-remote-agent
+agent_card_url: https://example.com/agent-card
+---
+```
+### 多子代理示例
+
+加载程序明确支持在单个中定义的多个远程子代理
+降价文件。
+```
+markdow
+n
+---
+- kind: remote
+  name: remote-1
+  agent_card_url: https://example.com/1
+- kind: remote
+  name: remote-2
+  agent_card_url: https://example.com/2
+---
+```
+<Callout type="note">
+注意：混合本地和远程代理，或多个本地代理，不
+支持在单个文件中；列表格式目前仅限远程。
+</Callout>
+
+## 管理子代理
+
+用户可以在 Gemini CLI 中使用以下命令来管理子代理：
+
+- `/agents list`：显示所有可用的本地和远程子代理。
+- `/agents refresh`：重新加载代理注册表。添加或后使用它
+  修改代理定义文件。
+- `/agents enable <agent_name>`：启用特定子代理。
+- `/agents disable <agent_name>`：禁用特定子代理。
+
+<Callout type="tip">
+您可以使用Gemini CLI 中的`@cli_help` 代理寻求帮助
+通过配置子代理。
+</Callout>
+
+<AdPlaceholder />

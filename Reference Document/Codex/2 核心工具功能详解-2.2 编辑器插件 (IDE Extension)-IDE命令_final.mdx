@@ -1,0 +1,37 @@
+---
+title: "IDE 命令"
+description: "了解 Codex VS Code 扩展可用的命令和键盘快捷键配置方法"
+tool: "codex"
+slug: "ide-commands"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE 扩展命令
+
+使用这些命令从 VS Code 命令面板控制 Codex。您也可以将它们绑定到键盘快捷键。
+
+<AdPlaceholder />
+
+## 分配快捷键
+
+要分配或更改 Codex 命令的快捷键：
+
+1. 打开命令面板（在 macOS 上按 **Cmd+Shift+P**，在 Windows/Linux 上按 **Ctrl+Shift+P**）。
+2. 运行 **Preferences: Open Keyboard Shortcuts**。
+3. 搜索 `Codex` 或命令 ID（例如 `chatgpt.newChat`）。
+4. 选择铅笔图标，然后输入您想要的快捷键。
+
+## 扩展命令
+
+| 命令 | 默认快捷键 | 描述 |
+| ---- | ---------- | ---- |
+| `chatgpt.addToThread` | - | 将选定的文本范围作为当前线程的上下文添加 |
+| `chatgpt.addFileToThread` | - | 将整个文件作为当前线程的上下文添加 |
+| `chatgpt.newChat` | macOS: `Cmd+N`<br/>Windows/Linux: `Ctrl+N` | 创建新线程 |
+| `chatgpt.implementTodo` | - | 要求 Codex 处理选定的 TODO 注释 |
+| `chatgpt.newCodexPanel` | - | 创建新的 Codex 面板 |
+| `chatgpt.openSidebar` | - | 打开 Codex 侧边栏面板 |
+
+<AdPlaceholder />

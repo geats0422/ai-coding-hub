@@ -1,0 +1,217 @@
+---
+title: "Interactive shortcuts"
+description: "Learn about the slash commands in the Codex CLI, including a list of available commands and detailed usage instructions"
+tool: "codex"
+slug: "slash-commands"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex CLI slash command
+
+Slash commands give you quick, keyboard-first control of the Codex. Type `/` in the editor to open a slash popup, choose a command, and Codex will do things like switch models, adjust permissions, or summarize long conversations without leaving the terminal.
+
+This guide shows you how to:
+
+- Find the correct built-in slash command for the task
+- Boot active sessions using commands such as `/model`, `/personality`, `/permissions` and `/status`
+
+<AdPlaceholder />
+
+## Built-in slash command
+
+The Codex comes with the following commands. Open the slash popup and start typing the command name to filter the list.
+
+| Command | Purpose | When to use |
+| ---- | ---- | -------- |
+| `/permissions` | Sets what the Codex can do without asking first. | Loose or tighten approval requirements within a session, such as switching between automatic and read-only. |
+| `/apps` | Browse for applications (connectors) and insert them into your prompt words. | Attach the app as `$app-slug` before asking Codex to use it. |
+| `/compact` | Summarize the visible conversation to release the token. | Used after long runs so that Codex retains key points without exhausting the context window. |
+| `/diff` | Shows Git diffs, including files not yet tracked by Git. | Review codex edits before submitting or running tests. |
+| `/exit` | Exit the CLI (same as `/quit`). | Alternative spelling; both commands exit the session. |
+| `/feedback` | Send log to Codex maintainer. | Report a problem or share diagnostic information with support. |
+| `/init` | Generate `AGENTS.md` scaffolding in the current directory. | Capture persistent instructions for the repository or subdirectory you are working in. |
+| `/logout` | Exit from Codex. | Clear local credentials on the shared machine. |
+| `/mcp` | Lists configured Model Context Protocol (MCP) tools. | Check what external tools Codex can call during a session. |
+| `/mention` | Attach the file to the conversation. | Point to the specific file or folder you want Codex to check next. |
+| `/model` | Select the active model (and inference work when available). | Switch between a general model (such as `gpt-4.1-mini`) and a deeper inference model before running the task. |
+| `/plan` | Switch to planning mode and optionally send prompt words. | Require Codex to propose an execution plan before implementation work begins. |
+| `/personality` | Select a communication style for the response. | Make the Codex more concise, more explanatory, or more collaborative without changing your directives. |
+| `/ps` | Displays the experimental backend terminal and its most recent output. | Check long-running commands without leaving the main record. |
+| `/fork` | Fork the current conversation into a new thread. | Branch active sessions to explore new methods without losing current records. |
+| `/resume` | Restore saved conversations from your conversation list. | Continue working from a previous CLI session without starting over. |
+| `/new` | Start a new conversation within the same CLI session. |Reset the chat context when you want to get new prompt words in the same code base without leaving the CLI. |
+| `/quit` | Exit the CLI. | Leave the session immediately. |
+| `/review` | Ask Codex to review your working tree. | Run after Codex has finished its work or when you want a second set of eyes to review local changes. |
+| `/status` | Display session configuration and token usage. | Confirm active model, approval policy, writable root directory, and remaining context capacity. |
+| `/debug-config` | Print configuration layer and requirement diagnosis. | Debug priority and policy requirements, including experimental network constraints. |
+| `/statusline` | Interactively configure footer fields. | Select and reorder footer items (models/context/restrictions/git/tokens/sessions) and persist to config.toml. |
+
+<Callout type="note">
+Both `/quit` and `/exit` will exit the CLI. Only use them after saving or submitting any important work.
+</Callout>
+
+<Callout type="note">
+The `/approvals` command can still be used as an alias, but it no longer appears in the slash popup list.
+</Callout>
+
+## Use slash commands to control your session
+
+The following workflow can keep your sessions on track without restarting Codex.
+
+### Set up the active model using `/model`
+
+1. Start Codex and open the editor.
+2. Type `/model` and press Enter.
+3. Select a model from the pop-up window, such as `gpt-4.1-mini` or `gpt-4.1`.
+
+Expected result: Codex confirms the new model in the record. Run `/status` to verify the changes.
+
+### Use `/personality` to set communication style
+
+Use `/personality` to change the way Codex communicates without having to rewrite your prompt words.
+
+1. In the active conversation, type `/personality` and press Enter.
+2. Select a style from the pop-up window.
+
+Expected results: Codex acknowledges the new style in the record and uses it in subsequent responses in the session.
+
+Codex supports `friendly`, `pragmatic` and `none` personalities. Use `none` to disable personalization instructions.
+
+If the active model does not support personality-specific instructions, the Codex will hide this command.
+
+### Use `/plan` to switch to planning mode
+
+1. Type `/plan` and press Enter to switch the active conversation to scheduling mode.
+2. Optional: Provide inline prompt word text (for example, `/plan Propose a migration plan for this service`).
+3. You can paste content or attach an image when using the inline `/plan` parameter.Expected results: Codex enters planning mode with your optional inline prompt word as the first planning request.
+
+While the task is already running, `/plan` is temporarily unavailable.
+
+### Use `/permissions` to update permissions
+
+1. Type `/permissions` and press Enter.
+2. Choose an approved preset that matches your comfort level, such as `Auto` for unattended running, or `Read Only` for review editing.
+
+Expected results: Codex announces updated strategy. Future operations respect the new approval mode until you change it again.
+
+### Use `/status` to check the session
+
+1. In any conversation, type `/status`.
+2. Review the output to understand the active model, approval policy, writable root directory, and current token usage.
+
+Expected results: You'll see a summary similar to what `codex status` printed in the shell, confirming that the Codex is running where you expect it to be.
+
+### Use `/debug-config` to check the configuration layer
+
+1. Type `/debug-config`.
+2. Review the output for configuration layer order (starting with lowest priority), on/off status, and policy origin.
+
+Expected results: Codex print layer diagnostics plus policy details such as `allowed_approval_policies`, `allowed_sandbox_modes`, `mcp_servers`, `rules`, `enforce_residency`, and `experimental_network` (at configuration time).
+
+Use this output to debug why the valid settings are different from `config.toml`.
+
+### Use `/statusline` to configure the footer item
+
+1. Type `/statusline`.
+2. Use the selector to switch and reorder items, then confirm.
+
+Expected result: The footer status line is immediately updated and persisted to `tui.status_line` in `config.toml`.Available status line items include model, model+inference, contextual statistics, rate limit, git branch, token counter, session ID, current directory/project root, and Codex version.
+
+### Use `/ps` to check the background terminal
+
+1. Type `/ps`.
+2. View the background terminal list and its status.
+
+Expected results: The Codex displays the commands for each background terminal plus up to the three most recent, non-empty lines of output so you can quickly view progress.
+
+A background terminal appears when `unified_exec` is in use; otherwise the list may be empty.
+
+### Use `/compact` to keep records streamlined
+
+1. After a long exchange, type `/compact`.
+2. Confirm when the Codex provides a summary of the conversation so far.
+
+Expected results: Codex replaces previous rounds with concise summaries, releasing context while retaining key details.
+
+### Use `/diff` to review changes
+
+1. Type `/diff` to check the Git diff.
+2. Scroll through the output within the CLI to review edited and added files.
+
+What to expect: Codex shows you the changes that have been staged, the changes that haven't been staged yet, and the files that Git hasn't started tracking yet, so you can decide what to keep.
+
+### Use `/mention` to highlight files
+
+1. Type `/mention` followed by a path, such as `/mention src/lib/api.ts`.
+2. Select the matching result from the pop-up window.
+
+Expected results: Codex adds the file to the conversation, ensuring that subsequent rounds reference it directly.
+
+### Start a new conversation using `/new`
+
+1. Type `/new` and press Enter.
+
+Expected results: Codex starts a new conversation within the same CLI session, so you can switch tasks without leaving the terminal.
+
+### Use `/resume` to restore a saved conversation
+
+1. Type `/resume` and press Enter.
+2. Select the session you want from the saved session selector.Expected results: Codex reloads the record of the selected conversation so that you can continue where you left off, keeping the original history intact.
+
+### Fork the current conversation using `/fork`
+
+1. Type `/fork` and press Enter.
+
+Expected results: Codex clones the current conversation into a new thread with a new ID, leaving the original record intact so that you can explore alternatives in parallel.
+
+If you want to fork a saved session instead of the current one, run `codex fork` to open the session selector in your terminal.
+
+### Use `/init` to generate `AGENTS.md`
+
+1. Run `/init` in the directory where you want Codex to look for persistent instructions.
+2. Review the generated `AGENTS.md` and edit it according to your repository conventions.
+
+Expected results: Codex creates a `AGENTS.md` scaffold that you can refine and submit for use in future sessions.
+
+### Use `/review` to request a work-tree review
+
+1. Type `/review`.
+2. If you want to check the exact file changes, follow up with `/diff`.
+
+Expected results: Codex summarizes the issues it finds in your working tree, focusing on behavioral changes and missing tests. It uses the current session model unless you set `review_model` in `config.toml`.
+
+### Use `/mcp` to list MCP tools
+
+1. Type `/mcp`.
+2. Check the list to confirm which MCP servers and tools are available.
+
+Expected results: You can see the configured Model Context Protocol (MCP) tools that Codex can call in this session.
+
+### Use `/apps` to browse apps
+
+1. Type `/apps`.
+2. Select an app from the list.
+
+Expected results: Codex inserts the app mention into the editor as `$app-slug` so you can immediately ask Codex to use it.
+
+### Use `/feedback` to send feedback1. Type `/feedback` and press Enter.
+2. Follow the prompts to include log or diagnostic information.
+
+Expected results: Codex collects the requested diagnostic information and submits it to the maintainer.
+
+### Use `/logout` to exit
+
+1. Type `/logout` and press Enter.
+
+Expected results: Codex clears the local credentials for the current user session.
+
+### Use `/quit` or `/exit` to exit the CLI
+
+1. Type `/quit` (or `/exit`) and press Enter.
+
+Expected result: Codex exits immediately. Save or submit any important work first.
+
+<AdPlaceholder />

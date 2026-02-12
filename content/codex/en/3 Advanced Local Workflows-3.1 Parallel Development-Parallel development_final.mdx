@@ -1,0 +1,153 @@
+---
+title: "Parallel development"
+description: "Learn how to use Git work trees in Codex applications for parallel development and isolating changes to different tasks"
+tool: "codex"
+slug: "parallel-development"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# working tree
+
+In a Codex application, the work tree allows Codex to run multiple independent tasks in the same project without interfering with each other. For Git repositories, P1 runs on a dedicated background work tree so they don't conflict with your ongoing work. In non-version controlled projects, automation runs directly in the working directory. You can also manually start threads on the work tree.
+
+<AdPlaceholder />
+
+## What is a working tree?
+
+The working tree only works for projects that are part of a Git repository, as it uses [Git 工作树](https://git-scm.com/docs/git-worktree) under the hood. The working tree allows you to create a second copy of the repository ("checkout"). The working tree has its own copy of every file in your repository, but they all share the same metadata about commits, branches, etc. (`.git` folder). This allows you to check out and work on multiple branches in parallel.
+
+## Terminology
+
+- **Local Checkout**: The repository you created. Sometimes called simply **Local** in Codex applications.
+- **Working tree**: [Git 工作树](https://git-scm.com/docs/git-worktree) checked out locally in your Codex application.
+
+## Why use working tree
+
+1. Work in parallel with Codex without destroying each other.
+2. Start a thread unrelated to your current work
+   - A staging area to queue work that you want Codex to start but are not yet ready for testing.
+
+## Getting Started
+
+The working tree requires a Git repository. Make sure the project you choose is in a Git repository.
+
+<Callout type="step">
+1. Select "Worktree"In the new thread view, select **Worktree** below the editor. Optionally select [本地环境](https://developers.openai.com/codex/app/local-environments) to run the setup script for the working tree.
+
+2. Select the starting branch
+
+    Below the editor, select the Git branch to base it on. This can be your `main` / `master` branch, a feature branch, or your current branch with uncommitted local changes.
+
+3. Submit your prompt word
+
+    Submit your task and Codex will create a Git work tree based on the branch you selected. By default, Codex works in ["detached HEAD"](https://git-scm.com/docs/git-checkout#_detached_head).
+
+4. Verify your changes
+
+    When you're ready, follow one of the paths in [验证和推送工作流更改](#验证和推送工作流更改) below, depending on your project and process.
+</Callout>
+
+## Validate and push workflow changes
+
+The working tree looks and feels much like your local checkout. But **Git only allows checking out branches in one place at a time**. If you check out a branch on the working tree, you cannot check it out locally at the same time, and vice versa.
+
+So, choose how you want to verify and commit changes made by Codex on the working tree:
+
+1. [专门在工作树上工作](#选项-1-在工作树上工作). This path works best when you can verify changes directly on the working tree, such as because you installed dependencies and tools using [本地环境设置脚本](https://developers.openai.com/codex/app/local-environments).
+2. [在您的本地检出中工作](#选项-2-在本地检出中工作). Use this option when you want to bring changes back to the main checkout, for example because you can only run one instance of the application.
+
+### Option 1: Work on the working treeIf you want to work on your changes exclusively on the working tree, use the **Create branch here** button in the header to convert your working tree to a branch.
+
+From here you can commit your changes, push branches to the remote repository, and open pull requests on GitHub.
+
+You can open your IDE in your working tree using the "Open" button in the header, use the integrated terminal, or do whatever else you need to do from within the working tree directory.
+
+<Callout type="note">
+If you create a branch on your working tree, you cannot check it out in any other working tree (including your local checkout).
+</Callout>
+
+*Image Description: Worktree thread view interface showing branch control and work tree details. *
+
+If you plan to continue working on this branch, you can [将其添加到侧边栏](#将工作树添加到侧边栏). Otherwise, archive the thread when finished so that the working tree can be deleted.
+
+### Option 2: Work in local checkout
+
+If you don't want to verify changes directly on the working tree, but want to check them on a local checkout, click **Sync with local** in the header.
+
+You will have the option to create a new branch or sync to an existing branch.
+
+You can sync with local at any time. Click **Sync with local** in the header again. From here, you can select the sync direction (to local or from local) and sync method:
+
+- **Overwrite**: Make the target checkout's files and commit history match the source checkout.
+- **Apply**: Calculate the source changes since the most recent shared commit and apply that patch to the target checkout, preserving the target commit history with the source code changes (instead of the source commit).
+
+*Image Description: Synchronize working tree dialog interface showing options to apply or pull changes. *
+
+You can create multiple work trees and sync them to the same feature branch to split your work into parallel threads.In some cases, changes on your working tree may conflict with changes on your local checkout, such as from testing a previous working tree. In this case, you can use the **Overwrite local** option to reset the previous changes and apply your working tree changes cleanly.
+
+Because this process uses Git operations, any files that are part of the `.gitignore` file will not be transferred during the synchronization process.
+
+## Add the work tree to the sidebar
+
+If you choose option one above (Work on the working tree), once you create a branch on the working tree, an option will appear in the header to add the working tree to the sidebar. This will promote the working tree to a permanent location. When you do this, it is never automatically deleted and you can even launch new threads from the same work tree.
+
+## Advanced details
+
+### How Codex manages the work tree for you
+
+Codex will create a working tree in `$CODEX_HOME/worktrees`. The starting commit will be the `HEAD` commit of the branch selected when starting the thread. If you select a branch with local changes, uncommitted changes are also applied to the working tree. The working tree is not checked out as a branch. It will be in [detached HEAD](https://git-scm.com/docs/git-checkout#_detached_head) state. This means you can create multiple working trees without polluting your branches.
+
+### Branch restrictions
+
+Assume that Codex has done some work on the working tree and you choose to create the `feature/a` branch on it using **Create branch here**. Now you want to try it on your local checkout. If you try to checkout a branch, you get the following error:
+```
+fatal: 'feature/a' is already used by worktree at '<WORKTREE_PATH>'
+```
+To
+ resolve this issue, you need to checkout another branch on your working tree instead of `feature/a`.
+
+If you plan to checkout the branch locally, try workflow 2 ([与本地同步](#选项-2-在本地检出中工作)).
+
+<ToggleSection title="为什么存在此限制">
+Git prevents the same branch from being checked out in multiple work-trees at once, because a branch represents a single mutable reference (`refs/heads/<name>`), which means the "current checkout status" of the work-tree.
+
+When a branch is checked out, Git treats its HEAD as owned by the working tree and expects operations (such as commits, resets, rebases, and merges) to advance that reference in a well-defined, serialized manner. Allowing multiple work-trees to check out the same branch simultaneously creates ambiguities and race conditions in updating branch references, potentially leading to lost commits, inconsistent indexing, or unclear conflict resolution.
+
+By enforcing the one-branch-one-work-tree rule, Git guarantees that each branch has an authoritative working copy, while still allowing other work-trees to safely reference the same commits via detached HEAD or separate branches.
+</ToggleSection>
+
+## Working tree cleanup
+
+The working tree can take up a lot of disk space. Each one has its own repository files, dependencies, build cache, etc. Therefore, Codex applications try to keep the number of working trees within reasonable limits.
+
+The working tree is never cleaned up if:
+
+- Has a fixed dialogue associated with it
+- Working tree has been added to the sidebar (see above)
+
+The work tree is eligible for cleanup when:
+
+- It's more than 4 days
+- You have more than 10 working trees
+
+When either condition is met, Codex automatically cleans up the work tree when you archive a thread, or when it finds a work tree with no associated threads when launching the application.
+
+Before cleaning the work tree, Codex saves a snapshot of its work, which you can restore at any time in a new work tree. If you open the dialog after cleaning the working tree, you will see the option to restore it.
+
+## FAQ
+<ToggleSection title="我可以控制工作树的创建位置吗？">
+Not currently. Codex 在 `$CODEX_HOME/worktrees` 下创建工作树，因此它可以一致地管理它们。
+</ToggleSection>
+
+<ToggleSection title="我可以在工作树之间移动会话吗？">
+Not yet. If you need to change the environment, you must start a new thread in the target environment and repeat the prompt word. You can try to restore the prompt word using the up arrow key in the editor.
+</ToggleSection>
+
+<ToggleSection title="如果工作树被删除，线程会发生什么？">
+Threads can remain in your history even if the underlying working tree directory is cleaned up. However, Codex saves a snapshot of the working tree before cleaning and provides the option to restore it when its associated thread is reopened.
+</ToggleSection>
+
+<AdPlaceholder />

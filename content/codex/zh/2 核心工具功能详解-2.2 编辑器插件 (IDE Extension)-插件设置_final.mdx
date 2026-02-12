@@ -1,0 +1,35 @@
+---
+title: "插件设置"
+description: "了解如何配置 Codex IDE 扩展的设置，包括常用设置和配置选项"
+tool: "codex"
+slug: "ide-settings"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE 扩展设置
+
+使用这些设置来自定义 Codex IDE 扩展。
+
+<AdPlaceholder />
+
+## 更改设置
+
+要更改设置，请按照下列步骤操作：
+
+1. 打开编辑器设置。
+2. 搜索`Codex` 或设置名称。
+3. 更新值。
+
+Codex IDE 扩展使用Codex CLI。某些行为（例如默认模型、批准和沙箱设置）是在共享 `~/.Codex/config.toml` 文件中配置的，而不是在编辑器设置中配置的。参见[基本配置](https://developers.OpenAI.com/Codex/config-basic)。## 设置参考|设置 |描述 |
+| ---- | ---- |
+| `chatgpt.cliExecutable` |仅限开发：Codex CLI 可执行文件的路径。除非您正在积极开发 Codex CLI，否则不需要设置此选项。如果您手动设置此选项，扩展的某些部分可能无法按预期工作。 |
+| `chatgpt.commentCodeLensEnabled` |在待办事项上方显示 CodeLens，以便您可以使用 Codex 来完成它们。 |
+| `chatgpt.localeOverride` | Codex UI 的首选语言。留空以供自动检测。 |
+| `chatgpt.openOnStartup` |当扩展程序完成启动时，聚焦 Codex 侧边栏。 |
+| `chatgpt.runCodexInWindowsSubsystemForLinux` |仅限 Windows：在适用于 Linux 的 Windows 子系统 (WSL) 可用时运行 Codex。推荐用于提高沙箱安全性和更好的性能。 Windows 上的 Codex 代理模式当前需要 WSL。更改此设置将重新加载 VS Code 以应用更改。 |
+<AdPlaceholder />
+
+<AdPlaceholder />

@@ -1,0 +1,76 @@
+---
+title: "编程控制"
+description: "了解如何使用 Codex SDK 进行编程控制，包括如何安装和使用 TypeScript 库"
+tool: "codex"
+slug: "codex-sdk"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex SDK
+
+如果您通过Codex CLI、IDE 扩展或Codex Web 使用Codex，您还可以通过编程方式控制它。
+
+在以下情况下使用 SDK：
+
+- 控制 Codex 作为 CI/CD 管道的一部分
+- 创建您自己的代理，可以与Codex交互以执行复杂的工程任务
+- 将Codex构建到您自己的内部工具和工作流程中
+- 将Codex集成到您自己的应用程序中
+
+<AdPlaceholder />
+
+## TypeScript 库
+
+TypeScript 库提供了一种在应用程序中控制 Codex 的方法，该方法比非交互模式更全面、更灵活。
+
+在服务器端使用它；它需要 Node.js 18 或更高版本。
+
+### 安装
+
+首先，使用`npm`安装Codex SDK：
+```
+bas
+h
+npm install @openai/codex-sdk
+```
+### 使用
+
+启动一个线程并使用提示词运行它。
+```
+t
+s
+
+
+const codex = new Codex();
+const thread = codex.startThread();
+const result = await thread.run(
+  "Make a plan to diagnose and fix the CI failures"
+);
+
+console.log(result);
+```
+再次调用 `run()` 以继续同一线程，或通过提供线程 ID 来恢复过去的线程。
+```
+t
+s
+// 运行同一个线程
+const result = await thread.run("Implement the plan");
+
+console.log(result);
+
+// 恢复过去的线程
+
+const threadId = "<thread-id>";
+const thread2 = codex.resumeThread(threadId);
+const result2 = await thread2.run("Pick up where you left off");
+
+console.log(result2);
+```
+<Callout type="tip">
+有关更多详细信息，请参阅[TypeScript 仓库](https://github.com/OpenAI/Codex/tree/main/sdk/typescript)。
+</Callout>
+
+<AdPlaceholder />

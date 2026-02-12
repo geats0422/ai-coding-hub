@@ -1,0 +1,342 @@
+---
+title: "Workflow example"
+description: "Understand the various workflow modes of Codex, including code base interpretation, bug fixing, test writing, prototyping, code review and other practical application scenarios"
+tool: "codex"
+slug: "workflows"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Workflow
+
+Codex works best when you treat it as a teammate with explicit context and a clear definition of "done." This page provides end-to-end workflow examples for the Codex IDE extension, Codex CLI, and Codex Cloud.
+
+If you are new to Codex, please read [提示词](https://developers.openai.com/codex/prompting) first and then come back here for the specific recipe.
+
+<AdPlaceholder />
+
+## How to read these examples
+
+Each workflow includes:
+
+- **When to use** and which Codex interface is best (IDE, CLI or cloud).
+- **Steps** with example user prompts.
+- **Contextual Notes**: What Codex automatically sees vs what you should attach.
+- **Validation**: How to check the output.
+
+<Callout type="note">
+IDE extensions automatically use your open files as context. In the CLI, you usually need to mention the path explicitly (or attach files using `/mention` and `@` path auto-completion).
+</Callout>
+
+---
+
+## Explain the code base
+
+Use this feature when you are onboarding, inheriting a service, or trying to reason about protocols, data models, or request flows.
+
+### IDE extended workflow (fastest for local exploration)
+
+
+
+1. Open the most relevant file.
+2. Select the code you care about (optional but recommended).
+3. Prompt Codex:```
+    Explain how the request flows through the selected code.
+
+    Include:
+    - a short summary of the responsibilities of each module involved
+    - what data is validated and where
+    - one or two "gotchas" to watch for when changing this
+    ```
+
+Verification:
+
+- Ask for a chart or a checklist you can quickly verify:```
+    Summarize the request flow as a numbered list of steps. Then list the files involved.
+    ```### CLI workflow (good when you want to log + shell commands)
+
+
+
+1. Start an interactive session:```bash
+    codex
+    ```2. Attach files (optional) and prompt:```
+    I need to understand the protocol used by this service. Read @foo.ts @schema.ts and explain the schema and request/response flow. Focus on required vs optional fields and backward compatibility rules.
+    ```
+
+Contextual notes:
+
+- You can use `@` to insert a file path in the editor, or `/mention` to append a specific file.
+
+---
+
+## Fix Bug
+
+Use this feature when you have failing behavior that can be reproduced locally.
+
+### CLI workflow (tight loop with reproduction and verification)
+
+
+
+1. Start Codex in the warehouse root directory:```bash
+    codex
+    ```2. Give Codex the steps to reproduce, and the file you suspect:```
+    Bug: Clicking "Save" on the settings screen sometimes shows "Saved" but doesn't persist the change.
+
+    Repro:
+    1) Start the app: npm run dev
+    2) Go to /settings
+    3) Toggle "Enable alerts"
+    4) Click Save
+    5) Refresh the page: the toggle resets
+
+    Constraints:
+    - Do not change the API shape.
+    - Keep the fix minimal and add a regression test if feasible.
+
+    Start by reproducing the bug locally, then propose a patch and run checks.
+    ```
+
+Contextual notes:
+
+- Provided by you: Reproduction steps and constraints (these are more important than the high-level description).
+- 由 Codex 提供：命令输出、发现的调用站点以及它触发的任何堆栈跟踪。
+
+Verification:
+
+- Codex should be re-run with the reproduction steps after fixing.
+- If you have the standard inspection pipeline, ask it to run it:```
+    After the fix, run lint + the smallest relevant test suite. Report the commands and results.
+    ```### IDE extension workflow
+
+
+
+1. Open the file where you think the error is located and its most recent caller.
+2. Prompt Codex:```
+    Find the bug causing "Saved" to show without persisting changes. After proposing the fix, tell me how to verify it in the UI.
+    ```
+
+---
+
+## Write tests
+
+Use this feature when you want to very specifically specify the range you want to test.
+
+### IDE extended workflow (selection based)
+
+
+
+1. Open the file containing the function.
+2. Select the row where the function is defined. Select "Add to Codex Thread" from the command palette to add these lines to the context.
+3. Prompt Codex:```
+    Write a unit test for this function. Follow conventions used in other tests.
+    ```
+
+Contextual notes:
+
+- Provided by the "Add to Codex Thread" command: the selected lines (this is the "line number" range), plus the open file.
+
+### CLI workflow (path + line range described in prompt word)
+
+
+
+1. Start Codex:```bash
+    codex
+    ```2. Use function name hints:```
+    Add a test for the invert_list function in @transform.ts. Cover the happy path plus edge cases.
+    ```
+
+---
+
+## Based on screenshot prototype
+
+Use this feature when you have a design mockup, screenshot, or UI reference and you want a quick working prototype.
+
+### CLI workflow (image + prompt word)
+
+
+
+1. Save your screenshot locally (e.g. `./specs/ui.png`).
+2. Run Codex:```bash
+    codex
+    ```3. Drag the image file into the terminal to attach it to the prompt word.
+
+4. Continue adding constraints and structures:```
+    Create a new dashboard based on this image.
+
+    Constraints:
+    - Use react, vite, and tailwind. Write the code in typescript.
+    - Match spacing, typography, and layout as closely as possible.
+
+    Deliverables:
+    - A new route/page that renders the UI
+    - Any small components needed
+    - README.md with instructions to run it locally
+    ```
+
+Contextual notes:
+
+- Images provide visual requirements, but you still need to specify implementation constraints (framework, routing, component styles) in the text.
+- For best results, include any non-obvious behavior (hover states, validation rules, keyboard interaction) in the text.
+
+Verification:
+
+- Ask Codex to run the development server (if allowed) and tell you where to view the prototype:```
+    Start the dev server and tell me the local URL/route to view the prototype.
+    ```### IDE workflow (image + existing file)
+
+
+
+1. Attach an image in Codex chat (drag and drop or paste).
+2. Prompt Codex:```
+    Create a new settings page. Use the attached screenshot as the target UI.
+    Follow design and visual patterns from other files in this project.
+    ```
+
+---
+
+## Iterate the UI with real-time updates
+
+Use this feature when you want a tight "Design → Adjust → Refresh → Adjust" loop while Codex edits the code.
+
+### CLI workflow (run Vite, then iterate using small prompt words)
+
+
+
+1. Start Codex:```bash
+    codex
+    ```2. Start the development server in a separate terminal window:```bash
+    npm run dev
+    ```3. Prompt Codex to make changes:```
+    Propose 2-3 styling improvements for the landing page.
+    ```4. Choose a direction and iterate using small, specific prompt words:```
+    Go with option 2.
+
+    Change only the header:
+    - make the typography more editorial
+    - increase whitespace
+    - ensure it still looks good on mobile
+    ```5. Repeat with focus request:```
+    Next iteration: reduce visual noise.
+    Keep the layout, but simplify colors and remove any redundant borders.
+    ```
+
+Verification:
+
+- See changes "live" in your browser as your code is updated.
+- Commit changes you like and roll back changes you don't.
+- Tell Codex if you roll back or modify changes so that it does not overwrite the changes when processing the next prompt word.
+
+---
+
+## Delegate refactoring to the cloud
+
+Use this feature when you want to carefully design (local context, quick inspection) and then offload the long implementation to a cloud task that can run in parallel.
+
+### Local planning (IDE)
+
+
+
+1. Make sure your current work is committed or at least staged so you can cleanly compare changes.
+2. Ask Codex to generate a refactoring plan. If you have the `$plan` skill available, call it explicitly:```
+    $plan
+
+    We need to refactor the auth subsystem to:
+    - split responsibilities (token parsing vs session loading vs permissions)
+    - reduce circular imports
+    - improve testability
+
+    Constraints:
+    - No user-visible behavior changes
+    - Keep public APIs stable
+    - Include a step-by-step migration plan
+    ```3. Review the plan and negotiate changes:```
+    Revise the plan to:
+    - specify exactly which files move in each milestone
+    - include a rollback strategy
+    ```
+
+Contextual notes:
+
+- Planning works best when Codex can scan the current code locally (entry points, module boundaries, dependency graph hints).
+
+### Cloud delegation (IDE → Cloud)
+
+
+
+1. If you have not already done so, set up [云环境](https://developers.openai.com/codex/cloud/environments) for the Codex.
+2. Click the cloud icon below the prompt editor and select your cloud environment.
+3. When you enter the next prompt word, Codex creates a new thread in the cloud that carries the existing thread context (including schedule and any local source changes).```
+    Implement Milestone 1 from the plan.
+    ```4. Review cloud differences and iterate as needed.
+
+5. Create a PR directly from the cloud, or pull changes locally for testing and completion.
+
+6. Additional milestones for iteration planning.
+
+
+
+---
+
+## Perform local code review
+
+Use this feature when you want to get a second set of eyes before submitting or creating a PR.
+
+### CLI workflow (review your work tree)
+
+
+
+1. Start Codex:```bash
+    codex
+    ```2. Run the review command:```
+    /review
+    ```3. Optional: Provide clear key points:```
+    /review Focus on edge cases and security issues
+    ```
+
+Verification:
+
+- Apply the fix based on review feedback and rerun `/review` to confirm the issue is resolved.
+
+---
+
+## Review GitHub pull requests
+
+Use this feature when you want to review feedback without pulling the branch locally.
+
+Enable Codex **Code Review** on your repository before using this feature. Please see [代码审查](https://developers.openai.com/codex/integrations/github).
+
+### GitHub workflow (comment driven)
+
+
+
+1. Open a pull request on GitHub.
+2. Leave a comment tagged Codex and identify key areas:```
+    @codex review
+    ```3. Optional: Provide more explicit instructions.```
+    @codex review for security vulnerabilities and security concerns
+    ```
+
+---
+
+## Update documentation
+
+Use this feature when you need accurate and clear document changes.
+
+### IDE or CLI workflow (local editing + local verification)
+
+
+
+1. Identify the documentation files you want to change and open them (IDE) or `@` mention them (IDE or CLI).
+2. Prompt the Codex with scope and validation requirements:```
+    Update the "advanced features" documentation to provide authentication troubleshooting guidance. Verify that all links are valid.
+    ```3. After drafting changes in Codex, review the document and iterate as necessary.
+
+
+
+Verification:
+
+- Read the rendered page.
+
+<AdPlaceholder />

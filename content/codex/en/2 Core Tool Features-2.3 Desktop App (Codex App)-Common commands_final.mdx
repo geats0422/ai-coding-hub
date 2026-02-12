@@ -1,0 +1,67 @@
+---
+title: "Common commands"
+description: "Learn commands and keyboard shortcuts for Codex apps, including general operations and thread management"
+tool: "codex"
+slug: "codex-app-commands"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex application commands
+
+Use these commands and keyboard shortcuts to navigate within the Codex app.
+
+<AdPlaceholder />
+
+## Keyboard shortcuts
+
+| | Operations | macOS shortcut keys |
+| --- | ---- | ------------ |
+| **General** | | |
+| | Command menu | **Cmd** + **Shift** + **P** or **Cmd** + **K** |
+| | Settings | **Cmd** + **,** |
+| | Open folder | **Cmd** + **O** |
+| | Back navigation | **Cmd** + **[** |
+| | Forward navigation | **Cmd** + **]** |
+| | Increase font size | **Cmd** + **+** or **Cmd** + **=** |
+| | Reduce font size | **Cmd** + **-** or **Cmd** + **_** |
+| | Switch sidebar | **Cmd** + **B** |
+| | Switch difference panel | **Cmd** + **Option** + **B** |
+| | Switch terminal | **Cmd** + **J** |
+| | Clear Terminal | **Ctrl** + **L** |
+| **Thread** | | |
+| | New thread | **Cmd** + **N** or **Cmd** + **Shift** + **O** |
+| | Search in thread | **Cmd** + **F** |
+| | Previous thread | **Cmd** + **Shift** + **[** |
+| | Next Thread | **Cmd** + **Shift** + **]** |
+| | Dictation | **Ctrl** + **M** |
+
+## Slash commandSlash commands let you control the Codex without leaving the threaded editor. The available commands vary depending on your environment and access rights.
+
+### Use slash command
+
+1. In the thread editor, type `/`.
+2. Select a command from the list, or continue typing to filter (for example, `/status`).
+
+You can also invoke the skill explicitly by typing `$` in the thread editor. See [技能](https://developers.openai.com/codex/skills).
+
+Enabled skills also appear in the slash command list (e.g. `/imagegen`).
+
+### Available slash commands
+
+| slash command | description |
+| -------- | ---- |
+| `/feedback` | Opens the feedback dialog to submit feedback, optionally including logs. |
+| `/mcp` | Open MCP status to view connected servers. |
+| `/plan-mode` | Switch to the planning mode of multi-step planning. |
+| `/review` | Start code review mode to review uncommitted changes or compare to the base branch. |
+| `/status` | Shows thread ID, context usage, and rate limit. |
+
+## See also
+
+- [功能](https://developers.openai.com/codex/app/features)
+- [设置](https://developers.openai.com/codex/app/settings)
+
+<AdPlaceholder />

@@ -1,0 +1,65 @@
+---
+title: "Environment configuration"
+description: "Learn how to configure the local environment for a Codex application, including setup scripts and common actions"
+tool: "codex"
+slug: "local-environments"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# local environment
+
+The local environment allows you to configure the work tree setup steps and common operations for your project.
+
+You configure your local environment through the [Codex 应用设置](codex://settings) pane. You can check the generated files into your project's Git repository to share them with others.
+
+Codex stores this configuration in the `.codex` folder in the project root directory. If your repository contains multiple projects, open the project directory containing the shared `.codex` folder.
+
+<AdPlaceholder />
+
+## Setup script
+
+Since the working tree is running in a different directory than the local task, your project may not be fully set up and may be missing dependencies or files that were not checked into the repository. Setup the script to automatically run at the beginning of a new thread when Codex creates a new work tree.
+
+Use this script to run any commands required to configure your environment, such as installing dependencies or running a build process.
+
+For example, for a TypeScript project, you might want to use a setup script to install dependencies and do the initial build:
+```bas
+npm install
+npm run build
+```If
+ your settings are platform-specific, define a settings script for macOS, Windows, or Linux to override the defaults.
+
+## Action
+
+<section class="feature-grid">
+
+<div>
+
+Use actions to define common tasks, such as starting an application's development server or running a test suite. These actions appear in the top bar of the Codex app for quick access. The action will be run in [集成终端](https://developers.openai.com/codex/app/features#integrated-terminal) of the application.
+
+Actions help avoid typing common actions, such as triggering a build of a project or starting a development server.对于一次性快速调试，您可以直接使用集成终端。
+
+</div>
+
+<CodexScreenshot
+  alt="项目动作列表显示在 Codex 应用设置中"
+  lightSrc="/images/codex/app/actions-light.webp"
+  darkSrc="/images/codex/app/actions-dark.webp"
+  maxHeight="400px"
+  class="mb-4 lg:mb-0"
+/>
+
+</section>
+
+For example, for a Node.js project, you could create a "Run" action that contains the following script:
+```bas
+npm start
+```If
+ the action's commands are platform-specific, define platform-specific scripts for macOS, Windows, and Linux.
+
+To identify your actions, select the icon associated with each action.
+
+<AdPlaceholder />

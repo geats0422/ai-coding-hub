@@ -1,0 +1,337 @@
+---
+title: "沙箱机制"
+description: "了解 Codex 的安全机制，包括沙盒模式、审批策略和网络访问控制"
+tool: "codex"
+slug: "security"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 安全
+
+Codex 有助于保护您的代码和数据并降低滥用风险。
+
+默认情况下，代理在网络访问关闭的情况下运行。在本地，Codex 使用操作系统强制的沙箱来限制它可以接触的内容（通常是当前工作区），以及控制何时必须停止并询问您的批准策略。
+
+<AdPlaceholder />
+
+## 沙箱和批准
+
+Codex 安全控制来自两个协同工作的层：
+
+- **沙盒模式**：Codex 在执行模型生成的命令时在技术上可以做什么（例如，它可以在哪里写入，是否具有网络访问权限）。
+- **批准政策**：Codex 在执行操作（例如离开沙箱、使用网络或运行不在受信任集合内的命令）之前必须询问您多长时间。Codex 根据运行位置使用不同的沙箱模式：
+
+- **Codex 云**：在隔离的 OpenAI 托管容器中运行，防止访问您的主机系统或无关数据。您可以有意扩展访问权限（例如，安装依赖项或允许特定域）。在代理可以访问您的代码之前，网络访问始终在设置阶段启用。
+- **Codex CLI/IDE 扩展**：执行沙箱策略的操作系统级别机制。默认值包括无网络访问权限和仅限于活动工作区的写入权限。您可以根据您的风险承受能力配置沙箱、审批策略和网络设置。
+
+在`Auto`预设（例如`--full-auto`）中，Codex可以自动读取工作目录中的文件、编辑和运行命令。Codex 将请求权限来编辑工作区之外的文件或运行需要网络访问的命令。如果您想聊天或计划而不进行更改，请使用`/permissions`命令切换到`read-only`模式。
+
+Codex 还可以寻求对广告副作用的应用程序（连接器）工具调用的批准，即使该操作不是 shell 命令或文件更改。
+
+## 网络访问对于Codex Cloud，请参阅[代理互联网访问](https://developers.OpenAI.com/Codex/cloud/internet-access) 以启用完整的互联网访问或域白名单。
+
+对于 Codex 应用程序、CLI 或 IDE 扩展，`workspace-write` 沙盒模式默认情况下会关闭网络访问，除非您在配置中启用它：
+```
+tom
+l
+[sandbox_workspace_write]
+network_access = true
+```
+您还可以控制[网页搜索工具](https://platform.OpenAI.com/docs/guides/tools-web-search)，而无需授予对生成的命令的完全网络访问权限。 Codex 默认使用网络搜索缓存来访问结果。缓存是由OpenAI维护的Web结果索引，因此缓存模式返回预先索引的结果而不是获取实时页面。这可以减少任意实时内容的即时注入暴露，但您仍应将 Web 结果视为不可信。如果您使用`--yolo` 或其他[完全访问沙箱设置](#常见沙箱和批准组合)，网络搜索默认为实时结果。使用`--search`或设置`web_search = "live"`以允许实时浏览，或将其设置为`"disabled"`以关闭该工具：
+```
+tom
+l
+web_search = "cached"  # 默认
+# web_search = "disabled"
+# web_search = "live"  # 与 --search 相同
+```
+<Callout type="warning">
+在Codex 中启用网络访问或网络搜索时要小心。提示注入可能会导致特工获取并遵循不受信任的指令。
+</Callout>
+
+## 默认值和建议- 启动时，Codex 检测文件夹是否受版本控制并建议：
+  - 版本控制文件夹：`Auto`（工作区写入+根据请求批准）
+  - 非版本文件夹：`只读`
+- 根据您的设置，Codex 也可能以 `read-only` 启动，直到您明确信任工作目录（例如，通过入门提示或 `/permissions`）。
+- 工作空间包括当前目录和临时目录（如`/tmp`）。使用`/status`命令查看工作区中有哪些目录。
+- 要接受默认值，请运行`Codex`。
+- 您可以明确设置这些：
+  -`Codex --sandbox workspace-write --ask-for-approval on-request`
+  -`Codex --sandbox read-only --ask-for-approval on-request`
+
+### 运行时没有批准提示您可以使用`--ask-for-approval never` 或`-a never`（简写）禁用批准提示。
+
+此选项适用于所有`--sandbox` 模式，因此您仍然可以控制Codex 的自主程度。 Codex 在您设定的限制范围内尽力而为。
+
+如果您需要Codex 在没有批准提示的情况下通过网络访问读取文件、编辑和运行命令，请使用`--sandbox danger-full-access`（或`--dangerously-bypass-approvals-and-sandbox` 标志）。执行此操作之前请务必小心。### 常见沙箱和审批组合|意向 |标志|效果|
+| ---- | ---- | ---- |
+|自动（默认）| _无需标志_或`--full-auto` | Codex可以在工作区中读取文件、编辑和运行命令。 Codex 需要获得批准才能在工作区之外进行编辑或访问网络。 |
+|安全只读浏览| `--sandbox read-only --ask-for-approval on-request` | Codex 可以读取文件并回答问题。 Codex 需要获得批准才能编辑、运行命令或访问网络。 |
+|只读非交互式 (CI) | `--sandbox read-only --ask-for-approval never` | Codex只能读取文件；从不寻求批准。 |
+|自动编辑但需要批准才能运行不受信任的命令 | `--sandbox workspace-write --ask-for-approval untrusted` | Codex 可以读取和编辑文件，但需要获得批准才能运行不受信任的命令。 |
+|危险的完全访问| `--dangerously-bypass-approvals-and-sandbox`（别名：`--yolo`）|没有沙箱；没有批准（不推荐）|`--full-auto` 是`--sandbox workspace-write --ask-for-approval on-request` 的方便别名。
+
+使用`--ask-for-approval untrusted`，Codex 会自动仅运行已知安全的读取操作。可以更改状态或触发外部执行路径的命令（例如，破坏性的 Git 操作或 Git 输出/配置覆盖标志）需要批准。
+
+#### config.toml 中的配置
+```
+tom
+l
+# 始终询问批准模式
+approval_policy = "untrusted"
+sandbox_mode    = "read-only"
+
+# 可选：在工作区写入模式下允许网络
+[sandbox_workspace_write]
+network_access = true
+```
+您还可以将预设保存为配置文件并使用 `Codex --profile <name>` 选择它们：
+```
+tom
+l
+[profiles.full_auto]
+approval_policy = "on-request"
+sandbox_mode    = "workspace-write"
+
+[profiles.readonly_quiet]
+approval_policy = "never"
+sandbox_mode    = "read-only"
+```
+### 本地测试沙箱
+
+要查看在 Codex 沙箱下运行命令时会发生什么，请使用以下 Codex CLI 命令：
+```
+bas
+h
+# macOS
+codex sandbox macos [--full-auto] [--log-denials] [COMMAND]...
+# Linux
+codex sandbox linux [--full-auto] [COMMAND]...
+`
+```
+sandbox
+` 命令也可用作`Codex debug`，并且平台助手具有别名（例如`Codex sandbox seatbelt` 和`Codex sandbox landlock`）。
+
+## 操作系统级沙箱
+
+Codex 根据您的操作系统以不同方式强制执行沙箱：- **macOS** 使用安全带策略并使用与您选择的 `--sandbox` 模式 (`-p`) 对应的配置文件通过 `sandbox-exec` 运行命令。
+- **Linux** 默认使用`Landlock` 加`seccomp`。您可以使用`features.use_linux_sandbox_bwrap = true`（或`-c use_linux_sandbox_bwrap=true`）选择替代Linux沙箱管道。
+- **Windows** 在 [Windows Subsystem for Linux (WSL)](https://developers.OpenAI.com/Codex/windows#windows-subsystem-for-linux) 中运行时使用 Linux 沙箱实现。在本机 Windows 上运行时，您可以启用 [实验性沙箱](https://developers.OpenAI.com/Codex/windows#windows-experimental-sandbox) 实现。如果您在Windows上使用Codex IDE扩展，它直接支持WSL。在 VS Code 设置中进行以下设置，以便在可用时始终将代理保留在 WSL 中：
+```
+jso
+n
+{
+  "chatgpt.runCodexInWindowsSubsystemForLinux": true
+}
+```
+这可确保 IDE 扩展继承命令、批准和文件系统访问的 Linux 沙箱语义，即使主机操作系统是 Windows。了解更多信息[Windows 设置指南](https://developers.OpenAI.com/Codex/windows)。
+
+<Callout type="note">
+本机 Windows 沙箱是实验性的，具有重要的局限性。例如，它无法阻止在 `Everyone` SID 已具有写入权限的目录（例如，全局可写文件夹）中进行写入。有关详细信息和缓解步骤，请参阅[Windows 设置指南](https://developers.OpenAI.com/Codex/windows#windows-experimental-sandbox)。
+</Callout>
+当您在 Docker 等容器化环境中运行 Linux 时，如果主机或容器配置不支持所需的 `Landlock` 和 `seccomp` 功能，则沙箱可能无法工作。
+
+在这种情况下，配置 Docker 容器以提供所需的隔离，然后使用 `--sandbox danger-full-access` （或 `--dangerously-bypass-approvals-and-sandbox` 标志）在容器内运行 `Codex`。
+
+## 版本控制
+
+Codex 在版本控制工作流程中效果最佳：- 在授权之前处理功能分支并保持`git status` 干净。这使得 Codex 补丁更容易隔离和回滚。
+- 更喜欢使用基于补丁的工作流程（例如`git diff`/`git apply`）而不是直接编辑跟踪文件。经常提交，以便您可以小幅增量回滚。
+- 像对待任何其他 PR 一样对待 Codex 建议：运行目标验证、审查差异并在提交消息中记录决策以用于审核目的。
+
+## 监控和遥测Codex 支持通过 OpenTelemetry (OTel) 选择加入监控，以帮助团队审核使用情况、调查问题并满足合规性要求，而不会影响本地安全默认设置。遥测默认关闭；在您的配置中明确启用它。
+
+＃＃＃ 概述- Codex 默认关闭 OTel 导出以保持本地运行独立。
+- 启用后，Codex 会发出结构化日志事件，涵盖对话、API 请求、SSE/WebSocket 流活动、用户提示（默认编辑）、工具批准决策和工具结果。
+- Codex 标签使用`service.name`（启动器）、CLI 版本和环境标签导出事件，以分离开发/登台/生产流量。
+
+### 启用 OTel（选择加入）
+
+在Codex配置中添加`[otel]`块（通常为`~/.Codex/config.toml`），选择导出器以及是否记录提示词文本。
+```
+tom
+l
+[otel]
+environment = "staging"   # dev | staging | prod
+exporter = "none"          # none | otlp-http | otlp-grpc
+log_user_prompt = false     # 除非策略允许，否则编辑提示词文本
+```
+-
+ `exporter = "none"` 保持仪器处于活动状态，但不向任何地方发送数据。
+- 要发送给您自己的收藏家，请选择一项：
+```
+tom
+l
+[otel]
+exporter = { otlp-http = {
+  endpoint = "https://otel.example.com/v1/logs",
+  protocol = "binary",
+  headers = { "x-otlp-api-key" = "${OTLP_TOKEN}" }
+}}
+```
+
+```
+tom
+l
+[otel]
+exporter = { otlp-grpc = {
+  endpoint = "https://otel.example.com:4317",
+  headers = { "x-otlp-meta" = "abc123" }
+}}
+```
+Codex
+ 批处理事件并在关闭时导出它们。 Codex 仅导出其 OTel 模块生成的遥测数据。
+
+### 活动类别
+
+代表性事件类型包括：
+
+- `Codex.conversation_starts`（模型、推理设置、沙箱/批准策略）
+- `Codex.api_request`（尝试、状态/成功、持续时间和错误详细信息）
+- `Codex.sse_event`（流事件类型、成功/失败、持续时间以及`response.completed`上的令牌计数）
+- `Codex.websocket_request` 和 `Codex.websocket_event`（请求持续时间加上每个消息类型/成功/错误）
+- `Codex.user_prompt`（长度；内容已编辑，除非明确启用）
+- `Codex.tool_decision`（批准/拒绝，来源：配置和用户）
+- `Codex.tool_result`（持续时间、成功、输出片段）相关的 OTel 指标（计数器加上持续时间直方图对）包括 `Codex.api_request`、`Codex.sse_event`、`Codex.websocket.request`、`Codex.websocket.event` 和 `Codex.tool.call`（以及相应的 `.duration_ms` 仪器）。
+
+有关完整的事件目录和配置参考，请参阅[GitHub 上的 Codex 配置文档](https://github.com/OpenAI/Codex/blob/main/docs/config.md#otel)。### 安全和隐私指南 - 保留`log_user_prompt = false`，除非策略明确允许存储提示词内容。提示词可能包含源代码和敏感数据。
+- 仅将遥测数据发送给您控制的收集器；应用满足您的合规性要求的保留限制和访问控制。
+- 将工具参数和输出视为敏感的。尽可能在收集器或 SIEM 中进行编辑。
+- 如果您不希望Codex将会话记录保存到`CODEX_HOME`下的文件中，请检查您的本地数据保留设置（例如`history.persistence` / `history.max_bytes`）。请参阅[高级配置](https://developers.OpenAI.com/Codex/config-advanced#history-persistence) 和[配置参考](https://developers.OpenAI.com/Codex/config-reference)。
+- 如果您使用 `--yolo` 运行 CLI 或网络访问已关闭，则 OTel 导出无法到达您的收集器。要导出，请在 `workspace-write` 模式下允许 OTel 终端进行网络访问，或从 Codex 云导出并将收集器域包含在允许列表中。
+- 定期审查批准/沙盒更改和意外工具执行的事件。OTel 是可选的，旨在补充而不是取代上述沙箱和批准保护。
+
+## 托管配置
+
+企业管理员可以通过两种方式控制本地Codex行为：
+
+- **要求**：管理员强制实施约束，用户不能覆盖这些约束。
+- **托管默认值**：启动时应用的起始值。用户仍然可以在会话期间更改设置； Codex 将在下次启动时重新应用托管默认值。### 管理员强制要求 (requirements.toml) 要求限制安全敏感设置（批准策略、沙盒模式、Web 搜索模式以及您可以启用的可选 MCP 服务器）。如果用户明确选择禁止值（通过 `config.toml`、CLI 标志、配置文件或会话中 UI），Codex 会拒绝更改。如果未显式设置某个值并且默认值与要求冲突，Codex 将回退到满足要求的默认值。如果配置`mcp_servers`批准列表，则Codex仅在其名称和身份与批准条目匹配时启用MCP服务器；否则，Codex 将其关闭。
+
+＃＃＃＃ 地点- Linux/macOS (Unix)：`/etc/Codex/requirements.toml`
+- macOS MDM：首选项域`com.OpenAI.Codex`，键`requirements_toml_base64`
+
+#### 云要求（企业版和教育版）
+
+当您使用 ChatGPT 登录企业和教育计划时，Codex 还可以从 Codex 服务获取管理员强制执行要求。这适用于所有Codex 接口，包括TUI、`Codex exec` 和`Codex app-server`。
+
+目前，云需求已尽最大努力。如果获取失败或超时，Codex 将在没有云层的情况下继续。
+
+需求层按以下顺序排列（优先级越高）：
+
+- macOS 托管首选项（最高优先级）
+- 云要求（ChatGPT 企业版或教育版）
+-`/etc/Codex/requirements.toml`云需求仅填充未设置的需求字段，因此当两者指定相同的约束时，优先级较高的托管层仍然会获胜。
+
+为了向后兼容，Codex 还将旧版 `managed_config.toml` 字段 `approval_policy` 和 `sandbox_mode` 解释为要求（仅允许使用单个值）。
+
+#### 示例requirements.toml此示例阻止`--ask-for-approval never`和`--sandbox danger-full-access`（包括`--yolo`）：
+```
+tom
+l
+allowed_approval_policies = ["untrusted", "on-request", "on-failure"]
+allowed_sandbox_modes = ["read-only", "workspace-write"]
+```
+您还可以限制网络搜索模式：
+```
+tom
+l
+allowed_web_search_modes = ["cached"] # "disabled" 仍然隐式允许
+`
+```
+allowed_web_search_modes
+ = []`实际上只允许`"disabled"`。例如，`allowed_web_search_modes = ["cached"]` 即使在`danger-full-access` 会话中也会阻止实时网络搜索。
+
+#### 根据需求强制执行命令规则
+
+管理员还可以使用`[rules]` 表从`requirements.toml` 强制执行限制性命令规则。这些规则与常规`.rules` 文件合并，最严格的决定仍然获胜。
+
+与`.rules`不同，需求规则必须指定`decision`，并且决策必须是`"prompt"`或`"forbidden"`（而不是`"allow"`）。
+```
+tom
+l
+[rules]
+prefix_rules = [
+  { pattern = [{ token = "rm" }], decision = "forbidden", justification = "Use git clean -fd instead." },
+  { pattern = [{ token = "git" }, { any_of = ["push", "commit"] }], decision = "prompt", justification = "Require review before mutating history." },
+]
+```
+要限制Codex 可以启用的MCP 服务器，请添加`mcp_servers` 批准列表。对于 stdio 服务器，匹配 `command`；对于可流传输的 HTTP 服务器，匹配 `url`：
+```
+tom
+l
+[mcp_servers.docs]
+identity = { command = "codex-mcp" }
+
+[mcp_servers.remote]
+identity = { url = "https://example.com/mcp" }
+```
+如果 `mcp_servers` 存在但为空，Codex 将禁用所有 MCP 服务器。
+
+### 托管默认值 (management_config.toml)
+
+托管默认值合并到用户的本地 `config.toml` 上，并在 Codex 启动时应用优先级。用户仍然可以在会话期间更改这些设置； Codex 将在下次启动时重新应用托管默认值。
+
+确保您的托管默认设置满足您的需求； Codex 将拒绝禁止的值。
+
+#### 优先级和分层
+
+Codex 按此顺序组装有效配置（顶盖底）：
+
+- 托管首选项（macOS MDM；最高优先级）
+- `managed_config.toml`（系统/托管文件）
+- `config.toml`（用户的基线配置）CLI `--config key=value` 覆盖适用于基线，但托管层覆盖它们。这意味着每次运行都会以托管默认值开始，即使您提供本地标志也是如此。
+
+云需求影响需求层（而不是托管默认层）。请参阅[管理员强制需求](https://developers.OpenAI.com/Codex/security#admin-enforced-requirements-requirementstoml) 了解其优先级。
+
+#### 位置
+
+- Linux/macOS (Unix)：`/etc/Codex/managed_config.toml`
+- Windows/非 Unix：`~/.Codex/managed_config.toml`
+
+如果文件丢失，Codex 将跳过托管层。
+
+#### macOS 托管首选项 (MDM)在 macOS 上，管理员可以推送提供 base64 编码的 TOML 负载的设备配置文件：- 首选项字段：`com.OpenAI.Codex`
+- 关键：
+  - `config_toml_base64`（托管默认值）
+  -`requirements_toml_base64`（必填）
+
+Codex 将这些“托管首选项”有效负载解析为 TOML 并以最高优先级应用它们。
+
+#### MDM 设置工作流程
+
+Codex 遵循标准 macOS MDM 负载，因此您可以使用 Jamf Pro、Fleet 或 Kandji 等工具分发设置。轻量级部署如下所示：1. 构建托管有效负载 TOML 并使用`base64`（无包装）对其进行编码。
+2. 将字符串放入 MDM 配置文件中 `com.OpenAI.Codex` 域下的 `config_toml_base64`（托管默认值）或 `requirements_toml_base64`（要求）中。
+3. 推送配置文件，然后要求用户重新启动Codex 并确认启动配置摘要反映了托管值。
+4. 当策略被撤销或更改时，管理的负载会更新； CLI 将在下次启动时读取刷新的首选项。
+
+避免在有效负载中嵌入秘密或高度可变的动态值。像任何其他 MDM 设置一样对待托管 TOML。
+
+#### 示例 Managed_config.toml
+```
+tom
+l
+# 设置保守默认值
+approval_policy = "on-request"
+sandbox_mode    = "workspace-write"
+
+[sandbox_workspace_write]
+network_access = false             # 保持网络禁用，除非明确允许
+
+[otel]
+environment = "prod"
+exporter = "otlp-http"            # 指向您的收集器
+log_user_prompt = false            # 保持提示词被编辑
+# 导出器详情位于导出器表下；见上文的监控和遥测
+```
+###推荐护栏
+
+- 保留 `workspace-write` 以及大多数用户的批准；保留受控容器的完全访问权限。
+- 保留`network_access = false`，除非您的安全许可允许收集器或工作流程所需的域。
+- 使用托管配置修复了 OTel 设置（导出器、环境），但保留`log_user_prompt = false`，除非您的策略明确允许存储提示词内容。
+- 定期审核本地`config.toml` 和管理政策之间的差异，以发现偏差；管理层应该胜过本地标志和文件。
+
+<AdPlaceholder />

@@ -1,0 +1,116 @@
+---
+title: "Frequently Asked Questions"
+description: "Learn about common Codex problems and solutions, including troubleshooting guides for file display, thread management, work-tree issues, and more"
+tool: "codex"
+slug: "troubleshooting"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Troubleshooting
+
+<AdPlaceholder />
+
+## FAQ
+
+### Codex Unedited files appear in the sidebar
+
+If your project is in a Git repository, the review panel automatically displays changes based on your project's Git status, including changes not made by Codex.
+
+In the review pane, you can switch between staged changes and changes that haven't been staged yet, and compare them to your branch.
+
+If you only want to see the last round of Codex changes, switch the diff pane to "Last round of changes" view.
+
+[详细了解如何使用审查窗格](https://developers.openai.com/codex/app/review).
+
+### Remove items from the sidebar
+
+To remove an item from the sidebar, hover over the item name, click the three dots and select Remove. To restore, use the **Add New Item** button or **Cmd**+**O** to re-add the item.
+
+### Find archived threads
+
+Archived threads can be found at [设置](codex://settings). When you unarchive a thread, it reappears in its original location in the sidebar.
+
+### Only some threads are displayed in the sidebar
+
+The sidebar allows filtering threads based on project status. If you are missing threads, click the filter icon next to the Threads label to see if any filters are applied.
+
+### Code does not run on the working tree
+
+The working tree is created in a different directory and only the files checked into Git are inherited. Depending on how you manage project dependencies and tools, you may need to use [本地环境](https://developers.openai.com/codex/app/local-environments) to run some setup scripts on the working tree. Alternatively, you can check out your changes in your regular local project. Check out [工作树文档](https://developers.openai.com/codex/app/worktrees) to learn more.
+
+### The application does not pick up the local environment shared by teammates
+
+The local environment configuration must be in the `.codex` folder in the project root directory. If you are working in a monolithic repository with multiple projects, make sure to open the project in the directory containing the `.codex` folder.
+
+### Codex requires access to Apple Music
+
+Depending on your task, Codex may need to browse the file system. Certain directories on macOS, including Music, Downloads, or Desktop, require additional user approval. If Codex needs to read your home directory, macOS will prompt you to grant access to those folders.
+
+### Automate the creation of many working trees
+
+Frequent automation creates many work trees over time. Archive automation runs that you no longer need unless you plan to retain their working tree.
+
+### Restore the prompt word after selecting the wrong target
+
+If you accidentally start a thread with the wrong target (**Local**, **Worktree**, or **Cloud**), you can cancel the current run and restore the previous prompt word by pressing the up arrow key in the editor.
+
+### Feature works in Codex CLI but not in Codex app
+
+Codex apps and Codex CLI use the same underlying Codex agent and configuration, but they may rely on different versions of the agent at any time, and some experimental features may first appear in the Codex CLI.
+
+To get the version of the Codex CLI on your system, run:
+```bas
+codex --version
+```
+To
+ get the version of Codex bundled with the Codex app, run:
+```bas
+/Applications/Codex.app/Contents/Resources/codex --version
+```
+## Feedback and Logs
+
+Type **/** in the message editor to provide feedback to the team. If you trigger feedback in an existing conversation, you can choose to share the existing conversation along with your feedback. After submitting your feedback, you'll receive a session ID that you can share with your team.
+
+To report a problem:
+
+1. Find [现有问题](https://github.com/openai/codex/issues) on the Codex GitHub repository.
+2. [打开新的 GitHub 问题](https://github.com/openai/codex/issues/new?template=2-bug-report.yml&steps=Uploaded%20thread%3A%20019c0d37-d2b6-74c0-918f-0e64af9b6e14)
+
+More logs can be found at:
+
+- Application Log (macOS): `~/Library/Logs/com.openai.codex/YYYY/MM/DD`
+- Session record: `$CODEX_HOME/sessions` (Default: `~/.codex/sessions`)
+- Archived conversations: `$CODEX_HOME/archived_sessions` (Default: `~/.codex/archived_sessions`)
+
+If you share logs, please review them first to make sure they don't contain sensitive information.
+
+## Stuck state and recovery mode
+
+If the thread appears to be stuck:
+
+1. Check if the Codex is pending approval.
+2. Open a terminal and run basic commands such as `git status`.
+3. Start a new thread with a smaller, more focused prompt word.
+
+If you accidentally cancel worktree creation and lose the prompt word, press the up arrow key in the editor to restore it.
+
+## Terminal issues
+
+**Terminal looks stuck**
+
+1. Close the terminal panel.
+2. Use **Cmd**+**J** to reopen it.
+3. Rerun basic commands such as `pwd` or `git status`.
+
+If the command behaves differently than expected, first verify the current directory and branch in the terminal.
+
+If it continues to get stuck, wait for your active Codex thread to finish and restart the app.
+
+**Fonts not rendered correctly**
+
+Codex uses the same font for the review panel, integrated terminal, and any other code displayed within the application. You can configure the font as **Code Font** in the [设置](codex://settings) pane.
+
+<AdPlaceholder />

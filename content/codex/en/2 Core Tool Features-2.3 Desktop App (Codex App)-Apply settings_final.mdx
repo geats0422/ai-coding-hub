@@ -1,0 +1,50 @@
+---
+title: "Apply settings"
+description: "Learn how to configure Codex app settings, including general, appearance, notifications, and proxy configuration"
+tool: "codex"
+slug: "codex-app-settings"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex application settings
+
+Use the settings panel to adjust how the Codex app behaves, how you open files, and how you connect tools. Open [**Settings**](codex://settings) from the application menu or press **Cmd**+**,**.
+
+<AdPlaceholder />
+
+## General
+
+Choose where the file opens and how much command output is displayed in the thread. You can also require **Cmd**+**Enter** for multi-line prompt words, or to prevent sleep while the thread is running.
+
+## Appearance
+
+Choose a theme, decide whether the window is solid, and adjust UI or code fonts. Font selection applies throughout the app, including the diff review panel and the terminal.
+
+## Notification
+
+Choose when completion notifications appear and whether the app should prompt for notification permission.
+
+## Agent configuration
+
+The Codex agent in your application inherits the same configuration as the IDE and CLI extensions. Use in-app controls for common settings, or edit `config.toml` for advanced options. Please see [Codex 安全性](https://developers.openai.com/codex/security) and [基本配置](https://developers.openai.com/codex/config-basic) for more details.
+
+## Git
+
+Use Git settings to standardize branch naming and choose whether the Codex uses force pushes. You can also set the prompt words that Codex uses to generate commit messages and pull request descriptions.
+
+## Integration and MCP
+
+Connect external tools via MCP (Model Context Protocol). Enable recommended servers or add your own. If the server requires OAuth, the app starts the authentication process. These settings also apply to the Codex CLI and IDE extensions, since the MCP configuration is in `config.toml`. Please see [模型上下文协议文档](https://developers.openai.com/codex/mcp) for details.## Personalization
+
+Choose **Friendly**, **Pragantic** or **None** as your default personality. Use **None** to disable personalization directives. You can update this setting at any time.
+
+You can also add your own custom directives. Editing a custom directive will update your [AGENTS.md 中的个人指令](https://developers.openai.com/codex/guides/agents-md).
+
+## Archived threads
+
+The **Archived Threads** section lists archived chats with date and project context. Use **Unarchive** to resume the thread.
+
+<AdPlaceholder />

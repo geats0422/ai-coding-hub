@@ -1,0 +1,837 @@
+---
+title: "可观测性（遥测）"
+description: "了解如何为 Gemini CLI 启用和设置 OpenTelemetry，包括日志、指标、Google Cloud 和本地遥测配置。"
+tool: "gemini-cli"
+slug: "observability-telemetry"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# OpenTelemetry 的可观察性
+
+<AdPlaceholder />
+
+了解如何为 Gemini CLI 启用和设置 OpenTelemetry。-[Observability with OpenTelemetry](#observability-with-opentelemetry)
+  -[Key benefits](#key-benefits)
+  -[OpenTelemetry integration](#opentelemetry-integration)
+  -[Configuration](#configuration)
+  -[Google Cloud telemetry](#google-cloud-telemetry)
+    -[Prerequisites](#prerequisites)
+    -[Authenticating with CLI Credentials](#authenticating-with-cli-credentials)
+    -[Direct export (recommended)](#direct-export-recommended)
+    -[Collector-based export (advanced)](#collector-based-export-advanced)
+    -[Monitoring Dashboards](#monitoring-dashboards)
+  -[Local telemetry](#local-telemetry)
+    -[File-based output (recommended)](#file-based-output-recommended)
+    -[Collector-based export (advanced)](#collector-based-export-advanced-1)
+  -[Logs and metrics](#logs-and-metrics)
+    -[Logs](#logs)
+      -[Sessions](#sessions)
+      -[Approval Mode](#approval-mode)
+      -[Tools](#tools)
+      -[Files](#files)
+      -[API](#api)
+      -[Model routing](#model-routing)
+      - [Chat and streaming](#chat-and-streaming)
+      -[Resilience](#resilience)
+      -[Extensions](#extensions)
+      -[Agent runs](#agent-runs)
+      -[IDE](#ide)
+      -[UI](#ui)
+    -[Metrics](#metrics)
+      -[Custom](#custom)
+        -[Sessions](#sessions-1)
+        -[Tools](#tools-1)
+        -[API](#api-1)
+        -[Token usage](#token-usage)
+        -[Files](#files-1)
+        -[Chat and streaming](#chat-and-streaming-1)
+        -[Model routing](#model-routing-1)
+        -[Agent runs](#agent-runs-1)
+        -[UI](#ui-1)
+        -[Performance](#performance)
+      -[GenAI semantic convention](#genai-semantic-convention)
+<AdPlaceholder />
+
+## 主要优点
+
+- **🔍 使用情况分析**：了解交互模式和功能采用情况
+  整个团队
+- **⚡ 性能监控**：跟踪响应时间、令牌消耗和
+  资源利用
+- **🐛 实时调试**：识别瓶颈、故障和错误模式
+  当它们发生时
+- **📊 工作流程优化**：做出明智的决策以改进
+  配置和流程
+- **🏢 企业治理**：监控跨团队的使用情况，跟踪成本，确保
+  合规性，并与现有监控基础设施集成
+
+## OpenTelemetry 集成
+
+基于 **[OpenTelemetry]** 构建 - 供应商中立的行业标准
+可观察性框架 — Gemini CLI 的可观察性系统提供：- **通用兼容性**：导出到任何 OpenTelemetry 后端（Google
+  Cloud、Jaeger、Prometheus、Datadog 等）
+- **标准化数据**：使用一致的格式和收集方法
+  你的工具链
+- **面向未来的集成**：与现有和未来的可观察性相连接
+  基础设施
+- **无供应商锁定**：在后端之间切换而无需更改您的
+  仪器仪表
+
+[开放遥测]：https://opentelemetry.io/
+
+## 配置
+
+所有遥测行为均通过您的`.Gemini/settings.json` 文件控制。
+环境变量可用于覆盖文件中的设置。|设置|环境变量|描述 |价值观 |默认|
+| -------------- | -------------------------------- | --------------------------------------------------- | ----------------- | ----------------------- |
+| `enabled` | `GEMINI_TELEMETRY_ENABLED` |启用或禁用遥测 | `true`/`false`| `false` |
+| `target` | `GEMINI_TELEMETRY_TARGET` |向何处发送遥测数据 | `"gcp"`/`"local"` | `"local"` |
+| `otlpEndpoint` | `GEMINI_TELEMETRY_OTLP_ENDPOINT` | OTLP 收集器端点 |网址字符串| `http://localhost:4317` |
+| `otlpProtocol` | `GEMINI_TELEMETRY_OTLP_PROTOCOL` | OTLP传输协议| `"grpc"`/`"http"` | `"grpc"` |
+| `outfile` | `GEMINI_TELEMETRY_OUTFILE` |将遥测数据保存到文件（覆盖`otlpEndpoint`）|文件路径 | - |
+| `logPrompts` | `GEMINI_TELEMETRY_LOG_PROMPTS` |在遥测日志中包含提示 | `true`/`false`| `true` |
+| `useCollector` | `GEMINI_TELEMETRY_USE_COLLECTOR` |使用外部 OTLP 收集器（高级）| `true`/`false` | `false` |
+| `useCliAuth` | `GEMINI_TELEMETRY_USE_CLI_AUTH` |使用 CLI 凭据进行遥测（仅限 GCP 目标）| `true`/`false` | `false` |
+<Callout type="note">
+关于布尔环境变量的注意事项：对于布尔设置（`enabled`，
+`logPrompts`,`useCollector`)，设置相应的环境变量为
+`true` 或 `1` 将启用该功能。任何其他值都会禁用它。
+</Callout>
+
+有关所有配置选项的详细信息，请参阅
+[Configuration guide](/docs/get-started/configuration)。
+
+## Google Cloud 遥测
+
+### 先决条件
+
+在使用以下任一方法之前，请完成以下步骤：
+
+1. 设置您的 Google Cloud 项目 ID：
+   - 对于来自推理的单独项目中的遥测：
+```
+bas
+h
+     export OTLP_GOOGLE_CLOUD_PROJECT="your-telemetry-project-id"
+     
+```
+-
+ 对于与推理相同的项目中的遥测：
+```
+bas
+h
+     export GOOGLE_CLOUD_PROJECT="your-project-id"
+     
+```
+2
+. 使用 Google Cloud 进行身份验证：
+   - 如果使用用户帐户：
+```
+bas
+h
+     gcloud auth application-default login
+     
+```
+-
+ 如果使用服务帐户：
+```
+bas
+h
+     export GOOGLE_APPLICATION_CREDENTIALS="/path/to/your/service-account.json"
+     
+```
+3
+. 确保您的账户或服务账户具有以下 IAM 角色：
+   - 云追踪代理
+   - 监控指标编写器
+   - 日志编写器
+
+4. 启用所需的 Google Cloud API（如果尚未启用）：
+```
+bas
+h
+   gcloud services enable \
+     cloudtrace.googleapis.com \
+     monitoring.googleapis.com \
+     logging.googleapis.com \
+     --project="$OTLP_GOOGLE_CLOUD_PROJECT"
+   
+```
+### 使用 CLI 凭证进行身份验证
+
+默认情况下，Google Cloud 的遥测收集器使用应用程序默认值
+凭证 (ADC)。但是，您可以将其配置为使用相同的 OAuth
+您用于登录Gemini CLI 的凭据。这在以下方面很有用
+没有设置 ADC 的环境。
+
+要启用此功能，请将 `telemetry` 设置中的 `useCliAuth` 属性设置为
+`true`：
+```
+jso
+n
+{
+  "telemetry": {
+    "enabled": true,
+    "target": "gcp",
+    "useCliAuth": true
+  }
+}
+```
+<Callout type="warning">
+重要：
+
+- 此设置需要使用**直接导出**（进程内导出器）。
+- 它**不能**与`useCollector: true`一起使用。如果同时启用两者，遥测
+  将被禁用并记录错误。
+- CLI 将自动使用您的凭据通过 Google 进行身份验证
+  Cloud Trace、指标和日志记录 API。
+</Callout>
+
+### 直接导出（推荐）
+
+将遥测数据直接发送到 Google Cloud 服务。无需收集器。
+
+1. 在`.Gemini/settings.json`中启用遥测：
+```
+jso
+n
+   {
+     "telemetry": {
+       "enabled": true,
+       "target": "gcp"
+     }
+   }
+   
+```
+2
+. 运行Gemini CLI 并发送提示。
+3.查看日志和指标：
+   - 发送提示后在浏览器中打开 Google Cloud Console：
+     - 日志：https://console.cloud.google.com/logs/
+     - 指标：https://console.cloud.google.com/monitoring/metrics-explorer
+     - 痕迹：https://console.cloud.google.com/traces/list
+
+### 基于收集器的导出（高级）
+
+对于自定义处理、过滤或路由，请使用 OpenTelemetry 收集器
+将数据转发到 Google Cloud。
+
+1. 配置您的`.Gemini/settings.json`：
+```
+jso
+n
+   {
+     "telemetry": {
+       "enabled": true,
+       "target": "gcp",
+       "useCollector": true
+     }
+   }
+   
+```
+2
+. 运行自动化脚本：
+```
+bas
+h
+   npm run telemetry -- --target=gcp
+   
+```
+这将：
+   - 启动转发到 Google Cloud 的本地 OTEL 收集器
+   - 配置您的工作空间
+   - 提供在 Google Cloud Console 中查看跟踪记录、指标和日志的链接
+   - 将收集器日志保存到`~/.Gemini/tmp/<projectHash>/otel/collector-gcp.log`
+   - 退出时停止收集器（例如`Ctrl+C`）
+3. 运行Gemini CLI 并发送提示。
+4.查看日志和指标：
+   - 发送提示后在浏览器中打开 Google Cloud Console：
+     - 日志：https://console.cloud.google.com/logs/
+     - 指标：https://console.cloud.google.com/monitoring/metrics-explorer
+     - 痕迹：https://console.cloud.google.com/traces/list
+   - 打开`~/.Gemini/tmp/<projectHash>/otel/collector-gcp.log`查看本地
+     收集器日志。
+
+### 监控仪表板Gemini CLI 提供预配置
+[Google Cloud Monitoring](https://cloud.google.com/monitoring) 仪表板至
+可视化您的遥测数据。
+
+该仪表板可以在 **Google Cloud Monitoring 仪表板下找到
+模板**为“**Gemini CLI 监控**”。
+
+！[Gemini CLI Monitoring Dashboard Overview](/docs/assets/monitoring-dashboard-overview.png)
+
+！[Gemini CLI Monitoring Dashboard Metrics](/docs/assets/monitoring-dashboard-metrics.png)
+
+！[Gemini CLI Monitoring Dashboard Logs](/docs/assets/monitoring-dashboard-logs.png)
+
+要了解更多信息，请查看此博客文章：
+[Instant insights: Gemini CLI's new pre-configured monitoring dashboards](https://cloud.google.com/blog/topics/developers-practitioners/instant-insights-Gemini-clis-new-pre-configured-monitoring-dashboards/)。
+
+## 本地遥测对于本地开发和调试，您可以在本地捕获遥测数据：
+
+### 基于文件的输出（推荐）
+
+1. 在`.Gemini/settings.json`中启用遥测：
+```
+jso
+n
+   {
+     "telemetry": {
+       "enabled": true,
+       "target": "local",
+       "otlpEndpoint": "",
+       "outfile": ".gemini/telemetry.log"
+     }
+   }
+   
+```
+2
+. 运行Gemini CLI 并发送提示。
+3. 查看指定文件（例如`.Gemini/telemetry.log`）中的日志和指标。
+
+### 基于收集器的导出（高级）
+
+1. 运行自动化脚本：
+```
+bas
+h
+   npm run telemetry -- --target=local
+   
+```
+这将：
+   - 下载并启动 Jaeger 和 OTEL 收集器
+   - 配置您的工作区以进行本地遥测
+   - 在 http://localhost:16686 提供 Jaeger UI
+   - 将日志/指标保存到`~/.Gemini/tmp/<projectHash>/otel/collector.log`
+   - 退出时停止收集器（例如`Ctrl+C`）
+2. 运行Gemini CLI 并发送提示。
+3. 查看 http://localhost:16686 处的跟踪以及收集器日志中的日志/指标
+   文件。
+
+## 日志和指标
+
+以下部分描述了生成的日志和指标的结构
+Gemini CLI。
+
+`session.id`、`installation.id` 和`user.email`（仅当
+通过 Google 帐户进行身份验证）作为公共属性包含在所有
+日志和指标。
+
+### 日志日志是特定事件的带时间戳的记录。记录以下事件
+对于Gemini CLI，按类别分组。
+
+#### 会议
+
+捕获启动配置和用户提示提交。- `gemini_cli.config`：使用 CLI 配置启动时发出一次。
+  - **属性**：
+    - `model`（字符串）
+    - `embedding_model`（字符串）
+    - `sandbox_enabled`（布尔值）
+    - `core_tools_enabled`（字符串）
+    - `approval_mode`（字符串）
+    - `api_key_enabled`（布尔值）
+    - `vertex_ai_enabled`（布尔值）
+    - `log_user_prompts_enabled`（布尔值）
+    - `file_filtering_respect_git_ignore`（布尔值）
+    - `debug_mode`（布尔值）
+    - `mcp_servers`（字符串）
+    - `mcp_servers_count` (int)
+    - `extensions`（字符串）
+    - `extension_ids`（字符串）
+    - `extension_count` (int)
+    - `mcp_tools`（字符串，如果适用）
+    - `mcp_tools_count`（整数，如果适用）
+    - `output_format`（“文本”、“json”或“stream-json”）- `gemini_cli.user_prompt`：当用户提交提示时发出。
+  - **属性**：
+    - `prompt_length` (int)
+    - `prompt_id`（字符串）
+    - `prompt`（字符串；如果`telemetry.logPrompts` 是`false`，则排除）
+    - `auth_type`（字符串）
+
+#### 审批模式
+
+跟踪批准模式的变化和持续时间。
+
+##### 生命周期
+
+- `approval_mode_switch`：批准模式已更改。
+  - **属性**：
+    - `from_mode`（字符串）
+    - `to_mode`（字符串）
+
+- `approval_mode_duration`：处于批准模式的持续时间。
+  - **属性**：
+    - `mode`（字符串）
+    - `duration_ms` (int)
+
+##### 执行
+
+这些事件跟踪批准模式（例如计划模式）的执行情况。- `plan_execution`：执行了计划并且会话从计划模式切换
+  到主动执行。
+  - **属性**：
+    - `approval_mode`（字符串）
+
+#### 工具
+
+捕获工具执行、输出截断和编辑行为。- `gemini_cli.tool_call`：为每个工具（函数）调用发出。
+  - **属性**：
+    -`function_name`
+    -`function_args`
+    -`duration_ms`
+    - `success`（布尔值）
+    - `decision`（“接受”、“拒绝”、“自动接受”或“修改”，如果适用）
+    - `error`（如果适用）
+    - `error_type`（如果适用）
+    - `prompt_id`（字符串）
+    - `tool_type`（“本机”或“mcp”）
+    - `mcp_server_name`（字符串，如果适用）
+    - `extension_name`（字符串，如果适用）
+    - `extension_id`（字符串，如果适用）
+    - `content_length`（整数，如果适用）
+    - `metadata`（如果适用）- `gemini_cli.tool_output_truncated`：工具调用的输出被截断。
+  - **属性**：
+    - `tool_name`（字符串）
+    - `original_content_length` (int)
+    - `truncated_content_length` (int)
+    - `threshold` (int)
+    - `lines` (int)
+    - `prompt_id`（字符串）
+
+- `gemini_cli.edit_strategy`：编辑所选策略。
+  - **属性**：
+    - `strategy`（字符串）
+
+- `gemini_cli.edit_correction`：编辑校正结果。
+  - **属性**：
+    - `correction`（“成功”|“失败”）-`gen_ai.client.inference.operation.details`：本次活动提供详细
+  有关 GenAI 操作的信息，与 [OpenTelemetry GenAI
+  事件的语义约定]。
+  - **属性**：
+    - `gen_ai.request.model`（字符串）
+    - `gen_ai.provider.name`（字符串）
+    - `gen_ai.operation.name`（字符串）
+    - `gen_ai.input.messages`（json 字符串）
+    - `gen_ai.output.messages`（json 字符串）
+    - `gen_ai.response.finish_reasons`（字符串数组）
+    - `gen_ai.usage.input_tokens` (int)
+    - `gen_ai.usage.output_tokens` (int)
+    - `gen_ai.request.temperature`（浮动）
+    - `gen_ai.request.top_p`（浮动）
+    - `gen_ai.request.top_k` (int)
+    - `gen_ai.request.max_tokens` (int)
+    - `gen_ai.system_instructions`（json 字符串）
+    - `server.address`（字符串）
+    - `server.port` (int)#### 文件
+
+跟踪工具执行的文件操作。
+
+- `gemini_cli.file_operation`：针对每个文件操作发出。
+  - **属性**：
+    - `tool_name`（字符串）
+    - `operation`（“创建”|“读取”|“更新”）
+    - `lines`（整数，可选）
+    - `mimetype`（字符串，可选）
+    - `extension`（字符串，可选）
+    - `programming_language`（字符串，可选）
+
+#### API
+
+捕获 Gemini API 请求、响应和错误。
+
+- `gemini_cli.api_request`：请求发送到Gemini API。
+  - **属性**：
+    - `model`（字符串）
+    - `prompt_id`（字符串）
+    - `request_text`（字符串，可选）- `gemini_cli.api_response`：从Gemini API 收到的响应。
+  - **属性**：
+    - `model`（字符串）
+    - `status_code`（整数|字符串）
+    - `duration_ms` (int)
+    - `input_token_count` (int)
+    - `output_token_count` (int)
+    - `cached_content_token_count` (int)
+    - `thoughts_token_count` (int)
+    - `tool_token_count` (int)
+    - `total_token_count` (int)
+    - `response_text`（字符串，可选）
+    - `prompt_id`（字符串）
+    - `auth_type`（字符串）
+    - `finish_reasons`（字符串数组）
+
+- `gemini_cli.api_error`：API请求失败。
+  - **属性**：
+    - `model`（字符串）
+    - `error`（字符串）
+    - `error_type`（字符串）
+    - `status_code`（整数|字符串）
+    - `duration_ms` (int)
+    - `prompt_id` (string)
+    - `auth_type`（字符串）- `gemini_cli.malformed_json_response`：`generateJson` 无法响应
+  解析。
+  - **属性**：
+    - `model`（字符串）
+
+#### 模型路由
+
+- `gemini_cli.slash_command`：执行了斜杠命令。
+  - **属性**：
+    - `command`（字符串）
+    - `subcommand`（字符串，可选）
+    - `status`（“成功”|“错误”）
+
+- `gemini_cli.slash_command.model`：通过斜杠命令选择模型。
+  - **属性**：
+    - `model_name`（字符串）
+
+-`gemini_cli.model_routing`：模型路由器做出了决定。
+  - **属性**：
+    - `decision_model`（字符串）
+    - `decision_source`（字符串）
+    - `routing_latency_ms` (int)
+    - `reasoning`（字符串，可选）
+    - `failed`（布尔值）
+    - `error_message`（字符串，可选）
+
+#### 聊天和流媒体- `gemini_cli.chat_compression`：聊天上下文被压缩。
+  - **属性**：
+    - `tokens_before` (int)
+    -`tokens_after`（整数）
+
+- `gemini_cli.chat.invalid_chunk`：从流接收到无效块。
+  - **属性**：
+    - `error.message`（字符串，可选）
+
+- `gemini_cli.chat.content_retry`：由于内容错误而触发重试。
+  - **属性**：
+    - `attempt_number` (int)
+    - `error_type`（字符串）
+    - `retry_delay_ms` (int)
+    - `model`（字符串）
+
+- `gemini_cli.chat.content_retry_failure`：所有内容重试失败。
+  - **属性**：
+    - `total_attempts` (int)
+    - `final_error_type`（字符串）
+    - `total_duration_ms`（整数，可选）
+    - `model`（字符串）- `gemini_cli.conversation_finished`：对话会话结束。
+  - **属性**：
+    - `approvalMode`（字符串）
+    -`turnCount`（整数）
+
+- `gemini_cli.next_speaker_check`：确定下一位发言者。
+  - **属性**：
+    - `prompt_id`（字符串）
+    - `finish_reason`（字符串）
+    - `result`（字符串）
+
+#### 韧性
+
+记录模型和网络操作的后备机制。
+
+- `gemini_cli.flash_fallback`：切换到闪存型号作为后备。
+  - **属性**：
+    - `auth_type`（字符串）
+
+- `gemini_cli.ripgrep_fallback`：切换到 grep 作为文件搜索的后备。
+  - **属性**：
+    - `error`（字符串，可选）
+
+- `gemini_cli.web_fetch_fallback_attempt`：尝试网络获取回退。
+  - **属性**：
+    - `reason` ("private_ip" | "primary_failed")
+
+#### 扩展跟踪扩展生命周期和设置更改。
+
+- `gemini_cli.extension_install`：已安装扩展。
+  - **属性**：
+    - `extension_name`（字符串）
+    - `extension_version`（字符串）
+    - `extension_source`（字符串）
+    - `status`（字符串）
+
+- `gemini_cli.extension_uninstall`：扩展已卸载。
+  - **属性**：
+    - `extension_name`（字符串）
+    - `status`（字符串）
+
+- `gemini_cli.extension_enable`：扩展已启用。
+  - **属性**：
+    - `extension_name`（字符串）
+    - `setting_scope`（字符串）
+
+- `gemini_cli.extension_disable`：扩展被禁用。
+  - **属性**：
+    - `extension_name`（字符串）
+    - `setting_scope`（字符串）- `gemini_cli.extension_update`：扩展已更新。
+  - **属性**：
+    - `extension_name`（字符串）
+    - `extension_version`（字符串）
+    - `extension_previous_version`（字符串）
+    - `extension_source`（字符串）
+    - `status`（字符串）
+
+#### 代理运行
+
+- `gemini_cli.agent.start`：代理运行已开始。
+  - **属性**：
+    - `agent_id`（字符串）
+    - `agent_name`（字符串）
+
+- `gemini_cli.agent.finish`：代理运行完成。
+  - **属性**：
+    - `agent_id`（字符串）
+    - `agent_name`（字符串）
+    - `duration_ms` (int)
+    - `turn_count` (int)
+    - `terminate_reason`（字符串）
+
+#### 集成开发环境
+
+捕获 IDE 连接和对话生命周期事件。
+
+- `gemini_cli.ide_connection`：IDE 配套连接。
+  - **属性**：
+    - `connection_type`（字符串）
+
+#### 用户界面跟踪终端渲染问题和相关信号。
+
+- `kitty_sequence_overflow`：终端kitty控制序列溢出。
+  - **属性**：
+    - `sequence_length` (int)
+    - `truncated_sequence`（字符串）
+
+### 指标
+
+指标是对一段时间内行为的数值测量。
+
+#### 自定义
+
+##### 会议
+
+启动时对 CLI 会话进行计数。
+
+- `gemini_cli.session.count`（计数器，整数）：每次 CLI 启动时递增一次。
+
+##### Tools
+
+测量工具使用情况和延迟。
+
+- `gemini_cli.tool.call.count` (Counter, Int)：对工具调用进行计数。
+  - **属性**：
+    -`function_name`
+    - `success`（布尔值）
+    - `decision`（字符串：“接受”、“拒绝”、“修改”或“自动接受”，如果
+      适用）
+    - `tool_type`（字符串：“mcp”或“native”，如果适用）- `gemini_cli.tool.call.latency`（直方图，毫秒）：测量工具调用延迟。
+  - **属性**：
+    -`function_name`
+
+##### API
+
+跟踪 API 请求量和延迟。
+
+- `gemini_cli.api.request.count` (Counter, Int)：统计所有 API 请求。
+  - **属性**：
+    -`model`
+    -`status_code`
+    - `error_type`（如果适用）
+
+- `gemini_cli.api.request.latency`（直方图，毫秒）：测量 API 请求延迟。
+  - **属性**：
+    -`model`
+  - 注意：与`gen_ai.client.operation.duration`（GenAI 约定）重叠。
+
+##### 令牌使用
+
+跟踪模型和类型使用的令牌。- `gemini_cli.token.usage` (Counter, Int)：计算使用的令牌数。
+  - **属性**：
+    -`model`
+    - `type`（“输入”、“输出”、“思想”、“缓存”或“工具”）
+  - 注意：与`input`/`output` 的`gen_ai.client.token.usage` 重叠。
+
+##### 文件
+
+计算具有基本上下文的文件操作。
+
+- `gemini_cli.file.operation.count` (Counter, Int)：对文件操作进行计数。
+  - **属性**：
+    - `operation`（“创建”、“读取”、“更新”）
+    - `lines`（Int，可选）
+    - `mimetype`（字符串，可选）
+    - `extension`（字符串，可选）
+    - `programming_language`（字符串，可选）
+
+- `gemini_cli.lines.changed`（计数器，Int）：更改的行数（来自文件
+  差异）。
+  - **属性**：
+    -`function_name`
+    - `type`（“添加”或“删除”）
+
+##### 聊天和直播压缩、无效块和重试的弹性计数器。
+
+- `gemini_cli.chat_compression` (Counter, Int): 统计聊天压缩
+  操作。
+  - **属性**：
+    - `tokens_before`（国际）
+    - `tokens_after`（国际）
+
+- `gemini_cli.chat.invalid_chunk.count` (Counter, Int)：计数无效块
+  来自溪流。
+
+- `gemini_cli.chat.content_retry.count` (Counter, Int): Counts retries due to
+  内容错误。
+
+- `gemini_cli.chat.content_retry_failure.count` (Counter, Int)：对请求进行计数
+  所有内容重试均失败。
+
+##### 模型路由
+
+路由延迟/失败和斜线命令选择。
+
+- `gemini_cli.slash_command.model.call_count` (Counter, Int)：计数模型
+  通过斜杠命令进行选择。
+  - **属性**：
+    - `slash_command.model.model_name`（字符串）- `gemini_cli.model_routing.latency`（直方图，ms）：模型路由决策
+  延迟。
+  - **属性**：
+    - `routing.decision_model`（字符串）
+    - `routing.decision_source`（字符串）
+
+- `gemini_cli.model_routing.failure.count` (Counter, Int)：对模型路由进行计数
+  失败。
+  - **属性**：
+    - `routing.decision_source`（字符串）
+    - `routing.error_message`（字符串）
+
+##### 代理运行
+
+座席生命周期指标：运行次数、持续时间和轮次。
+
+- `gemini_cli.agent.run.count`（计数器，整数）：对代理运行进行计数。
+  - **属性**：
+    - `agent_name`（字符串）
+    - `terminate_reason`（字符串）
+
+- `gemini_cli.agent.duration`（直方图，毫秒）：代理运行持续时间。
+  - **属性**：
+    - `agent_name`（字符串）- `gemini_cli.agent.turns`（直方图，轮次）：每个代理运行的轮次。
+  - **属性**：
+    - `agent_name`（字符串）
+
+##### 审批模式
+
+###### 执行
+
+这些指标跟踪特定审批工作流程的采用和使用，例如
+作为计划模式。
+
+- `gemini_cli.plan.execution.count` (Counter, Int): Counts plan executions.
+  - **属性**：
+    - `approval_mode`（字符串）
+
+##### 用户界面
+
+UI 稳定性信号，例如闪烁次数。
+
+- `gemini_cli.ui.flicker.count` (Counter, Int)：对闪烁的 UI 帧进行计数
+  （渲染得比终端高）。
+
+##### 性能
+
+针对启动、CPU/内存和阶段计时的可选性能监控。
+
+- `gemini_cli.startup.duration`（直方图，毫秒）：CLI 各阶段启动时间。
+  - **属性**：
+    - `phase`（字符串）
+    - `details`（地图，可选）- `gemini_cli.memory.usage`（直方图，字节）：内存使用情况。
+  - **属性**：
+    - `memory_type`（“heap_used”，“heap_total”，“外部”，“rss”）
+    - `component`（字符串，可选）
+
+- `gemini_cli.cpu.usage`（直方图，百分比）：CPU 使用率百分比。
+  - **属性**：
+    - `component`（字符串，可选）
+
+- `gemini_cli.tool.queue.depth`（直方图，计数）：工具中的数量
+  执行队列。
+
+- `gemini_cli.tool.execution.breakdown`（直方图，毫秒）：按阶段的工具时间。
+  - **属性**：
+    - `function_name`（字符串）
+    - `phase`（“验证”、“准备”、“执行”、“结果处理”）- `gemini_cli.api.request.breakdown`（直方图，毫秒）：按阶段的 API 请求时间。
+  - **属性**：
+    - `model`（字符串）
+    - `phase` ("request_preparation", "network_latency", "response_processing",
+      “令牌处理”）
+
+- `gemini_cli.token.efficiency`（直方图，比率）：代币效率指标。
+  - **属性**：
+    - `model`（字符串）
+    - `metric`（字符串）
+    - `context`（字符串，可选）
+
+- `gemini_cli.performance.score`（直方图，分数）：综合表现
+  得分。
+  - **属性**：
+    - `category`（字符串）
+    - `baseline`（数字，可选）- `gemini_cli.performance.regression` (Counter, Int)：回归检测
+  事件。
+  - **属性**：
+    - `metric`（字符串）
+    - `severity`（“低”、“中”、“高”）
+    - `current_value`（数字）
+    - `baseline_value`（数字）
+
+- `gemini_cli.performance.regression.percentage_change`（直方图，百分比）：
+  检测到回归时相对于基线的变化百分比。
+  - **属性**：
+    - `metric`（字符串）
+    - `severity`（“低”、“中”、“高”）
+    - `current_value`（数字）
+    - `baseline_value`（数字）
+
+- `gemini_cli.performance.baseline.comparison`（直方图，百分比）：比较
+  到基线。
+  - **属性**：
+    - `metric`（字符串）
+    - `category`（字符串）
+    - `current_value`（号码）
+    - `baseline_value`（数字）
+
+#### GenAI 语义约定以下指标符合 [OpenTelemetry GenAI 语义约定]
+GenAI 应用程序的标准化可观测性：- `gen_ai.client.token.usage`（直方图、标记）：输入和输出的数量
+  每次操作使用的令牌。
+  - **属性**：
+    - `gen_ai.operation.name`（字符串）：操作类型（例如，
+      “生成内容”，“聊天”）
+    - `gen_ai.provider.name`（字符串）：GenAI 提供程序（“gcp.gen_ai”或
+      “gcp.vertex_ai”）
+    - `gen_ai.token.type`（字符串）：令牌类型（“输入”或“输出”）
+    - `gen_ai.request.model`（字符串，可选）：用于的型号名称
+      要求
+    - `gen_ai.response.model`（字符串，可选）：生成的模型名称
+      回应
+    - `server.address`（字符串，可选）：GenAI 服务器地址
+    - `server.port`（int，可选）：GenAI 服务器端口- `gen_ai.client.operation.duration`（直方图，s）：GenAI 运行持续时间
+  秒。
+  - **属性**：
+    - `gen_ai.operation.name`（字符串）：操作类型（例如，
+      “生成内容”，“聊天”）
+    - `gen_ai.provider.name`（字符串）：GenAI 提供程序（“gcp.gen_ai”或
+      “gcp.vertex_ai”）
+    - `gen_ai.request.model`（字符串，可选）：用于的型号名称
+      要求
+    - `gen_ai.response.model`（字符串，可选）：生成的模型名称
+      回应
+    - `server.address`（字符串，可选）：GenAI 服务器地址
+    - `server.port`（int，可选）：GenAI 服务器端口
+    - `error.type`（字符串，可选）：操作失败时的错误类型[OpenTelemetry GenAI 语义约定]：
+  https://github.com/open-telemetry/semantic-conventions/blob/main/docs/gen-ai/gen-ai-metrics.md
+[OpenTelemetry GenAI 事件语义约定]：
+  https://github.com/open-telemetry/semantic-conventions/blob/8b4f210f43136e57c1f6f47292eb6d38e3bf30bb/docs/gen-ai/gen-ai-events.md
+
+<AdPlaceholder />

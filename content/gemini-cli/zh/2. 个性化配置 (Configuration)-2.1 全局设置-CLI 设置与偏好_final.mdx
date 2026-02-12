@@ -1,0 +1,150 @@
+---
+title: "CLI 设置和首选项"
+description: "了解如何使用 /settings 命令和 settings.json 文件自定义 Gemini CLI 的各种配置，包括界面主题、快捷键、辅助功能等。"
+tool: "gemini-cli"
+slug: "cli-settings-preferences"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Gemini CLI 设置（`/settings` 命令）
+
+使用`/settings` 命令控制您的Gemini CLI 体验。 `/settings`
+命令打开一个对话框来查看和编辑所有 Gemini CLI 设置，包括
+您的 UI 体验、按键绑定和辅助功能。
+
+您的Gemini CLI 设置存储在`settings.json` 文件中。除了
+使用 `/settings` 命令，您还可以通过以下方式之一编辑它们
+地点：
+
+- **用户设置**：`~/.Gemini/settings.json`
+- **工作区设置**：`your-project/.Gemini/settings.json`
+
+<Callout type="note">
+注意：工作区设置会覆盖用户设置。
+</Callout>
+
+<AdPlaceholder />
+
+## 设置参考
+
+以下是所有可用设置的列表，按类别分组并排序为
+它们出现在用户界面中。
+
+{/* SETTINGS-AUTOGEN:START */}
+
+### 一般
+
+|用户界面标签|设置|描述 |默认|
+| ------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Vim 模式 | `general.vimMode` |启用 Vim 键绑定 | `false` |
+|默认审批模式| `general.defaultApprovalMode` |工具执行的默认批准模式。 “default”提示批准，“auto_edit”自动批准编辑工具，“plan”是只读模式。尚不支持“yolo”。 | `"default"` |
+|启用自动更新 | `general.enableAutoUpdate` |启用自动更新。                                                                                                                                                      | `true` |
+|启用提示完成 | `general.enablePromptCompletion` |打字时启用人工智能驱动的提示完成建议。                                                                                                                  | `false` |
+|调试击键记录 | `general.debugKeystrokeLogging` |启用控制台的击​​键调试日志记录。                                                                                                                             | `false` |
+|启用会话清理 | `general.sessionRetention.enabled` |启用自动会话清理 | `false` |
+
+＃＃＃ 输出|用户界面标签|设置|描述 |默认 |
+| ------------- | ---------------- | ------------------------------------------------------ | -------- |
+|输出格式 | `output.format` | CLI 输出的格式。可以是`text` 或`json`。 | `"text"` |
+
+### 用户界面| UI Label                             | Setting                                 | Description                                                                                                                                                       | Default |
+| ------------------------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| Auto Theme Switching                 | `ui.autoThemeSwitching`                 | Automatically switch between default light and dark themes based on terminal background color.                                                                    | `true`  |
+| Terminal Background Polling Interval | `ui.terminalBackgroundPollingInterval`  | Interval in seconds to poll the terminal background color.                                                                                                        | `60`    |
+| Hide Window Title                    | `ui.hideWindowTitle`                    | Hide the window title bar                                                                                                                                         | `false` |
+| Inline Thinking                      | `ui.inlineThinkingMode`                 | Display model thinking inline: off or full.                                                                                                                       | `"off"` |
+| Show Thoughts in Title               | `ui.showStatusInTitle`                  | Show Gemini CLI model thoughts in the terminal window title during the working phase                                                                              | `false` |
+| Dynamic Window Title                 | `ui.dynamicWindowTitle`                 | Update the terminal window title with current status icons (Ready: ◇, Action Required: ✋, Working: ✦)                                                            | `true`  |
+| Show Home Directory Warning          | `ui.showHomeDirectoryWarning`           | Show a warning when running Gemini CLI in the home directory.                                                                                                     | `true`  |
+| Hide Tips                            | `ui.hideTips`                           | Hide helpful tips in the UI                                                                                                                                       | `false` |
+| Show Shortcuts Hint                  | `ui.showShortcutsHint`                  | Show the "? for shortcuts" hint above the input.                                                                                                                  | `true`  |
+| Hide Banner                          | `ui.hideBanner`                         | Hide the application banner                                                                                                                                       | `false` |
+| Hide Context Summary                 | `ui.hideContextSummary`                 | Hide the context summary (Gemini.md, MCP servers) above the input.                                                                                                | `false` |
+| Hide CWD                             | `ui.footer.hideCWD`                     | Hide the current working directory path in the footer.                                                                                                            | `false` |
+| Hide Sandbox Status                  | `ui.footer.hideSandboxStatus`           | Hide the sandbox status indicator in the footer.                                                                                                                  | `false` |
+| Hide Model Info                      | `ui.footer.hideModelInfo`               | Hide the model name and context usage in the footer.                                                                                                              | `false` |
+| Hide Context Window Percentage       | `ui.footer.hideContextPercentage`       | Hides the context window remaining percentage.                                                                                                                    | `true`  |
+| Hide Footer                          | `ui.hideFooter`                         | Hide the footer from the UI                                                                                                                                       | `false` |
+| Show Memory Usage                    | `ui.showMemoryUsage`                    | Display memory usage information in the UI                                                                                                                        | `false` |
+| Show Line Numbers                    | `ui.showLineNumbers`                    | Show line numbers in the chat.                                                                                                                                    | `true`  |
+| Show Citations                       | `ui.showCitations`                      | Show citations for generated text in the chat.                                                                                                                    | `false` |
+| Show Model Info In Chat              | `ui.showModelInfoInChat`                | Show the model name in the chat for each model turn.                                                                                                              | `false` |
+| Show User Identity                   | `ui.showUserIdentity`                   | Show the logged-in user's identity (e.g. email) in the UI.                                                                                                        | `true`  |
+| Use Alternate Screen Buffer          | `ui.useAlternateBuffer`                 | Use an alternate screen buffer for the UI, preserving shell history.                                                                                              | `false` |
+| Use Background Color                 | `ui.useBackgroundColor`                 | Whether to use background colors in the UI.                                                                                                                         | `true`  |
+| Incremental Rendering                | `ui.incrementalRendering`               | Enable incremental rendering for the UI. This option will reduce flickering but may cause rendering artifacts. Only supported when useAlternateBuffer is enabled. | `true`  |
+| Show Spinner                         | `ui.showSpinner`                        | Show the spinner during operations.                                                                                                                               | `true`  |
+| Enable Loading Phrases               | `ui.accessibility.enableLoadingPhrases` | Enable loading phrases during operations.                                                                                                                         | `true`  |
+| Screen Reader Mode                   | `ui.accessibility.screenReader`         | Render output in plain-text to be more screen reader accessible                                                                                                   | `false` |### IDE
+
+|用户界面标签|设置|描述 |默认|
+| -------- | ------------- | ---------------------------- | -------- |
+| IDE 模式 | `ide.enabled` |启用 IDE 集成模式。 | `false` |
+
+### 型号
+
+|用户界面标签|设置|描述 |默认|
+| ----------------------- | ---------------------------- | ------------------------------------------------------------------------------------------ | -------- |
+|最大会话轮数 | `model.maxSessionTurns` |会话中保留的用户/模型/工具的最大轮数。 -1表示无限制。      | `-1` |
+|压缩阈值| `model.compressionThreshold` |触发上下文压缩的上下文使用比例（例如 0.2、0.3）。 | `0.5` |
+|禁用循环检测 | `model.disableLoopDetection` |禁用自动检测和防止无限循环。                          | `false` |
+|跳过下一个发言者检查 | `model.skipNextSpeakerCheck` |跳过下一个扬声器检查。                                                           | `true` |
+
+＃＃＃ 语境|用户界面标签|设置|描述 |默认|
+| ------------------------------------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+|内存发现最大目录 | `context.discoveryMaxDirs` |搜索内存的最大目录数。                                                                                                                                                                                         | `200` |
+|从包含目录加载内存| `context.loadMemoryFromIncludeDirectories` |控制/内存刷新如何加载 Gemini.md 文件。如果为 true，则扫描包含目录；如果为 false，则仅使用当前目录。                                                                                             | `false` |
+|尊重 .gitignore | `context.fileFiltering.respectGitIgnore` |搜索时尊重 .gitignore 文件。                                                                                                                                                                                                    | `true` |
+|尊重.geminiignore | `context.fileFiltering.respectGeminiIgnore` |搜索时尊重 .geminiignore 文件。                                                                                                                                                                                                 | `true` |
+|启用递归文件搜索 | `context.fileFiltering.enableRecursiveFileSearch` |在提示中完成@引用时启用递归文件搜索功能。                                                                                                                                                      | `true` |
+|启用模糊搜索 | `context.fileFiltering.enableFuzzySearch` |搜索文件时启用模糊搜索。                                                                                                                                                                                               | `true` |
+|自定义忽略文件路径| `context.fileFiltering.customIgnoreFilePaths` |要尊重的其他忽略文件路径。这些文件优先于 .geminiignore 和 .gitignore。数组中较早的文件优先于数组中较晚的文件，例如第一个文件优先于第二个文件。 | `[]` |### 工具
+
+|用户界面标签|设置|描述 |默认|
+| -------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+|启用交互式 Shell | `tools.shell.enableInteractiveShell` |使用 node-pty 获得交互式 shell 体验。回退到 child_process 仍然适用。                                                                                 | `true` |
+|显示颜色 | `tools.shell.showColor` |在 shell 输出中显示颜色。                                                                                                                                                | `false` |
+|使用 Ripgrep | `tools.useRipgrep` |使用 ripgrep 进行文件内容搜索而不是后备实现。提供更快的搜索性能。                                                            | `true` |
+|工具输出截断阈值| `tools.truncateToolOutputThreshold` |截断大型工具输出时显示的最大字符数。设置为 0 或负数以禁用截断。                                                                 | `40000` |
+|禁用LLM更正| `tools.disableLLMCorrection` |禁用编辑工具的基于 LLM 的纠错。启用后，如果未找到精确的字符串匹配，工具将立即失败，而不是尝试自我更正。 | `true` |
+
+＃＃＃ 安全|用户界面标签|设置|描述 |默认|
+| -------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- |
+|禁用 YOLO 模式 | `security.disableYoloMode` |禁用 YOLO 模式，即使已通过标志启用。                                                                                                                           | `false` |
+|允许永久工具批准 | `security.enablePermanentToolApproval` |在工具确认对话框中启用“允许所有未来会话”选项。                                                                                         | `false` |
+|阻止来自 Git 的扩展 | `security.blockGitExtensions` |阻止从 Git 安装和加载扩展。                                                                                                                      | `false` |
+|扩展源正则表达式白名单 | `security.allowedExtensions` |允许扩展的正则表达式模式列表。如果非空，则仅允许与此列表中的模式匹配的扩展。覆盖 blockGitExtensions 设置。 | `[]` |
+|文件夹信任 | `security.folderTrust.enabled` |设置以跟踪是否启用文件夹信任。                                                                                                                       | `true` |
+|启用环境变量编辑 | `security.environmentVariableRedaction.enabled` |启用可能包含机密的环境变量的编辑。                                                                                                     | `false` |
+
+### 高级
+
+|用户界面标签|设置|描述 |默认|
+| --------------------------------- | ------------------------------------------ | -------------------------------------------------------- | -------- |
+|自动配置最大旧空间大小 | `advanced.autoConfigureMemory` |自动配置 Node.js 内存限制 | `false` |
+
+### 实验性的|用户界面标签|设置|描述 |默认|
+| -------------------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- | -------- |
+|启用工具输出屏蔽 | `experimental.toolOutputMasking.enabled` |启用工具输出屏蔽以保存令牌。                                         | `true` |
+|使用 OSC 52 粘贴 | `experimental.useOSC52Paste` |使用 OSC 52 序列进行粘贴而不是剪贴板（对于远程会话有用）。 | `false` |
+|计划| `experimental.plan` |启用计划功能（计划模式和工具）。                                     | `false` |
+
+### 技能
+
+|用户界面标签|设置|描述 |默认|
+| ------------------- | ---------------- | -------------------- | -------- |
+|启用代理技能 | `skills.enabled` |启用代理技能。 | `true` |
+
+### 钩子配置
+
+|用户界面标签|设置|描述 |默认|
+| ------------------ | ------------------------ | | -------------------------------------------------------------------------------- | -------- |
+|启用挂钩 | `hooksConfig.enabled` |挂钩系统的规范切换。禁用后，不会执行任何钩子。 | `true` |
+|挂钩通知 | `hooksConfig.notifications` |执行钩子时显示视觉指示器。                                 | `true` |
+
+{/* SETTINGS-AUTOGEN:END */}
+
+<AdPlaceholder />

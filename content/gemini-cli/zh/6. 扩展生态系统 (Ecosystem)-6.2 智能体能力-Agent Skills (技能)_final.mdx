@@ -1,0 +1,210 @@
+---
+title: "代理技巧"
+description: "了解 Gemini CLI 的代理技能功能，并了解如何创建和使用专门的代理技能来扩展 CLI 功能。"
+tool: "gemini-cli"
+slug: "agent-skills"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 特工技能
+
+代理技能允许您使用专业知识扩展Gemini CLI，
+程序工作流程和特定于任务的资源。基于
+[Agent Skills](https://agentskills.io)开放标准，一个“技能”就是一个
+将指令和资产打包到一个独立的目录中
+可发现的能力。
+
+<AdPlaceholder />
+
+## 概述
+
+与一般上下文文件 ([@@P0@@](/docs/cli/Gemini-md)) 不同，它提供
+持久的工作空间背景，技能代表**按需专业知识**。
+这使得 Gemini 能够维护一个庞大的专业功能库，例如
+如安全审计、云部署或代码库迁移——无需
+使模型的直接上下文窗口变得混乱。Gemini 根据您的要求和实际情况自主决定何时使用某项技能
+技能的描述。当识别出相关技能时，模型就会“引入”
+使用完成任务所需的完整说明和资源
+`activate_skill`工具。
+
+## 主要优点- **共享专业知识：** 打包复杂的工作流程（例如特定团队的 PR
+  审查过程）放入任何人都可以使用的文件夹中。
+- **可重复的工作流程：** 确保执行复杂的多步骤任务
+  通过提供程序框架来保持一致。
+- **资源捆绑：** 包括脚本、模板或示例数据
+  说明，以便代理拥有所需的一切。
+- **渐进式披露：** 仅技能元数据（名称和描述）是
+  最初加载。详细说明和资源仅在以下情况下披露：
+  模型显式激活技能，保存上下文标记。
+
+## 技能发现等级
+
+Gemini CLI 从三个主要位置发现技能：1. **工作空间技能** (`.Gemini/skills/`)：特定于工作空间的技能
+    通常致力于版本控制并与团队共享。
+2. **用户技能** (`~/.Gemini/skills/`)：所有人员都可以使用的个人技能
+    您的工作空间。
+3. **扩展技能**：已安装的技能捆绑
+    [extensions](/docs/extensions)。
+
+**优先级：** 如果多个技能具有相同的名称，则优先级更高
+位置覆盖较低的位置：**工作区>用户>分机**。
+
+## 管理技巧
+
+### 在互动会话中
+
+使用`/skills`斜杠命令查看和管理可用的专业知识：- `/skills list`（默认）：显示所有发现的技能及其状态。
+- `/skills link <path>`：通过符号链接从本地目录链接代理技能。
+- `/skills disable <name>`：防止使用特定技能。
+- `/skills enable <name>`：重新启用已禁用的技能。
+- `/skills reload`：刷新所有级别的已发现技能列表。
+
+<Callout type="note">
+注意：`/skills disable` 和`/skills enable` 默认为`user` 范围。使用
+`--scope workspace` 管理工作区特定的设置。
+</Callout>
+
+### 从终端
+
+`Gemini skills` 命令提供管理实用程序：
+```
+bas
+h
+# List all discovered skills
+gemini skills list
+
+# Link agent skills from a local directory via symlink
+# Discovers skills (SKILL.md or */SKILL.md) and creates symlinks in ~/.gemini/skills (user)
+gemini skills link /path/to/my-skills-repo
+
+# Link to the workspace scope (.gemini/skills)
+gemini skills link /path/to/my-skills-repo --scope workspace
+
+# Install a skill from a Git repository, local directory, or zskill)
+# Usesipped skill file (. the user scope by default (~/.gemini/skills)
+gemini skills install https://github.com/user/repo.git
+gemini skills install /path/to/local/skill
+gemini skills install /path/to/local/my-expertise.skill
+
+# Install a specific skill from a monorepo or subdirectory using --path
+gemini skills install https://github.com/my-org/my-skills.git --path skills/frontend-design
+
+# Install to the workspace scope (.gemini/skills)
+gemini skills install /path/to/skill --scope workspace
+
+# Uninstall a skill by name
+gemini skills uninstall my-expertise --scope workspace
+
+# Enable a skill (globally)
+gemini skills enable my-expertise
+
+# Disable a skill. Can use --scope to specify workspace or user (defaults to workspace)
+gemini skills disable my-expertise --scope workspace
+```
+## 它是如何工作的1. **发现**：在会话开始时，Gemini CLI 扫描发现
+    层并将所有启用的技能的名称和描述注入到
+    系统提示。
+2. **激活**：当Gemini识别出与技能匹配的任务时
+    描述，它调用`activate_skill`工具。
+3. **同意**：您将在 UI 中看到确认提示，详细说明
+    技能的名称、用途以及它将访问的目录路径。
+4. **注射**：经您批准：
+    - `SKILL.md` 正文和文件夹结构添加到对话中
+      历史。
+    - 技能的目录被添加到代理允许的文件路径中，授予
+      它允许读取任何捆绑的资产。
+5. **执行**：模型在专业知识激活的情况下继续进行。它
+    被指示在合理范围内优先考虑技能的程序指导。### 技能激活
+
+一旦技能被激活（通常通过Gemini识别匹配的任务）
+技能的描述和您的批准）、其专门说明和
+资源被加载到代理的上下文中。技能保持活跃并且其
+在会议期间优先提供指导。
+
+## 创造你自己的技能
+
+要创建自己的技能，请参阅[Create Agent Skills](/docs/cli/creating-skills)
+指导。
+
+# 创建代理技能
+
+本指南概述了如何创建您自己的代理技能以扩展
+Gemini CLI 的功能。
+
+## 入门：`skill-creator` 技能
+
+创建新技能的推荐方法是使用内置`skill-creator`
+技能。要使用它，请要求 Gemini CLI 为您创建一项新技能。
+
+**提示示例：**>“创建一项名为‘代码审阅者’的新技能”
+
+Gemini CLI 然后将使用 `skill-creator` 生成技能：
+
+1. 为您的技能生成一个新目录（例如`my-new-skill/`）。
+2. 使用必要的 YAML frontmatter 创建 `SKILL.md` 文件（`name` 和
+    `description`）。
+3. 创建标准资源目录：`scripts/`、`references/` 和
+    `assets/`。
+
+## 手动创建技能
+
+如果您更喜欢手动创建技能：
+
+1. **为您的技能创建一个目录**（例如`my-new-skill/`）。
+2. **在新目录中创建`SKILL.md` 文件**。
+
+要添加支持该技能的其他资源，请参阅该技能
+结构。
+
+## 技能结构
+
+技能是一个根目录包含 `SKILL.md` 文件的目录。
+
+### 文件夹结构虽然 `SKILL.md` 文件是唯一必需的组件，但我们建议
+以下结构用于组织您的技能资源：
+```
+tex
+t
+my-skill/
+├── SKILL.md       (Required) Instructions and metadata
+├── scripts/       (Optional) Executable scripts
+├── references/    (Optional) Static documentation
+└── assets/        (Optional) Templates and other resources
+```
+### `SKILL.md` 文件
+
+`SKILL.md` 文件是您技能的核心。该文件使用 YAML frontmatter
+获取元数据和 Markdown 获取说明。例如：
+```
+markdow
+n
+---
+name: code-reviewer
+description:
+  Use this skill to review code. It supports both local changes and remote Pull
+  Requests.
+---
+
+# Code Reviewer
+
+This skill guides the agent in conducting thorough code reviews.
+
+## Workflow
+
+### 1. Determine Review Target
+
+- **Remote PR**: If the user gives a PR number or URL, target that remote PR.
+- **Local Changes**: If changes are local... ...
+```
+-
+ **`name`**：技能的唯一标识符。这应该与目录匹配
+  名字。
+- **`description`**：描述该技能的作用以及Gemini何时应该使用
+  使用它。
+- **正文**：文件的 Markdown 正文包含指导说明
+  技能激活时代理的行为。
+
+<AdPlaceholder />

@@ -1,0 +1,392 @@
+---
+title: "无头模式"
+description: "了解如何通过命令行脚本和自动化工具使用 Gemini CLI 的无头模式，包括直接提示、Stdin 输入、JSON 输出格式等。"
+tool: "gemini-cli"
+slug: "headless-mode"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 无头模式
+
+<AdPlaceholder />
+
+无头模式允许您从命令行以编程方式运行Gemini CLI
+没有任何交互式 UI 的脚本和自动化工具。这非常适合
+脚本编写、自动化、CI/CD 管道以及构建人工智能驱动的工具。-[Headless Mode](#headless-mode)
+  -[Overview](#overview)
+  -[Basic Usage](#basic-usage)
+    -[Direct Prompts](#direct-prompts)
+    -[Stdin Input](#stdin-input)
+    -[Combining with File Input](#combining-with-file-input)
+  -[Output Formats](#output-formats)
+    -[Text Output (Default)](#text-output-default)
+    -[JSON Output](#json-output)
+      -[Response Schema](#response-schema)
+      -[Example Usage](#example-usage)
+    -[Streaming JSON Output](#streaming-json-output)
+      -[When to Use Streaming JSON](#when-to-use-streaming-json)
+      -[Event Types](#event-types)
+      -[Basic Usage](#basic-usage)
+      -[Example Output](#example-output)
+      -[Processing Stream Events](#processing-stream-events)
+      -[Real-World Examples](#real-world-examples)
+    -[File Redirection](#file-redirection)
+  -[Configuration Options](#configuration-options)
+  -[Examples](#examples)
+    - [Code review](#code-review)
+    -[Generate commit messages](#generate-commit-messages)
+    -[API documentation](#api-documentation)
+    -[Batch code analysis](#batch-code-analysis)
+    -[Code review](#code-review-1)
+    -[Log analysis](#log-analysis)
+    -[Release notes generation](#release-notes-generation)
+    -[Model and tool usage tracking](#model-and-tool-usage-tracking)
+  -[Resources](#resources)
+<AdPlaceholder />
+
+## 概述
+
+无头模式为 Gemini CLI 提供无头接口：
+
+- 通过命令行参数或标准输入接受提示
+- Returns structured output (text or JSON)
+- 支持文件重定向和管道
+- 支持自动化和脚本工作流程
+- 为错误处理提供一致的退出代码
+
+## 基本用法
+
+### 直接提示
+
+使用`--prompt`（或`-p`）标志在无头模式下运行：
+```
+bas
+h
+gemini --prompt "What is machine learning?"
+```
+### 标准输入
+
+从终端通过管道输入到 Gemini CLI：
+```
+bas
+h
+echo "Explain this code" | gemini
+```
+### 与文件输入结合
+
+从文件中读取并使用 Gemini 进行处理：
+```
+bas
+h
+cat README.md | gemini --prompt "Summarize this documentation"
+```
+## 输出格式
+
+### 文本输出（默认）
+
+标准人类可读输出：
+```
+bas
+h
+gemini -p "What is the capital of France?"
+```
+响应格式：
+```
+The capital of France is Paris.
+```
+### JSON 输出
+
+返回结构化数据，包括响应、统计数据和元数据。这个
+格式非常适合编程处理和自动化脚本。
+
+#### 响应模式
+
+JSON 输出遵循以下高级结构：
+```
+jso
+n
+{
+  "response": "string", // The main AI-generated content answering your prompt
+  "stats": {
+    // Usage metrics and performance data
+    "models": {
+      // Per-model API and token usage statistics
+      "[model-name]": {
+        "api": {
+          /* request counts, errors, latency */
+        },
+        "tokens": {
+          /* prompt, response, cached, total counts */
+        }
+      }
+    },
+    "tools": {
+      // Tool execution statistics
+      "totalCalls": "number",
+      "totalSuccess": "number",
+      "totalFail": "number",
+      "totalDurationMs": "number",
+      "totalDecisions": {
+        /* accept, reject, modify, auto_accept counts */
+      },
+      "byName": {
+        /* per-tool detailed stats */
+      }
+    },
+    "files": {
+      // File modification statistics
+      "totalLinesAdded": "number",
+      "totalLinesRemoved": "number"
+    }
+  },
+  "error": {
+    // Present only when an error occurred
+    "type": "string", // Error type (e.g., "ApiError", "AuthError")
+    "message": "string", // Human-readable error description
+    "code": "number" // Optional error code
+  }
+}
+```
+#### 用法示例
+```
+bas
+h
+gemini -p "What is the capital of France?" --output-format json
+```
+回复：
+```
+jso
+n
+{
+  "response": "The capital of France is Paris.",
+  "stats": {
+    "models": {
+      "gemini-2.5-pro": {
+        "api": {
+          "totalRequests": 2,
+          "totalErrors": 0,
+          "totalLatencyMs": 5053
+        },
+        "tokens": {
+          "prompt": 24939,
+          "candidates": 20,
+          "total": 25113,
+          "cached": 21263,
+          "thoughts": 154,
+          "tool": 0
+        }
+      },
+      "gemini-2.5-flash": {
+        "api": {
+          "totalRequests": 1,
+          "totalErrors": 0,
+          "totalLatencyMs": 1879
+        },
+        "tokens": {
+          "prompt": 8965,
+          "candidates": 10,
+          "total": 9033,
+          "cached": 0,
+          "thoughts": 30,
+          "tool": 28
+        }
+      }
+    },
+    "tools": {
+      "totalCalls": 1,
+      "totalSuccess": 1,
+      "totalFail": 0,
+      "totalDurationMs": 1881,
+      "totalDecisions": {
+        "accept": 0,
+        "reject": 0,
+        "modify": 0,
+        "auto_accept": 1
+      },
+      "byName": {
+        "google_web_search": {
+          "count": 1,
+          "success": 1,
+          "fail": 0,
+          "durationMs": 1881,
+          "decisions": {
+            "accept": 0,
+            "reject": 0,
+            "modify": 0,
+            "auto_accept": 1
+          }
+        }
+      }
+    },
+    "files": {
+      "totalLinesAdded": 0,
+      "totalLinesRemoved": 0
+    }
+  }
+}
+```
+### 流式 JSON 输出
+
+以换行符分隔的 JSON (JSONL) 形式返回实时事件。每一个重要的
+操作（初始化、消息、工具调用、结果）立即发出
+发生。这种格式非常适合监控长时间运行的操作、构建
+具有实时进度的 UI，并创建对事件做出反应的自动化管道。
+
+#### 何时使用流式 JSON
+
+当你需要时使用`--output-format stream-json`：- **实时进度监控** - 查看工具调用和响应
+  发生
+- **事件驱动的自动化** - 对特定事件做出反应（例如，工具故障）
+- **实时 UI 更新** - 构建实时显示 AI 代理活动的界面
+- **详细的执行日志** - 捕获完整的交互历史记录
+  时间戳
+- **管道集成** - 将事件流式传输到日志记录/监控系统
+
+#### 事件类型
+
+流格式发出 6 种事件类型：1. **`init`** - 会话开始（包括session_id、型号）
+2. **`message`** - 用户提示和助理响应
+3. **`tool_use`** - 带参数的工具调用请求
+4. **`tool_result`** - 工具执行结果（成功/错误）
+5. **`error`** - 非致命错误和警告
+6. **`result`** - 最终会议结果及汇总统计数据
+
+#### 基本用法
+```
+bas
+h
+# Stream events to console
+gemini --output-format stream-json --prompt "What is 2+2?"
+
+# Save event stream to file
+gemini --output-format stream-json --prompt "Analyze this code" > events.jsonl
+
+# Parse with jq
+gemini --output-format stream-json --prompt "List files" | jq -r '.type'
+```
+#### 输出示例
+
+每一行都是一个完整的 JSON 事件：
+```
+json
+l
+{"type":"init","timestamp":"2025-10-10T12:00:00.000Z","session_id":"abc123","model":"gemini-2.0-flash-exp"}
+{"type":"message","role":"user","content":"List files in current directory","timestamp":"2025-10-10T12:00:01.000Z"}
+{"type":"tool_use","tool_name":"Bash","tool_id":"bash-123","parameters":{"command":"ls -la"},"timestamp":"2025-10-10T12:00:02.000Z"}
+{"type":"tool_result","tool_id":"bash-123","status":"success","output":"file1.txt\nfile2.txt","timestamp":"2025-10-10T12:00:03.000Z"}
+{"type":"message","role":"assistant","content":"Here are the files...","delta":true,"timestamp":"2025-10-10T12:00:04.000Z"}
+{"type":"result","status":"success","stats":{"total_tokens":250,"input_tokens":50,"output_tokens":200,"duration_ms":3000,"tool_calls":1},"timestamp":"2025-10-10T12:00:05.000Z"}
+```
+### 文件重定向
+
+将输出保存到文件或通过管道传输到其他命令：
+```
+bas
+h
+# Save to file
+gemini -p "Explain Docker" > docker-explanation.txt
+gemini -p "Explain Docker" --output-format json > docker-explanation.json
+
+# Append to file
+gemini -p "Add more details" >> docker-explanation.txt
+
+# Pipe to other tools
+gemini -p "What is Kubernetes?" --output-format json | jq '.response'
+gemini -p "Explain microservices" | wc -w
+gemini -p "List programming languages" | grep -i "python"
+```
+## 配置选项
+
+无头使用的关键命令行选项：|选项 |描述 |示例|
+| ----------------------- | ---------------------------------- | -------------------------------------------------- |
+| `--prompt`、`-p` |以无头模式运行 | `Gemini -p "query"` |
+| `--output-format` |指定输出格式（文本、json）| `Gemini -p "query" --output-format json` |
+| `--model`、`-m` |指定Gemini型号| `Gemini -p "query" -m Gemini-2.5-flash` |
+| `--debug`、`-d` |启用调试模式 | `Gemini -p "query" --debug` |
+| `--include-directories` |包括附加目录 | `Gemini -p "query" --include-directories src,docs` |
+| `--yolo`、`-y` |自动批准所有操作 | `Gemini -p "query" --yolo` |
+| `--approval-mode` |设置审批模式 | `Gemini -p "query" --approval-mode auto_edit` |有关所有可用配置选项、设置文件和的完整详细信息
+环境变量，参见
+[Configuration Guide](/docs/get-started/configuration)。
+
+## 示例
+
+#### 代码审查
+```
+bas
+h
+cat src/auth.py | gemini -p "Review this authentication code for security issues" > security-review.txt
+```
+#### 生成提交消息
+```
+bas
+h
+result=$(git diff --cached | gemini -p "Write a concise commit message for these changes" --output-format json)
+echo "$result" | jq -r '.response'
+```
+#### API 文档
+```
+bas
+h
+result=$(cat api/routes.js | gemini -p "Generate OpenAPI spec for these routes" --output-format json)
+echo "$result" | jq -r '.response' > openapi.json
+```
+#### 批量代码分析
+```
+bas
+h
+for file in src/*.py; do
+    echo "Analyzing $file..."
+    result=$(cat "$file" | gemini -p "Find potential bugs and suggest improvements" --output-format json)
+    echo "$result" | jq -r '.response' > "reports/$(basename "$file").analysis"
+    echo "Completed analysis for $(basename "$file")" >> reports/progress.log
+done
+```
+#### 代码审查
+```
+bas
+h
+result=$(git diff origin/main...HEAD | gemini -p "Review these changes for bugs, security issues, and code quality" --output-format json)
+echo "$result" | jq -r '.response' > pr-review.json
+```
+#### 日志分析
+```
+bas
+h
+grep "ERROR" /var/log/app.log | tail -20 | gemini -p "Analyze these errors and suggest root cause and fixes" > error-analysis.txt
+```
+#### 发行说明生成
+```
+bas
+h
+result=$(git log --oneline v1.0.0..HEAD | gemini -p "Generate release notes from these commits" --output-format json)
+response=$(echo "$result" | jq -r '.response')
+echo "$response"
+echo "$response" >> CHANGELOG.md
+```
+#### 模型和工具使用情况跟踪
+```
+bas
+h
+result=$(gemini -p "Explain this database schema" --include-directories db --output-format json)
+total_tokens=$(echo "$result" | jq -r '.stats.models // {} | to_entries | map(.value.tokens.total) | add // 0')
+models_used=$(echo "$result" | jq -r '.stats.models // {} | keys | join(", ") | if . == "" then "none" else . end')
+tool_calls=$(echo "$result" | jq -r '.stats.tools.totalCalls // 0')
+tools_used=$(echo "$result" | jq -r '.stats.tools.byName // {} | keys | join(", ") | if . == "" then "none" else . end')
+echo "$(date): $total_tokens tokens, $tool_calls tool calls ($tools_used) used with models: $models_used" >> usage.log
+echo "$result" | jq -r '.response' > schema-docs.md
+echo "Recent usage trends:"
+tail -5 usage.log
+```
+## 资源
+
+- [CLI Configuration](/docs/get-started/configuration) - 完整配置
+  指南
+- [Authentication](/docs/get-started/authentication) - 设置身份验证
+- [Commands](/docs/cli/commands) - 交互式命令参考
+- [Tutorials](/docs/cli/tutorials) - 分步自动化指南
+
+<AdPlaceholder />

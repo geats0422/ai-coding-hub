@@ -1,0 +1,188 @@
+---
+title: "沙盒"
+description: "了解如何使用 Gemini CLI 中的沙盒功能，包括 Docker/Podman 容器和 macOS Seatbelt 配置。"
+tool: "gemini-cli"
+slug: "sandboxing"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Gemini CLI 中的沙箱
+
+<AdPlaceholder />
+
+本文档提供了 Gemini CLI 中沙箱的指南，包括
+先决条件、快速入门和配置。
+
+## 先决条件
+
+在使用沙箱之前，您需要安装并设置Gemini CLI：
+```
+bas
+h
+npm install -g @google/gemini-cli
+```
+要验证安装：
+```
+bas
+h
+gemini --version
+```
+<AdPlaceholder />
+
+## 沙箱概述
+
+沙盒隔离潜在危险的操作（例如 shell 命令或
+文件修改）从您的主机系统，提供了安全屏障
+人工智能操作和您的环境。
+
+沙箱的好处包括：
+
+- **安全**：防止意外的系统损坏或数据丢失。
+- **隔离**：限制文件系统对项目目录的访问。
+- **一致性**：确保不同系统之间的可重现环境。
+- **安全**：降低使用不受信任的代码或实验代码时的风险
+  命令。
+
+## 沙盒方法
+
+您理想的沙箱方法可能会有所不同，具体取决于您的平台和您的
+首选容器解决方案。
+
+### 1. macOS 安全带（仅限 macOS）
+
+使用`sandbox-exec` 的轻量级内置沙箱。**默认配置文件**：`permissive-open` - 限制在项目外部写入
+目录，但允许大多数其他操作。
+
+### 2.基于容器（Docker/Podman）
+
+具有完全进程隔离的跨平台沙箱。
+
+<Callout type="note">
+注意：需要在本地构建沙箱映像或使用已发布的映像
+来自您组织的注册表。
+</Callout>
+
+## 快速入门
+```
+bas
+h
+# Enable sandboxing with command flag
+gemini -s -p "analyze the code structure"
+
+# Use environment variable
+export GEMINI_SANDBOX=true
+gemini -p "run the test suite"
+
+# Configure in settings.json
+{
+  "tools": {
+    "sandbox": "docker"
+  }
+}
+```
+## 配置
+
+### 启用沙箱（按优先顺序）
+
+1. **命令标志**：`-s`或`--sandbox`
+2. **环境变量**：`GEMINI_SANDBOX=true|docker|podman|sandbox-exec`
+3. **设置文件**：您的`tools`对象中的`"sandbox": true`
+   `settings.json` 文件（例如`{"tools": {"sandbox": true}}`）。
+
+### macOS Seatbelt profiles
+
+内置配置文件（通过`SEATBELT_PROFILE` env var设置）：
+
+- `permissive-open`（默认）：写入限制，允许网络
+-`permissive-closed`：写入限制，无网络
+- `permissive-proxied`：写入限制，通过代理网络
+-`restrictive-open`：严格限制，网络允许
+- `restrictive-closed`：最大限制
+
+### 自定义沙箱标志对于基于容器的沙箱，您可以将自定义标志注入`docker`或
+使用`SANDBOX_FLAGS` 环境变量的`podman` 命令。这很有用
+用于高级配置，例如禁用特定的安全功能
+用例。
+
+**示例（Podman）**：
+
+要禁用卷挂载的 SELinux 标签，您可以设置以下内容：
+```
+bas
+h
+export SANDBOX_FLAGS="--security-opt label=disable"
+```
+多个标志可以作为空格分隔的字符串提供：
+```
+bas
+h
+export SANDBOX_FLAGS="--flag1 --flag2=value"
+```
+## Linux UID/GID 处理
+
+沙箱自动处理 Linux 上的用户权限。覆盖这些
+权限：
+```
+bas
+h
+export SANDBOX_SET_UID_GID=true   # Force host UID/GID
+export SANDBOX_SET_UID_GID=false  # Disable UID/GID mapping
+```
+## 故障排除
+
+### 常见问题
+
+**“不允许操作”**
+
+- 操作需要访问沙箱外部。
+- 尝试更宽松的配置文件或添加安装点。
+
+**缺少命令**
+
+- 添加到自定义 Dockerfile。
+- 通过`sandbox.bashrc`安装。
+
+**网络问题**
+
+- 检查沙箱配置文件是否允许网络。
+- 验证代理配置。
+
+### 调试模式
+```
+bas
+h
+DEBUG=1 gemini -s -p "debug command"
+```
+<Callout type="note">
+注意：如果项目的`.env`文件中有`DEBUG=true`，则不会影响
+Gemini-cli 由于自动排除。将`.Gemini/.env` 文件用于gemini-cli
+具体的调试设置。
+</Callout>
+
+### 检查沙箱
+```
+bas
+h
+# Check environment
+gemini -s -p "run shell command: env | grep SANDBOX"
+
+# List mounts
+gemini -s -p "run shell command: mount | grep workspace"
+```
+## 安全说明
+
+- 沙盒可以减少但不能消除所有风险。
+- 使用允许您工作的最严格的配置文件。
+- 首次构建后容器开销最小。
+- GUI 应用程序可能无法在沙箱中运行。
+
+## 相关文档
+
+- [Configuration](/docs/get-started/configuration)：完整配置选项。
+- [Commands](/docs/cli/commands)：可用命令。
+- [Troubleshooting](/docs/troubleshooting)：一般故障排除。
+
+<AdPlaceholder />

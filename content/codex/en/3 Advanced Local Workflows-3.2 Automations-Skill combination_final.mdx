@@ -1,0 +1,109 @@
+---
+title: "Skill combination"
+description: "Learn how to use Codex skills together to extend agent capabilities, including creating, managing, and using skills"
+tool: "codex"
+slug: "skills"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Agent skills
+
+Extend Codex's mission-specific capabilities using agent skills. Skills package instructions, resources, and optional scripts so that Codex can reliably follow workflows. You can share skills across teams or with the community. Skills based on [开放代理技能标准](https://agentskills.io).
+
+Skills are available in the Codex CLI, IDE extensions, and Codex apps.
+
+Skills use **Progressive Disclosure** to efficiently manage context: the Codex starts with metadata for each skill (`name`, `description`, file path, and optional metadata from `agents/openai.yaml`). The full `SKILL.md` command is only loaded when the Codex decides to use the skill.
+
+A skill is a directory containing `SKILL.md` files plus optional scripts and references. `SKILL.md` The file must contain `name` and `description`.
+
+<AdPlaceholder />
+
+## Codex How to use skills
+
+Codex can activate skills in two ways:1. **Explicit call:** Include the skill directly in the prompt word. In the CLI/IDE, run `/skills` or type `$` to mention the skill.
+2. **Implicit call:** When your task matches skill `description`, Codex can select the skill.
+
+Because implicit matching depends on `description`, write a description with clear scope and boundaries.
+
+## Create skills
+
+Start by using the built-in creator:
+```
+$skill-creator
+```The
+ creator will ask what the skill does, when it triggers, and whether it should remain a pure command or contain a script. Pure directive is the default.
+
+You can also create skills manually by creating a folder with a `SKILL.md` file:
+```m
+d
+---
+name: skill-name
+description: 准确解释此技能何时应该和不应该触发。
+---
+
+Codex 遵循的技能指令。
+```Codex
+ automatically detects skill changes. If updates don't appear, restart Codex.
+
+## Save location
+
+Codex reads skills from repository, user, administrator and system locations. For repositories, Codex scans every directory in your current working directory for `.agents/skills`, up to the repository root. If two skills share the same `name`, the Codex will not merge them; both can appear in the skill selector.| Skill Scope | Location | Recommended Use |
+| -------- | ---- | -------- |
+| `REPO` | `$CWD/.agents/skills` <br /> Current working directory: The location where Codex was launched | If you are in a repository or code environment, the team can check the skills associated with the working folder. For example, skills related only to microservices or modules. |
+| `REPO` | `$CWD/../.agents/skills` <br /> The folder above CWD when you launch Codex within a Git repository | If you are in a repository with nested folders, your organization can check the shared area in the parent folder for skills related to the shared area. |
+| `REPO` | `$REPO_ROOT/.agents/skills` <br /> The top-most root folder when you launch Codex within a Git repository | If you are in a repository with nested folders, your organization can check the skills relevant to everyone using the repository. These are available as root skills and can be used by any subfolder in the repository. |
+| `USER` | `$HOME/.agents/skills` <br /> Check into the user's personal folder for any skills | Used to curate skills that are applicable to the user but applicable to any repositories the user may work in. |
+| `ADMIN` | `/etc/codex/skills` <br /> Check for any skills in shared, system locations on a machine or container | Used for SDK scripts, automation, and checking for available default administrator skills for every user on the machine. |
+| `SYSTEM` | Bundled in Codex by OpenAI | Skills relevant to a broad audience, such as Skill Creator and Planning skills. Available to everyone when launching Codex. |
+
+Codex supports symlinked skill folders and follows symlink targets when scanning these locations.
+
+## Install skillsTo install skills other than built-in skills, use `$skill-installer`:
+```bas
+$skill-installer install the linear skill from the .experimental folder
+```You
+ can also prompt the installer to download skills from other repositories. Codex will automatically detect newly installed skills; if they do not appear, please restart Codex.
+
+## Enable or disable skills
+
+Use the `[[skills.config]]` entry to disable a skill in `~/.codex/config.toml` without deleting it:
+```tom
+[[skills.config]]
+path = "/path/to/skill/SKILL.md"
+enabled = false
+```Restart
+ Codex after changing `~/.codex/config.toml`.
+
+## Optional UI and dependency metadata
+
+To configure the skill's appearance in [Codex 应用](https://developers.openai.com/codex/app) or declare an MCP dependency, add `agents/openai.yaml`:
+```yam
+interface:
+  display_name: "可选的用户界面名称"
+  short_description: "可选的用户界面描述"
+  icon_small: "./assets/small-logo.svg"
+  icon_large: "./assets/large-logo.png"
+  brand_color: "#3B82F6"
+  default_prompt: "使用技能的周围提示词（可选）"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "openaiDeveloperDocs"
+      description: "OpenAI Docs MCP 服务器"
+      transport: "streamable_http"
+      url: "https://developers.openai.com/mcp"
+```
+## Best Practices
+
+- Focus each skill on one job.
+- Prefer directives over scripts unless deterministic behavior or external tools are required.
+- Write imperative steps with clear inputs and outputs.
+- Test cue words against skill descriptions to confirm correct trigger behavior.
+
+See [github.com/openai/skills](https://github.com/openai/skills) and [代理技能规范](https://agentskills.io/specification) for more examples.
+
+<AdPlaceholder />

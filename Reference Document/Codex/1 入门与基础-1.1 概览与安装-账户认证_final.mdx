@@ -1,0 +1,162 @@
+---
+title: "账户认证"
+description: "了解 Codex 的认证方式，包括 ChatGPT 登录和 API Key 认证，以及安全最佳实践"
+tool: "codex"
+slug: "authentication"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 账户认证
+
+## OpenAI 认证
+
+Codex 支持两种使用 OpenAI 模型时的登录方式：
+
+- 使用 ChatGPT 登录以获取订阅访问权限
+- 使用 API 密钥进行按量付费访问
+
+Codex 云需要使用 ChatGPT 登录。Codex CLI 和 IDE 扩展支持这两种登录方式。
+
+<AdPlaceholder />
+
+### 使用 ChatGPT 登录
+
+当您从 Codex 应用、CLI 或 IDE 扩展使用 ChatGPT 登录时，Codex 会打开一个浏览器窗口让您完成登录流程。登录完成后，浏览器会将访问令牌返回给 CLI 或 IDE 扩展。
+
+### 使用 API 密钥登录
+
+您也可以使用 API 密钥登录 Codex 应用、CLI 或 IDE 扩展。从 [OpenAI 仪表板](https://platform.openai.com/api-keys) 获取您的 API 密钥。
+
+OpenAI 通过您的 OpenAI 平台账户按标准 API 费率对 API 密钥使用量计费。请参阅 [API 定价页面](https://openai.com/api/pricing/)。
+
+## 保护您的 Codex 云账户
+
+Codex 云直接与您的代码库交互，因此它需要比其他许多 ChatGPT 功能更强的安全性。请启用多重身份验证（MFA）。
+
+如果您使用社交登录提供商（Google、Microsoft、Apple），则不需要在您的 ChatGPT 账户上启用 MFA，但您可以通过社交登录提供商进行设置。
+
+设置说明，请参阅：
+
+- [Google](https://support.google.com/accounts/answer/185839)
+- [Microsoft](https://support.microsoft.com/en-us/topic/what-is-multifactor-authentication-e5e39437-121c-be60-d123-eda06bddf661)
+- [Apple](https://support.apple.com/en-us/102660)
+
+如果您通过单点登录（SSO）访问 ChatGPT，您的组织 SSO 管理员应为所有用户强制启用 MFA。
+
+如果您使用电子邮件和密码登录，则在访问 Codex 云之前必须在您的账户上设置 MFA。
+
+如果您的账户支持多种登录方式，其中一种方式是电子邮件和密码，则即使您使用另一种方式登录，也必须在访问 Codex 之前设置 MFA。
+
+## 登录缓存
+
+当您使用 ChatGPT 或 API 密钥登录 Codex 应用、CLI 或 IDE 扩展时，Codex 会缓存您的登录详细信息，并在下次启动 CLI 或扩展时重复使用它们。CLI 和扩展共享相同的缓存登录详细信息。如果您从任一方式注销，则下次启动 CLI 或扩展时需要重新登录。
+
+Codex 将登录详细信息本地缓存在 `~/.codex/auth.json` 文件中，或存储在您的操作系统特定的凭据存储中。
+
+## 凭据存储
+
+使用 `cli_auth_credentials_store` 来控制 Codex CLI 存储缓存凭据的位置：
+
+```toml
+# file | keyring | auto
+cli_auth_credentials_store = "keyring"
+```
+
+- `file` 将凭据存储在 `CODEX_HOME` 下的 `auth.json` 中（默认为 `~/.codex`）。
+- `keyring` 将凭据存储在您操作系统的凭据存储中。
+- `auto` 在操作系统凭据存储可用时使用它，否则回退到 `auth.json`。
+
+如果您使用基于文件的存储，请将 `~/.codex/auth.json` 视为密码：它包含访问令牌。不要将其提交、粘贴到工单中或在聊天中分享。
+
+## 强制登录方式或工作区
+
+在托管环境中，管理员可能限制用户的身份验证方式：
+
+```toml
+# 只允许 ChatGPT 登录或只允许 API 密钥登录。
+forced_login_method = "chatgpt" # 或 "api"
+
+# 使用 ChatGPT 登录时，将用户限制在特定工作区。
+forced_chatgpt_workspace_id = "00000000-0000-0000-0000-000000000000"
+```
+
+如果活动凭据与配置的限制不匹配，Codex 会将用户注销并退出。
+
+这些设置通常通过托管配置而不是每个用户设置来应用。请参阅[托管配置](https://developers.openai.com/codex/security#managed-configuration)。
+
+## 无头设备登录
+
+如果您使用 Codex CLI 登录 ChatGPT，在某些情况下基于浏览器的登录 UI 可能无法工作：
+
+- 您在远程或无头环境中运行 CLI。
+- 您的本地网络配置阻止了 Codex 在您登录后用于将 OAuth 令牌返回给 CLI 的本地主机回调。
+
+在这些情况下，首选设备代码身份验证（测试版）。在交互式登录 UI 中，选择**使用设备代码登录**，或直接运行 `codex login --device-auth`。如果设备代码身份验证在您的环境中不起作用，请使用以下回退方法之一。
+
+### 首选：设备代码身份验证（测试版）
+
+1. 在您的 ChatGPT 安全设置（个人账户）或 ChatGPT 工作区权限（工作区管理员）中启用设备代码登录。
+2. 在运行 Codex 的终端中，选择以下选项之一：
+   - 在交互式登录 UI 中，选择**使用设备代码登录**。
+   - 直接运行 `codex login --device-auth`。
+3. 在浏览器中打开链接，登录，然后输入一次性代码。
+
+如果服务器未启用设备代码登录，Codex 会回退到标准的基于浏览器的登录流程。
+
+### 回退：在本地进行身份验证并复制您的身份验证缓存
+
+如果您可以在带有浏览器的机器上完成登录流程，可以将缓存的凭据复制到无头机器。
+
+1. 在可以使用基于浏览器的登录流程的机器上，运行 `codex login`。
+2. 确认登录缓存存在于 `~/.codex/auth.json`。
+3. 将 `~/.codex/auth.json` 复制到无头机器上的 `~/.codex/auth.json`。
+
+将 `~/.codex/auth.json` 视为密码：它包含访问令牌。不要将其提交、粘贴到工单中或在聊天中分享。
+
+如果您的操作系统将凭据存储在凭据存储中而不是 `~/.codex/auth.json`，此方法可能不适用。请参阅[凭据存储](#credential-storage)了解如何配置基于文件的存储。
+
+通过 SSH 复制到远程机器：
+
+```shell
+ssh user@remote 'mkdir -p ~/.codex'
+scp ~/.codex/auth.json user@remote:~/.codex/auth.json
+```
+
+或使用避免 `scp` 的一行命令：
+
+```shell
+ssh user@remote 'mkdir -p ~/.codex && cat > ~/.codex/auth.json' < ~/.codex/auth.json
+```
+
+复制到 Docker 容器：
+
+```shell
+# 将 MY_CONTAINER 替换为容器的名称或 ID。
+CONTAINER_HOME=$(docker exec MY_CONTAINER printenv HOME)
+docker exec MY_CONTAINER mkdir -p "$CONTAINER_HOME/.codex"
+docker cp ~/.codex/auth.json MY_CONTAINER:"$CONTAINER_HOME/.codex/auth.json"
+```
+
+### 回退：将本地主机回调通过 SSH 转发
+
+如果您可以在本地机器和远程主机之间转发端口，您可以通过隧道传输 Codex 的本地回调服务器（默认 `localhost:1455`）来使用标准的基于浏览器的流程。
+
+1. 从您的本地机器，启动端口转发：
+
+```shell
+ssh -L 1455:localhost:1455 user@remote
+```
+
+2. 在该 SSH 会话中，运行 `codex login` 并按照本地机器上打印的地址进行操作。
+
+## 替代模型提供商
+
+当您在配置文件中定义[自定义模型提供商](https://developers.openai.com/codex/config-advanced#custom-model-providers)时，您可以选择以下身份验证方式之一：
+
+- **OpenAI 身份验证**：设置 `requires_openai_auth = true` 以使用 OpenAI 身份验证。然后您可以使用 ChatGPT 或 API 密钥登录。当您通过 LLM 代理服务器访问 OpenAI 模型时，这很有用。当 `requires_openai_auth = true` 时，Codex 会忽略 `env_key`。
+- **环境变量身份验证**：设置 `env_key = "<ENV_VARIABLE_NAME>"` 以使用来自本地环境变量（名为 `<ENV_VARIABLE_NAME>`）的提供商特定 API 密钥。
+- **无身份验证**：如果您不设置 `requires_openai_auth`（或将其设置为 `false`）且不设置 `env_key`，则 Codex 假设提供商不需要身份验证。这对于本地模型很有用。
+
+<AdPlaceholder />

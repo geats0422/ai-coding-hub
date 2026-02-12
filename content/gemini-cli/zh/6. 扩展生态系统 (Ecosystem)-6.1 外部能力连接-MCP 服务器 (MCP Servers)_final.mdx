@@ -1,0 +1,1018 @@
+---
+title: "MCP服务器"
+description: "深入研究模型上下文协议 (MCP) 服务器的配置和使用，并了解如何在 Gemini CLI 中集成外部工具和数据源。"
+tool: "gemini-cli"
+slug: "mcp-servers"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 使用 Gemini CLI 的 MCP 服务器
+
+本文档提供了配置和使用模型上下文协议的指南
+(MCP) 使用 Gemini CLI 的服务器。
+
+## 什么是 MCP 服务器？
+
+MCP 服务器是一个向 Gemini 公开工具和资源的应用程序
+CLI通过模型上下文协议，允许它与外部交互
+系统和数据源。 MCP 服务器充当 Gemini 模型之间的桥梁
+以及您的本地环境或其他服务（例如 API）。
+
+MCP 服务器使 Gemini CLI 能够：- **发现工具：** 列出可用工具、其描述和参数
+  通过标准化模式定义。
+- **执行工具：** 使用定义的参数调用特定工具并接收
+  结构化的回应。
+- **访问资源：**从服务器指定的特定资源中读取数据
+  公开（文件、API 负载、报告等）。
+
+通过 MCP 服务器，您可以扩展Gemini CLI 的功能来执行
+超出其内置功能的操作，例如与数据库、API 交互
+自定义脚本或专门的工作流程。
+
+<AdPlaceholder />
+
+## 核心集成架构
+
+Gemini CLI 通过复杂的发现和集成与 MCP 服务器集成
+核心包内置执行系统（`packages/core/src/tools/`）：
+
+### 发现层 (`mcp-client.ts`)发现过程由 `discoverMcpTools()` 精心安排，其中：
+
+1. **从`settings.json` 迭代配置的服务器**
+   `mcpServers`配置
+2. **使用适当的传输机制（Stdio、
+   SSE，或流式 HTTP）
+3. **使用 MCP 协议从每个服务器获取工具定义**
+4. **清理和验证**工具架构以与Gemini兼容
+   应用程序编程接口
+5. **在全局工具注册表中注册工具**并解决冲突
+6. **获取并注册资源**（如果服务器公开任何资源）
+
+###执行层(`mcp-tool.ts`)
+
+每个发现的 MCP 工具都包含在 `DiscoveredMCPTool` 实例中，该实例：- **根据服务器信任设置和用户处理确认逻辑**
+  偏好
+- **通过使用适当的参数调用 MCP 服务器来管理工具执行**
+- **处理 LLM 上下文和用户显示的响应**
+- **维护连接状态**并处理超时
+
+### 传输机制
+
+Gemini CLI 支持三种 MCP 传输类型：
+
+- **Stdio Transport：** 生成子进程并通过 stdin/stdout 进行通信
+- **SSE 传输：** 连接到服务器发送的事件端点
+- **流式 HTTP 传输：** 使用 HTTP 流进行通信
+
+## 使用 MCP 资源
+
+除了工具和资源之外，一些 MCP 服务器还公开上下文“资源”
+提示。 Gemini CLI 自动发现这些并为您提供可能性
+在聊天中引用它们。### 发现并列出
+
+- 当发现运行时，CLI 获取每个服务器的 `resources/list` 结果。
+- `/mcp` 命令在工具和提示旁边显示资源部分
+  对于每个连接的服务器。
+
+这将返回 URI 和元数据的简洁纯文本列表。
+
+### 在对话中引用资源
+
+您可以使用已知的相同 `@` 语法来引用本地文件：
+```
+@server://resource/path
+```
+资源 URI 与文件系统路径一起出现在完成菜单中。当
+您提交消息，CLI 调用 `resources/read` 并注入内容
+谈话中。
+
+## 如何设置 MCP 服务器
+
+Gemini CLI 使用`settings.json` 文件中的`mcpServers` 配置
+定位并连接到 MCP 服务器。此配置支持多个
+具有不同传输机制的服务器。
+
+### 在settings.json中配置MCP服务器
+
+您可以通过两种主要方式在 `settings.json` 文件中配置 MCP 服务器：
+通过特定服务器定义的顶级`mcpServers`对象，以及
+通过 `mcp` 对象进行控制服务器发现和控制的全局设置
+执行。
+
+#### 全局 MCP 设置 (`mcp`)`settings.json` 中的 `mcp` 对象允许您定义全局规则
+所有 MCP 服务器。
+
+- **`mcp.serverCommand`** （字符串）：启动 MCP 服务器的全局命令。
+- **`mcp.allowed`**（字符串数组）：允许的 MCP 服务器名称列表。如果
+  已设置，仅此列表中的服务器（与
+  `mcpServers` 对象）将被连接到。
+- **`mcp.excluded`**（字符串数组）：要排除的 MCP 服务器名称列表。
+  将不会连接到此列表中的服务器。
+
+**例子：**
+```
+jso
+n
+{
+  "mcp": {
+    "allowed": ["my-trusted-server"],
+    "excluded": ["experimental-server"]
+  }
+}
+```
+#### 服务器特定配置 (`mcpServers`)
+
+`mcpServers` 对象是您定义所需的每个单独的 MCP 服务器的位置
+要连接的 CLI。
+
+### 配置结构
+
+将 `mcpServers` 对象添加到您的 `settings.json` 文件中：
+```
+jso
+n
+{ ...file contains other config objects
+  "mcpServers": {
+    "serverName": {
+      "command": "path/to/server",
+      "args": ["--arg1", "value1"],
+      "env": {
+        "API_KEY": "$MY_API_TOKEN"
+      },
+      "cwd": "./server-directory",
+      "timeout": 30000,
+      "trust": false
+    }
+  }
+}
+```
+### Configuration properties
+
+每个服务器配置都支持以下属性：
+
+#### 必需（以下之一）
+
+- **`command`**（字符串）：Stdio 传输的可执行文件的路径
+- **`url`**（字符串）：SSE 端点 URL（例如，`"http://localhost:8080/sse"`）
+- **`httpUrl`** （字符串）：HTTP 流端点 URL
+
+#### 可选- **`args`** (string[])：Stdio 传输的命令行参数
+- **`headers`**（对象）：使用`url`或`httpUrl`时的自定义HTTP标头
+- **`env`**（对象）：服务器进程的环境变量。价值观可以
+  使用 `$VAR_NAME` 或 `${VAR_NAME}` 语法引用环境变量
+- **`cwd`**（字符串）：Stdio 传输的工作目录
+- **`timeout`**（数字）：请求超时以毫秒为单位（默认值：600,000ms = 10 分钟）
+- **`trust`**（布尔值）：当`true`时，绕过所有工具调用确认
+  该服务器（默认：`false`）
+- **`includeTools`** (string[])：此 MCP 中要包含的工具名称列表
+  服务器。指定后，仅此处列出的工具可用
+  服务器（白名单行为）。如果未指定，则来自服务器的所有工具
+  默认启用。
+- **`excludeTools`** (string[])：要从此 MCP 中排除的工具名称列表
+  服务器。此处列出的工具将不可用于模型，即使它们是可用的
+  由服务器暴露。 **注意：** `excludeTools` 优先于
+  `includeTools` - 如果一个工具同时存在于两个列表中，则它将被排除。
+- **`targetAudience`**（字符串）：列入白名单的 OAuth 客户端 ID
+  您尝试访问的受 IAP 保护的应用程序。与使用
+  `authProviderType: 'service_account_impersonation'`。
+- **`targetServiceAccount`**（字符串）：Google Cloud 的电子邮件地址
+  要模拟的服务帐户。与使用
+  `authProviderType: 'service_account_impersonation'`。## 对远程 MCP 服务器的 OAuth 支持
+
+Gemini CLI 支持使用 OAuth 2.0 对远程 MCP 服务器进行身份验证
+SSE 或 HTTP 传输。这可以安全访问需要的 MCP 服务器
+认证。
+
+### 自动 OAuth 发现
+
+对于支持OAuth发现的服务器，可以省略OAuth配置
+并让 CLI 自动发现它：
+```
+jso
+n
+{
+  "mcpServers": {
+    "discoveredServer": {
+      "url": "https://api.example.com/sse"
+    }
+  }
+}
+```
+CLI
+ 将自动：
+
+- 检测服务器何时需要 OAuth 身份验证（401 响应）
+- 从服务器元数据中发现 OAuth 端点
+- 如果支持，执行动态客户端注册
+- 处理 OAuth 流程和令牌管理
+
+### 身份验证流程
+
+连接到启用 OAuth 的服务器时：
+
+1. **初始连接尝试**失败并显示 401 Unauthorized
+2. **OAuth 发现** 查找授权和令牌端点
+3. **打开浏览器**进行用户身份验证（需要本地浏览器访问）
+4. **授权码** 交换访问令牌
+5. **安全存储**以供将来使用
+6. **连接重试** 使用有效令牌成功
+
+### 浏览器重定向要求
+<Callout type="warning">
+重要提示：OAuth 身份验证要求您的本地计算机可以：
+
+- 打开网络浏览器进行身份验证
+- 在`http://localhost:7777/oauth/callback`上接收重定向
+
+此功能不适用于：
+
+- 无需浏览器访问的无头环境
+- 无需 X11 转发的远程 SSH 会话
+- 没有浏览器支持的容器化环境
+</Callout>
+
+### 管理 OAuth 身份验证
+
+使用`/mcp auth`命令管理OAuth身份验证：
+```
+bas
+h
+# List servers requiring authentication
+/mcp auth
+
+# Authenticate with a specific server
+/mcp auth serverName
+
+# Re-authenticate if tokens expire
+/mcp auth serverName
+```
+### OAuth 配置属性
+
+- **`enabled`** （布尔值）：为此服务器启用 OAuth
+- **`clientId`**（字符串）：OAuth 客户端标识符（动态注册时可选）
+- **`clientSecret`** （字符串）：OAuth 客户端密钥（公共客户端可选）
+- **`authorizationUrl`** （字符串）：OAuth 授权端点（如果省略则自动发现）
+- **`tokenUrl`** （字符串）：OAuth 令牌端点（如果省略，则自动发现）
+- **`scopes`** (string[])：必需的 OAuth 范围
+- **`redirectUri`**（字符串）：自定义重定向 URI（默认为`http://localhost:7777/oauth/callback`）
+- **`tokenParamName`**（字符串）：SSE URL 中令牌的查询参数名称
+- **`audiences`** (string[])：令牌有效的受众
+
+### 代币管理
+
+OAuth 令牌会自动：- **安全存储**于`~/.Gemini/mcp-oauth-tokens.json`
+- **过期时刷新**（如果刷新令牌可用）
+- **在每次连接尝试之前进行验证**
+- **无效或过期时清理**
+
+### 身份验证提供程序类型
+
+您可以使用 `authProviderType` 属性指定身份验证提供程序类型：- **`authProviderType`**（字符串）：指定身份验证提供程序。可以是
+  以下之一：
+  - **`dynamic_discovery`**（默认）：CLI 将自动发现
+    来自服务器的 OAuth 配置。
+  - **`google_credentials`**：CLI 将使用 Google 应用程序默认值
+    用于向服务器进行身份验证的凭据 (ADC)。使用该提供商时，
+    您必须指定所需的范围。
+  - **`service_account_impersonation`**：CLI 将模拟 Google Cloud
+    用于向服务器进行身份验证的服务帐户。这对于
+    访问受 IAP 保护的服务（这是专门为云设计的）
+    运行服务）。
+
+### 谷歌凭证
+```
+jso
+n
+{
+  "mcpServers": {
+    "googleCloudServer": {
+      "httpUrl": "https://my-gcp-service.run.app/mcp",
+      "authProviderType": "google_credentials",
+      "oauth": {
+        "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
+      }
+    }
+  }
+}
+```
+### 服务帐户模拟
+
+要使用服务帐户模拟向服务器进行身份验证，您必须设置
+`authProviderType` 到 `service_account_impersonation` 并提供
+以下属性：
+
+- **`targetAudience`**（字符串）：列入白名单的 OAuth 客户端 ID
+  您尝试访问的受 IAP 保护的应用程序。
+- **`targetServiceAccount`**（字符串）：Google Cloud 的电子邮件地址
+  要模拟的服务帐户。
+
+CLI 将使用您的本地应用程序默认凭据 (ADC) 生成
+指定服务帐户和受众的 OIDC ID 令牌。该令牌将
+然后用于与 MCP 服务器进行身份验证。
+
+### 设置说明1. **[Create](https://cloud.google.com/iap/docs/oauth-client-creation) 或使用现有的 OAuth 2.0 客户端 ID。**
+2. **将 OAuth ID 添加到编程访问的允许列表中。**
+3. **创建服务帐户。**
+4. **将服务帐户和用户添加到 IAP 策略中。**
+5. **授予模拟服务帐户的权限。**
+6. **[Enable](https://console.cloud.google.com/apis/library/iamcredentials.googleapis.com) IAM 凭证 API。**
+
+## 配置示例
+
+### Python MCP 服务器（stdio）
+```
+jso
+n
+{
+  "mcpServers": {
+    "pythonTools": {
+      "command": "python",
+      "args": ["-m", "my_mcp_server", "--port", "8080"],
+      "cwd": "./mcp-servers/python",
+      "env": {
+        "DATABASE_URL": "$DB_CONNECTION_STRING",
+        "API_KEY": "${EXTERNAL_API_KEY}"
+      },
+      "timeout": 15000
+    }
+  }
+}
+```
+### Node.js MCP 服务器（stdio）
+```
+jso
+n
+{
+  "mcpServers": {
+    "nodeServer": {
+      "command": "node",
+      "args": ["dist/server.js", "--verbose"],
+      "cwd": "./mcp-servers/node",
+      "trust": true
+    }
+  }
+}
+```
+### 基于 Docker 的 MCP 服务器
+```
+jso
+n
+{
+  "mcpServers": {
+    "dockerizedServer": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "API_KEY",
+        "-v",
+        "${PWD}:/workspace",
+        "my-mcp-server:latest"
+      ],
+      "env": {
+        "API_KEY": "$EXTERNAL_SERVICE_TOKEN"
+      }
+    }
+  }
+}
+```
+### 基于 HTTP 的 MCP 服务器
+```
+jso
+n
+{
+  "mcpServers": {
+    "httpServer": {
+      "httpUrl": "http://localhost:3000/mcp",
+      "timeout": 5000
+    }
+  }
+}
+```
+### 具有自定义标头的基于 HTTP 的 MCP 服务器
+```
+jso
+n
+{
+  "mcpServers": {
+    "httpServerWithAuth": {
+      "httpUrl": "http://localhost:3000/mcp",
+      "headers": {
+        "Authorization": "Bearer your-api-token",
+        "X-Custom-Header": "custom-value",
+        "Content-Type": "application/json"
+      },
+      "timeout": 5000
+    }
+  }
+}
+```
+### 带工具过滤的 MCP 服务器
+```
+jso
+n
+{
+  "mcpServers": {
+    "filteredServer": {
+      "command": "python",
+      "args": ["-m", "my_mcp_server"],
+      "includeTools": ["safe_tool", "file_reader", "data_processor"],
+      // "excludeTools": ["dangerous_tool", "file_deleter"],
+      "timeout": 30000
+    }
+  }
+}
+```
+### 具有 SA 模拟功能的 SSE MCP 服务器
+```
+jso
+n
+{
+  "mcpServers": {
+    "myIapProtectedServer": {
+      "url": "https://my-iap-service.run.app/sse",
+      "authProviderType": "service_account_impersonation",
+      "targetAudience": "YOUR_IAP_CLIENT_ID.apps.googleusercontent.com",
+      "targetServiceAccount": "your-sa@your-project.iam.gserviceaccount.com"
+    }
+  }
+}
+```
+## 深入探索发现过程
+
+当 Gemini CLI 启动时，它通过以下方式执行 MCP 服务器发现：
+详细流程如下：
+
+### 1.服务器迭代和连接
+
+对于 `mcpServers` 中每个配置的服务器：
+
+1. **状态跟踪开始：** 服务器状态设置为`CONNECTING`
+2. **传输选择：** 基于配置属性：
+   - `httpUrl` → `StreamableHTTPClientTransport`
+   - `url` → `SSEClientTransport`
+   - `command` → `StdioClientTransport`
+3. **连接建立：** MCP客户端尝试与
+   配置超时
+4. **错误处理：** 记录连接失败并且服务器状态为
+   设置为`DISCONNECTED`
+
+### 2. 工具发现
+
+连接成功后：1. **工具列表：**客户端调用MCP服务器的工具列表端点
+2. **模式验证：** 每个工具的函数声明都经过验证
+3. **工具过滤：** 根据`includeTools`和
+   `excludeTools`配置
+4. **名称清理：** 工具名称经过清理以满足 Gemini API
+   要求：
+   - 无效字符（非字母数字、下划线、点、连字符）被替换
+     带下划线
+   - 超过 63 个字符的名称将被截断并进行中间替换
+     (`___`)
+
+### 3. 解决冲突
+
+当多个服务器公开同名工具时：1. **先注册者获胜：** 第一个注册工具名称的服务器获得
+   无前缀名称
+2. **自动前缀：** 后续服务器获得前缀名称：
+   `serverName__toolName`
+3. **注册表跟踪：**工具注册表维护服务器之间的映射
+   名称及其工具
+
+### 4.模式处理
+
+工具参数模式经过清理以实现 Gemini API 兼容性：
+
+- **`$schema` 属性** 被删除
+- **`additionalProperties`** 被剥离
+- **`anyOf` 和 `default`** 已删除默认值（Vertex AI
+  兼容性）
+- **递归处理**适用于嵌套模式
+
+### 5.连接管理
+
+发现后：- **持久连接：**成功注册工具的服务器维护
+  他们的联系
+- **清理：**不提供可用工具的服务器有其连接
+  关闭
+- **状态更新：** 最终服务器状态设置为 `CONNECTED` 或
+  `DISCONNECTED`
+
+## 工具执行流程
+
+当Gemini模型决定使用MCP工具时，执行流程如下
+发生：
+
+### 1.工具调用
+
+该模型生成一个`FunctionCall`：
+
+- **工具名称：** 注册名称（可能带有前缀）
+- **参数：** 与工具参数模式匹配的 JSON 对象
+
+### 2.确认流程
+
+每个`DiscoveredMCPTool`都实现了复杂的确认逻辑：
+
+#### 基于信任的绕过
+```
+typescrip
+t
+if (this.trust) {
+  return false; // No confirmation needed
+}
+```
+#### 动态允许列表
+
+系统维护以下内容的内部允许列表：
+
+- **服务器级：** `serverName` → 来自该服务器的所有工具都是可信的
+- **工具级别：** `serverName.toolName` → 该特定工具是可信的
+
+#### 用户选择处理
+
+当需要确认时，用户可以选择：
+
+- **继续一次：** 仅执行本次
+- **始终允许此工具：** 添加到工具级别允许列表
+- **始终允许此服务器：** 添加到服务器级别允许列表
+- **取消：**中止执行
+
+### 3. 执行
+
+确认后（或信任绕过）：
+
+1. **参数准备：** 根据工具的模式验证参数
+2. **MCP 调用：** 底层 `CallableTool` 使用以下命令调用服务器：
+```
+typescrip
+t
+   const functionCalls = [
+     {
+       name: this.serverToolName, // Original server tool name
+       args: params,
+     },
+   ];
+   
+```
+3
+. **响应处理：** 结果针对 LLM 上下文和用户进行格式化
+   显示
+
+### 4. 响应处理
+
+执行结果包含：
+
+- **`llmContent`:** 语言模型上下文的原始响应部分
+- **`returnDisplay`:** 用于用户显示的格式化输出（通常是 Markdown 中的 JSON
+  代码块）
+
+## 如何与 MCP 服务器交互
+
+### 使用`/mcp` 命令
+
+`/mcp` 命令提供有关 MCP 服务器设置的全面信息：
+```
+bas
+h
+/mcp
+```
+这显示：
+
+- **服务器列表：** 所有已配置的 MCP 服务器
+- **连接状态：** `CONNECTED`、`CONNECTING` 或 `DISCONNECTED`
+- **服务器详细信息：** 配置摘要（不包括敏感数据）
+- **可用工具：** 每个服务器的工具列表及其说明
+- **发现状态：**整体发现过程状态
+
+### `/mcp` 输出示例
+```
+MCP Servers Status:
+
+📡 pythonTools (CONNECTED)
+  Command: python -m my_mcp_server --port 8080
+  Working Directory: ./mcp-servers/python
+  Timeout: 15000ms
+  Tools: calculate_sum, file_analyzer, data_processor
+
+🔌 nodeServer (DISCONNECTED)
+  Command: node dist/server.js --verbose
+  Error: Connection refused
+
+🐳 dockerizedServer (CONNECTED)
+  Command: docker run -i --rm -e API_KEY my-mcp-server:latest
+  Tools: docker__deploy, docker__status
+
+Discovery State: COMPLETED
+```
+### 工具使用
+
+一旦发现，MCP 工具就可以像内置一样用于 Gemini 模型
+工具。该模型将自动：
+
+1. **根据您的要求选择合适的工具**
+2. **显示确认对话框**（除非服务器受信任）
+3. **使用正确的参数执行工具**
+4. **以用户友好的格式显示结果**
+
+## 状态监控和故障排除
+
+### 连接状态
+
+MCP 集成跟踪多个状态：
+
+#### 服务器状态 (`MCPServerStatus`)
+
+- **`DISCONNECTED`:** 服务器未连接或有错误
+- **`CONNECTING`:** 正在进行连接尝试
+- **`CONNECTED`:** 服务器已连接并准备就绪
+
+#### 发现状态 (`MCPDiscoveryState`)- **`NOT_STARTED`:** 发现尚未开始
+- **`IN_PROGRESS`:** 当前正在发现服务器
+- **`COMPLETED`:** 发现完成（有或没有错误）
+
+### 常见问题及解决方案
+
+#### 服务器无法连接
+
+**症状：** 服务器显示 `DISCONNECTED` 状态
+
+**故障排除：**
+
+1. **检查配置：**验证`command`、`args`和`cwd`是否正确
+2. **手动测试：** 直接运行服务器命令以确保其有效
+3. **检查依赖关系：** 确保安装了所有必需的软件包
+4. **查看日志：** 在 CLI 输出中查找错误消息
+5. **验证权限：** 确保CLI可以执行服务器命令
+
+#### 未发现任何工具
+
+**症状：** 服务器已连接但没有可用的工具
+
+**故障排除：**1. **验证工具注册：** 确保您的服务器实际注册了工具
+2. **检查MCP协议：**确认您的服务器正确实现了MCP工具列表
+3. **查看服务器日志：** 检查 stderr 输出中是否存在服务器端错误
+4. **测试工具列表：** 手动测试服务器的工具发现端点
+
+#### 工具未执行
+
+**症状：** 工具被发现但在执行过程中失败
+
+**故障排除：**
+
+1. **参数验证：** 确保您的工具接受预期的参数
+2. **架构兼容性：** 验证您的输入架构是有效的 JSON 架构
+3. **错误处理：** 检查您的工具是否抛出未处理的异常
+4. **超时问题：**考虑增加`timeout`设置
+
+#### 沙箱兼容性**症状：** 启用沙箱时 MCP 服务器出现故障
+
+**解决方案：**
+
+1. **基于 Docker 的服务器：** 使用包含所有依赖项的 Docker 容器
+2. **路径可访问性：** 确保服务器可执行文件在沙箱中可用
+3. **网络访问：** 配置沙箱以允许必要的网络连接
+4. **环境变量：**验证所需的环境变量是否传递通过
+
+### 调试技巧1. **启用调试模式：** 使用 `--debug` 运行 CLI 以获得详细输出（使用 F12
+   以交互模式打开调试控制台）
+2. **检查stderr：** MCP服务器stderr被捕获并记录（INFO消息被过滤）
+3. **测试隔离：** 在集成之前独立测试您的 MCP 服务器
+4. **增量设置：** 在添加复杂功能之前从简单的工具开始
+5. **经常使用`/mcp`：** 开发过程中监控服务器状态
+
+## 重要提示
+
+### 安全考虑- **信任设置：** `trust` 选项绕过所有确认对话框。使用
+  谨慎且仅针对您完全控制的服务器
+- **访问令牌：** 配置环境变量时要注意安全
+  包含 API 密钥或令牌
+- **环境变量编辑：** 默认情况下，Gemini CLI 编辑
+  敏感环境变量（例如`GEMINI_API_KEY`、`GOOGLE_API_KEY`、
+  以及与 `*TOKEN*`、`*SECRET*`、`*PASSWORD*` 等模式匹配的变量
+  使用 `stdio` 传输生成 MCP 服务器。这可以防止意外
+  将您的凭据暴露给第三方服务器。
+- **显式环境变量：** 如果需要传递特定环境
+  变量到 MCP 服务器，您应该在 `env` 中显式定义它
+  `settings.json` 中服务器配置的属性。
+- **沙箱兼容性：** 使用沙箱时，确保 MCP 服务器
+  在沙箱环境中可用。
+- **私人数据：** 使用范围广泛的个人访问令牌可能会导致
+  存储库之间的信息泄漏。
+- **不受信任的服务器：** 从以下位置添加 MCP 服务器时要格外小心
+  不受信任的或第三方来源。恶意服务器可能会尝试
+  通过他们公开的工具窃取数据或执行未经授权的操作。### 性能和资源管理
+
+- **连接持久性：** CLI 维护与服务器的持久连接
+  成功注册工具
+- **自动清理：** 连接到不提供任何工具的服务器
+  自动关闭
+- **超时管理：** 根据您的服务器配置适当的超时
+  响应特性
+- **资源监控：** MCP 服务器作为单独的进程运行并消耗
+  系统资源
+
+### 架构兼容性- **属性剥离：**系统自动删除某些schema
+  Gemini API 兼容性的属性（`$schema`、`additionalProperties`）
+- **名称清理：** 工具名称会自动清理以满足 API 要求
+- **冲突解决：**服务器之间的工具名称冲突已解决
+  通过自动前缀
+
+这种全面的集成使 MCP 服务器成为扩展
+Gemini CLI 的功能，同时保持安全性、可靠性和易用性。
+
+## 从工具返回丰富的内容MCP 工具不仅限于返回简单文本。可以富贵归来，
+多部分内容，包括文本、图像、音频和其他二进制数据
+单一工具响应。这使您可以构建强大的工具来提供
+一次向模型提供多种信息。
+
+从工具返回的所有数据都会被处理并作为上下文发送到模型
+对于下一代，使其能够推理或总结所提供的信息
+信息。
+
+### 它是如何工作的要返回丰富的内容，您的工具的响应必须遵循 MCP
+规格
+[@@P0@@](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#tool-result)。
+结果的`content`字段应该是`ContentBlock`对象的数组。
+Gemini CLI 将正确处理该数组，将文本与二进制分开
+数据并将其打包为模型。
+
+您可以在 `content` 数组中混合搭配不同的内容块类型。的
+支持的块类型包括：
+
+-`text`
+-`image`
+-`audio`
+- `resource`（嵌入内容）
+-`resource_link`
+
+### 示例：返回文本和图像
+
+以下是来自 MCP 工具的有效 JSON 响应的示例，该工具返回
+文字描述和图像：
+```
+jso
+n
+{
+  "content": [
+    {
+      "type": "text",
+      "text": "Here is the logo you requested."
+    },
+    {
+      "type": "image",
+      "data": "BASE64_ENCODED_IMAGE_DATA_HERE",
+      "mimeType": "image/png"
+    },
+    {
+      "type": "text",
+      "text": "The logo was created in 2025."
+    }
+  }
+}
+```
+当 Gemini CLI 收到此响应时，它将：
+
+1.提取所有文本并将其组合成一个`functionResponse`部分
+    对于模型。
+2. 将图像数据作为单独的`inlineData` 部分呈现。
+3. 在 CLI 中提供简洁、用户友好的摘要，表明这两个文本
+    并收到了一张图像。
+
+这使您能够构建复杂的工具，可以提供丰富的多模式
+Gemini 模型的上下文。
+
+## MCP 提示符为斜杠命令
+
+除了工具之外，MCP 服务器还可以公开预定义的提示，这些提示可以
+在 Gemini CLI 中作为斜杠命令执行。这允许您创建
+可以通过名称轻松调用的常见或复杂查询的快捷方式。
+
+### 在服务器上定义提示下面是一个定义提示的 stdio MCP 服务器的小示例：
+```
+t
+s
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { z } from 'zod';
+
+const server = new McpServer({
+  name: 'prompt-server',
+  version: '1.0.0',
+});
+
+server.registerPrompt(
+  'poem-writer',
+  {
+    title: 'Poem Writer',
+    description: 'Write a nice haiku',
+    argsSchema: { title: z.string(), mood: z.string().optional() },
+    ({ title, mood }) => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: `Write a haiku${mood ? ` with the mood ${mood}` : ''} called ${title}. Note that a haiku is 5 syllables followed by 7 syllables followed by 5 syllables `,
+          },
+        },
+      ],
+    }),
+);
+
+const transport = new StdioServerTransport();
+await server.connect(transport);
+```
+这可以包含在`mcpServers`下的`settings.json`中：
+```
+jso
+n
+{
+  "mcpServers": {
+    "nodeServer": {
+      "command": "node",
+      "args": ["filename.ts"]
+    }
+  }
+}
+```
+### 调用提示
+
+一旦发现提示，您可以使用其名称作为斜杠来调用它
+命令。 CLI 将自动处理解析参数。
+```
+bas
+h
+/poem-writer --title="Gemini CLI" --mood="reverent"
+```
+或者，使用位置参数：
+```
+bas
+h
+/poem-writer "Gemini CLI" reverent
+```
+当您运行此命令时，Gemini CLI 将执行 `prompts/get` 方法
+具有提供的参数的 MCP 服务器。服务器负责
+将参数替换到提示模板中并返回最终结果
+提示文字。然后 CLI 将此提示发送到模型以供执行。这个
+提供了一种自动化和共享通用工作流程的便捷方法。
+
+## 使用 `Gemini mcp` 管理 MCP 服务器
+
+虽然您始终可以通过手动编辑您的
+`settings.json` 文件，Gemini CLI 提供了一组方便的命令
+以编程方式管理您的服务器配置。这些命令简化了
+添加、列出和删除 MCP 服务器的过程，无需
+直接编辑 JSON 文件。
+
+### 添加服务器 (`Gemini mcp add`)`add` 命令在 `settings.json` 中配置新的 MCP 服务器。基于
+范围（`-s, --scope`），它将被添加到用户配置中
+`~/.Gemini/settings.json` 或项目配置`.Gemini/settings.json` 文件。
+
+**命令：**
+```
+bas
+h
+gemini mcp add [options] <name> <commandOrUrl> [args...]
+```
+-
+ `<name>`：服务器的唯一名称。
+- `<commandOrUrl>`：要执行的命令（对于`stdio`）或URL（对于`stdio`）
+  `http`/`sse`）。
+- `[args...]`：`stdio` 命令的可选参数。
+
+**选项（标志）：**- `-s, --scope`：配置范围（用户或项目）。 [默认值：“项目”]
+- `-t, --transport`：传输类型（stdio、sse、http）。 [默认值：“stdio”]
+- `-e, --env`：设置环境变量（例如-e KEY=value）。
+- `-H, --header`：为 SSE 和 HTTP 传输设置 HTTP 标头（例如 -H
+  “X-Api-Key：abc123”-H“授权：承载者abc123”）。
+- `--timeout`：设置连接超时（以毫秒为单位）。
+- `--trust`：信任服务器（绕过所有工具调用确认提示）。
+- `--description`：设置服务器的描述。
+- `--include-tools`：要包含的以逗号分隔的工具列表。
+- `--exclude-tools`：要排除的以逗号分隔的工具列表。
+
+#### 添加 stdio 服务器
+
+这是运行本地服务器的默认传输。
+```
+bas
+h
+# Basic syntax
+gemini mcp add [options] <name> <command> [args...]
+
+# Example: Adding a local server
+gemini mcp add -e API_KEY=123 -e DEBUG=true my-stdio-server /path/to/server arg1 arg2 arg3
+
+# Example: Adding a local python server
+gemini mcp add python-server python server.py -- --server-arg my-value
+```
+#### 添加 HTTP 服务器
+
+此传输适用于使用可流式 HTTP 传输的服务器。
+```
+bas
+h
+# Basic syntax
+gemini mcp add --transport http <name> <url>
+
+# Example: Adding an HTTP server
+gemini mcp add --transport http http-server https://api.example.com/mcp/
+
+# Example: Adding an HTTP server with an authentication header
+gemini mcp add --transport http --header "Authorization: Bearer abc123" secure-http https://api.example.com/mcp/
+```
+#### 添加 SSE 服务器
+
+此传输适用于使用服务器发送事件 (SSE) 的服务器。
+```
+bas
+h
+# Basic syntax
+gemini mcp add --transport sse <name> <url>
+
+# Example: Adding an SSE server
+gemini mcp add --transport sse sse-server https://api.example.com/sse/
+
+# Example: Adding an SSE server with an authentication header
+gemini mcp add --transport sse --header "Authorization: Bearer abc123" secure-sse https://api.example.com/sse/
+```
+### 列出服务器 (`Gemini mcp list`)
+
+要查看当前配置的所有 MCP 服务器，请使用 `list` 命令。它
+显示每个服务器的名称、配置详细信息和连接状态。这个
+命令没有标志。
+
+**命令：**
+```
+bas
+h
+gemini mcp list
+```
+**输出示例：**
+```
+s
+h
+✓ stdio-server: command: python3 server.py (stdio) - Connected
+✓ http-server: https://api.example.com/mcp (http) - Connected
+✗ sse-server: https://api.example.com/sse (sse) - Disconnected
+```
+### 删除服务器 (`Gemini mcp remove`)
+
+要从配置中删除服务器，请使用 `remove` 命令和
+服务器的名称。
+
+**命令：**
+```
+bas
+h
+gemini mcp remove <name>
+```
+**选项（标志）：**
+
+- `-s, --scope`：配置范围（用户或项目）。 [默认值：“项目”]
+
+**示例：**
+```
+bas
+h
+gemini mcp remove my-server
+```
+这将从 `mcpServers` 对象中查找并删除“my-server”条目
+根据范围 (`-s, --scope`) 适当的 `settings.json` 文件。
+
+### 启用/禁用服务器（`Gemini mcp enable`、`Gemini mcp disable`）
+
+暂时禁用 MCP 服务器而不删除其配置，或者
+重新启用之前禁用的服务器。
+
+**命令：**
+```
+bas
+h
+gemini mcp enable <name> [--session]
+gemini mcp disable <name> [--session]
+```
+**选项（标志）：**
+
+- `--session`：仅对此会话应用更改（不保留到文件）。
+
+已禁用的服务器在 `/mcp` 状态中显示为“已禁用”，但无法连接或
+提供工具。启用状态存储在
+`~/.Gemini/mcp-server-enablement.json`。
+
+在活动会话期间，相同的命令可用作斜杠命令：
+`/mcp enable <name>` 和`/mcp disable <name>`。
+
+## 说明
+
+Gemini CLI 支持
+[MCP server instructions](https://modelcontextprotocol.io/specification/2025-06-18/schema#initializeresult)，
+这将附加到系统说明中。
+
+<AdPlaceholder />

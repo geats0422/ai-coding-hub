@@ -1,0 +1,59 @@
+---
+title: "提示文字技巧"
+description: "了解如何优化提示词以获得更好的 Codex 结果，包括提示词写作最佳实践"
+tool: "codex"
+slug: "prompting-tips"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+#提示词
+
+## 提示词
+
+您可以通过向 Codex 发送描述您希望其执行的操作的提示词（用户消息）来与 Codex 进行交互。
+
+提示词示例：
+```
+Explain how the transform module works and how other modules use it.
+```
+
+```
+Add a new command-line option `--json` that outputs JSON.
+```
+当您提交提示词时，Codex 会循环工作：它调用模型，然后执行模型输出中指示的任何操作（文件读取、文件编辑、工具调用等）。当任务完成或您取消时，此过程结束。
+
+<Callout type="tip">
+Codex的效果取决于你给它的指令。包括验证工作的步​​骤，例如重现问题、验证功能以及运行 linting 和预提交检查，可以产生更高质量的输出。
+</Callout>
+
+<Callout type="note">
+当您将复杂的任务分解为较小的、集中的步骤时，Codex 可以更好地处理复杂的任务。较小的任务更容易让 Codex 测试，也更容易让您审阅。如果您不确定如何分配任务，可以请Codex制定计划。
+</Callout>
+
+有关Codex 想法的更多提示，请参阅[工作流](https://developers.OpenAI.com/Codex/workflows)。
+
+<AdPlaceholder />
+
+## 线程
+
+线程是单个会话：您的提示词以及生成的模型输出和工具调用。线程可以包含多个提示词。例如，您的第一个提示可能会要求 Codex 实现某个功能，而后续提示可能会要求它添加测试。
+
+当 Codex 主动处理某个线程时，该线程被称为“正在运行”。您可以同时运行多个线程，但要避免两个线程修改同一文件。您还可以通过使用另一个提示词继续线程来恢复线程。
+
+线程可以在本地或云端运行：
+
+- **本地线程**在您的计算机上运行。 Codex 可以读取和编辑您的文件并运行命令，以便您可以查看更改并使用现有工具。为了降低工作区之外发生不需要的更改的风险，本地线程在 [沙箱](https://developers.OpenAI.com/Codex/security) 中运行。
+- **云线程**在隔离的[环境](https://developers.OpenAI.com/Codex/cloud/environments)中运行。 Codex 克隆您的代码库并检查它所在的分支。当您想要并行运行工作或从其他设备委托任务时，云线程非常有用。要将 Cloud Threads 与您的代码库一起使用，请首先将您的代码推送到 GitHub。您还可以[从本地机器委派任务](https://developers.OpenAI.com/Codex/ide/cloud-tasks)，其中包括您当前的就业状态。
+
+## 上下文
+
+当您提交提示时，请包含 Codex 可以使用的上下文，例如对相关文件和图像的引用。 Codex IDE 扩展自动包含打开文件的列表和选定的文本范围作为上下文。
+
+当代理工作时，它还会从文件内容、工具输出以及已完成和仍需要执行的操作的持续记录中收集上下文。
+
+线程中的所有信息都必须适合模型的上下文窗口，该窗口因模型而异。 Codex 监视并报告剩余空间。对于较长的任务，Codex 可以通过总结相关信息并丢弃不太相关的细节来自动压缩上下文。通过反复压缩，Codex可以继续处理多步骤的复杂任务。
+
+<AdPlaceholder />

@@ -1,0 +1,348 @@
+---
+title: "Claude Code Hooks Technical Reference Manual: Complete Configuration Guide and Advanced Usage"
+description: "Deep dive into Claude Code hooks system technical specifications, including configuration file structure, event types, input/output formats, JSON control mechanisms, and security best practices."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "hooks-technical-reference"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Hooks Technical Reference Manual
+
+This reference document provides comprehensive technical specifications for Claude Code hooks system, covering plugin manifest architecture, component specifications, CLI commands, development tools, cache and file parsing mechanisms. Whether you're developing plugins, debugging issues, or performing advanced integrations, this exhaustive reference provides all the necessary specification details for building high-quality, maintainable plugin systems.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+This reference manual is intended for readers with some hook development experience. Before deep diving, ensure you understand the following concepts:
+
+- **JSON and YAML format standards**: Understanding basic syntax and escaping rules
+- **Plugin basics**: Understanding plugin structure and creation process
+- **Commands and script writing**: Experience with command line operations and shell scripting
+- **MCP and LSP protocol basics**: Understanding Model Context Protocol and Language Server Protocol concepts
+
+## Plugin Components Complete Reference
+
+### Skills Components
+
+Plugins add callable functionality to Claude Code through Skills, creating `/name` shortcuts for user or Claude automatic invocation.
+
+**File location**: `skills/` or `commands/` directories in plugin root directory
+
+**File format**: Skills are directories containing `SKILL.md` files; commands are simple markdown files
+
+**Directory structure**:
+```
+skills/
+├── pdf-processor/
+│   ├── SKILL.md
+│   ├── reference.md (optional)
+│   └── scripts/ (optional)
+└── code-reviewer/
+    └── SKILL.md
+```
+
+**Integration behavior**: When plugin is installed, Skills and commands are automatically discovered; Claude can automatically invoke based on task context; Skills can include support files alongside `SKILL.md`; Commands and Skills are available in `/` menu; Plugin commands use plugin name as namespace (e.g., `/plugin-name:command`).
+
+### Agents Components
+
+Plugins can provide specialized subagents for specific tasks. Claude can automatically invoke them when appropriate.
+
+**File location**: `agents/` directory in plugin root directory
+
+**File format**: Markdown files describing agent functionality
+
+**Configuration format**:
+```markdown
+---
+name: agent-name
+description: The agent's specialty and when Claude should invoke it
+---
+Detailed system prompt describing the agent's role, expertise, and behavior.
+```
+
+**Integration points**: Agents appear in `/agents` interface; Claude can automatically invoke based on task context; Agents can be manually invoked by users; Plugin agents work alongside built-in Claude agents; Agents can have custom tool access permissions and models.
+
+### Hooks Components
+
+Plugins can provide event handlers that automatically respond to Claude Code events.
+
+**File location**: `hooks/hooks.json` in plugin root directory, or inline in plugin.json
+
+**Available events**: `PreToolUse` triggers before Claude uses any tool; `PostToolUse` triggers after Claude successfully uses a tool; `PostToolUseFailure` triggers after a tool execution fails; `PermissionRequest` triggers when permission dialog is displayed; `UserPromptSubmit` triggers when user submits a prompt; `Notification` triggers when Claude Code sends notifications; `Stop` triggers when Claude attempts to stop; `SubagentStart` triggers when a subagent starts; `SubagentStop` triggers when a subagent attempts to stop; `SessionStart` triggers when a session starts or resumes; `SessionEnd` triggers when a session ends; `PreCompact` triggers before compressing conversation history.
+
+**Hook types**: `command` executes shell commands or scripts; `prompt` uses LLM to evaluate prompts and make intelligent decisions; `agent` runs agent verification tools with tools.
+
+**Integration behavior**: Plugin hooks are automatically merged with user and project configuration; Hooks defined in frontmatter of components apply only during that component's lifecycle; Plugin hooks support `once` option for running only once per session.
+
+### MCP Servers Components
+
+Plugins can bundle Model Context Protocol servers, connecting Claude Code to external tools and data sources.
+
+**File location**: `.mcp.json` in plugin root directory, or inline in plugin.json
+
+**Configuration format**:
+```json
+{
+  "mcpServers": {
+    "plugin-database": {
+      "command": "${CLAUDE_PLUGIN_ROOT}/servers/db-server",
+      "args": ["--config", "${CLAUDE_PLUGIN_ROOT}/config.json"],
+      "env": {
+        "DB_PATH": "${CLAUDE_PLUGIN_ROOT}/data"
+      }
+    }
+  }
+}
+```
+
+**Integration behavior**: When plugin is enabled, MCP servers automatically start; Server tools appear in Claude Code's tool palette as standard MCP tools; Server functionality integrates seamlessly with existing tools.
+
+### LSP Servers Components
+
+Plugins can provide Language Server Protocol servers, giving Claude Code real-time code intelligence.
+
+**Configuration format**:
+```json
+{
+  "go": {
+    "command": "gopls",
+    "args": ["serve"],
+    "extensionToLanguage": {
+      ".go": "go"
+    }
+  }
+}
+```
+
+**Required fields**: `command` specifies the LSP binary file to execute; `extensionToLanguage` maps file extensions to language identifiers.
+
+**Optional fields**: `args` for command-line arguments; `transport` for communication method; `env` for environment variables; `initializationOptions` for startup configuration; `settings` for workspace settings; `workspaceFolder` for workspace folder path; `startupTimeout` for startup timeout; `shutdownTimeout` for shutdown timeout; `restartOnCrash` for auto-restart behavior; `maxRestarts` for maximum restart count.
+
+**Integration behavior**: LSP features are exposed through Claude Code's code intelligence features; Plugin's LSP servers are automatically discovered based on installed language servers; Users benefit from enhanced navigation, completion, and real-time error checking.
+
+## Plugin Manifest Complete Architecture
+
+The `.claude-plugin/plugin.json` file defines plugin identity: name, description, and version. Claude Code uses this metadata to display the plugin in plugin manager.
+
+### Required Fields
+
+| Field | Type | Description | Example |
+|--------|------|-------------|---------|
+| `name` | string | Unique identifier (kebab-case) | `"deployment-tools"` |
+| `version` | string | Semantic version | `"1.0.0"` |
+| `author` | object | Author information | `{"name": "Your Name"}` |
+| `homepage` | string | Documentation URL | `https://github.com/yourusername/your-plugin"` |
+| `repository` | string | Source code URL | `https://github.com/yourusername/your-plugin` |
+| `license` | string | License identifier | `"MIT"` |
+| `keywords` | array | Discovery tags | `["deployment", "code-review", "automation"]` |
+
+### Component Path Fields
+
+| Field | Type | Description | Example |
+|--------|------|-------------|---------|
+| `commands` | string\|array | Command files or directories | `"commands/` or `["status.md", "logs.md"]` |
+| `agents` | string\|array | Agent files or directories | `"agents/"` or `["security-reviewer.md"]` |
+| `skills` | string\|array | Skill directories | `"skills/"` or `["code-reviewer/"]` |
+| `hooks` | string\|array\|object | Hook configuration | `"hooks/hooks.json"` or `{...}` inline |
+| `mcpServers` | string\|array\|object | MCP configuration | `.mcp.json` or `{...}` inline |
+| `outputStyles` | string\|array | Output style files | `["explanatory-output-style"]` |
+| `lspServers` | string\|array\|object | LSP configuration | `.lsp.json` or `{...}` inline |
+
+### Path Behavior Rules
+
+Custom paths supplement default directories, they don't replace them. If `commands/` exists, it will be loaded in addition to any custom command paths. All paths must be relative to plugin root directory and start with `./` to avoid security issues. Files outside the copied plugin structure cannot be accessed after installation.
+
+## Plugin Installation Scope
+
+Installation scope determines where plugin files are stored and their visibility:
+
+| Scope | Settings File | Use Case |
+|--------|---------------|----------|
+| `user` | `~/.claude/settings.json` | Personal plugins for use across all your projects |
+| `project` | `.claude/settings.json` | Team plugins shared via version control |
+| `local` | `.claude/settings.local.json` | Project-specific plugins (gitignored) |
+| `managed` | `managed-settings.json` | Read-only plugins deployed by IT administrators |
+
+## CLI Commands Complete Reference
+
+### plugin install
+
+Install a plugin from an available marketplace:
+
+```bash
+claude plugin install <plugin> [options]
+```
+
+**Options:**
+- `-s, --scope <scope>`: Installation scope (default: user, project, local)
+- `-h, --help`: Display help information
+
+### plugin uninstall
+
+Remove an installed plugin:
+
+```bash
+claude plugin uninstall <plugin> [options]
+```
+
+**Alias**: `remove`, `rm`
+
+### plugin enable
+
+Enable a disabled plugin without uninstalling:
+
+```bash
+claude plugin enable <plugin> [options]
+```
+
+### plugin disable
+
+Disable a plugin temporarily:
+
+```bash
+claude plugin disable <plugin> [options]
+```
+
+### plugin update
+
+Update a plugin to its latest version:
+
+```bash
+claude plugin update <plugin> [options]
+```
+
+## Plugin Cache and File Parsing
+
+### Cache Working Principle
+
+For security and validation purposes, Claude Code copies plugins to a cache directory instead of using them in-place. When installing a plugin, Claude Code locates the plugin's `source` field in marketplace configuration and copies the entire plugin structure to cache.
+
+### Path Traversal Limitations
+
+Plugins cannot reference files outside their copied directory structure. Any attempts to access external files (using relative paths like `../../external-file`) will fail after installation because those files aren't copied to cache. This is a security feature preventing unauthorized file access.
+
+### Using External Dependencies
+
+**Option 1: Use symlinks**
+
+Create symbolic links in your plugin directory that point to external files or directories. Symlinks are resolved during the copy process, allowing access to shared utilities:
+
+```bash
+ln -s /path/to/shared-utils ./shared-utils
+ln -s ~/company-standards/security.md .claude/rules/security.md
+```
+
+**Option 2: Restructure marketplace**
+
+Create your plugin as a parent directory that contains all required files. Configure the marketplace entry to point to your plugin directory:
+
+```json
+{
+  "source": {
+    "type": "local",
+    "path": "./my-plugin/"
+  }
+}
+```
+
+This way, all plugin files are included in the cache and marketplace structure.
+
+## Debugging and Troubleshooting
+
+### Common Issues
+
+**Hook script not executing**: Check if script is executable (`chmod +x script.sh`); Verify shebang line (`#!/bin/bash`, `#!/usr/bin/python3`); Test script manually outside of Claude Code.
+
+**Hook not triggering**: Verify event name (case-sensitive: `PreToolUse`, not `pretooluse`); Check matcher pattern (exact match vs regex); Review hook configuration format; Use `/hooks` command to view registered hooks.
+
+**Plugin not loading**: Verify plugin.json syntax is valid; Check plugin is enabled in settings; Run `claude plugin list` to see all installed plugins; Clear cache with `rm -rf ~/.claude/plugins/cache`.
+
+**LSP server not starting**: Verify `command` path is correct; Check if LSP binary is installed on user's machine; Review server configuration in `.lsp.json`; Check `startupTimeout` and environment variables.
+
+### Debug Commands
+
+**Validate plugin configuration:**
+```bash
+claude plugin validate ./my-plugin
+```
+
+**View loaded plugins:**
+```bash
+claude plugin list
+```
+
+**Check LSP server status:**
+```bash
+# List installed LSP servers
+claude mcp list | grep -i "^lsp:"
+```
+
+## Version Management
+
+### Semantic Versioning
+
+Follow Semantic Versioning (SemVer) format: `MAJOR.MINOR.PATCH`
+
+- **MAJOR**: Breaking changes (incompatible API changes)
+- **MINOR**: New features (backward-compatible additions)
+- **PATCH**: Bug fixes (backward-compatible fixes)
+
+**Best practices:**
+- Start with `1.0.0` for first stable release
+- Update version for each new feature or bug fix
+- Document breaking changes in CHANGELOG.md
+- Use pre-release versions like `2.0.0-beta.1` for testing
+
+## Directory Structure Reference
+
+### Standard Plugin Layout
+
+```
+enterprise-plugin/
+├── .claude-plugin/
+│   └── plugin.json           # Plugin manifest
+├── commands/
+│   ├── status.md
+│   └── logs.md
+├── agents/
+│   ├── security-reviewer.md
+│   └── performance-tester.md
+├── skills/
+│   └── code-reviewer/
+│       └── SKILL.md
+├── hooks/
+│   └── hooks.json
+├── .mcp.json
+├── .lsp.json
+├── scripts/
+├── LICENSE
+├── CHANGELOG.md
+└── README.md
+```
+
+### File Location Reference
+
+| Component | Default Location | Purpose |
+|----------|---------------|---------|
+| Manifest | `.claude-plugin/plugin.json` | Plugin metadata |
+| Commands | `commands/` | Skill Markdown files |
+| Agents | `agents/` | Subagent definitions |
+| Skills | `skills/` | Skills with SKILL.md files |
+| Hooks | `hooks/hooks.json` | Hook configuration |
+| MCP Servers | `.mcp.json` | MCP server definitions |
+| LSP Servers | `.lsp.json` | Language server config |
+| Documentation | `README.md` | Plugin documentation |
+| License | `LICENSE` | License terms |
+
+## Environment Variables
+
+**`${CLAUDE_PLUGIN_ROOT}`**: Absolute path to plugin directory, used in hooks and MCP server configurations to reference plugin-local files. Ensure all plugin paths use this variable to guarantee correct file access.
+
+## Summary
+
+This technical reference covers all core specifications of Claude Code plugin system. Correctly understanding and applying these specifications is crucial for developing high-quality, maintainable plugins. I recommend building production-ready plugins by following version management best practices, comprehensive testing, and thorough documentation.
+
+<AdPlaceholder />

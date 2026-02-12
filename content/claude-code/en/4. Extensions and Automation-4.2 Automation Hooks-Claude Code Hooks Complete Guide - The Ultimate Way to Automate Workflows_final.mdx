@@ -1,0 +1,209 @@
+---
+title: "Claude Code Hooks Complete Guide: The Ultimate Way to Automate Workflows"
+description: "Learn how to customize and extend Claude Code behavior by registering shell commands, enabling automated formatting, notifications, and code quality checks."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "hooks-getting-started"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Hooks Complete Guide
+
+Claude Code hooks are powerful tools for customizing your development workflows. By registering specific shell commands, you can automatically execute custom operations at key points in the Claude Code lifecycle, ensuring important tasks always execute as expected rather than relying entirely on LLM judgment. This mechanism transforms your best practices from口头 suggestions into executable code, significantly boosting development efficiency and code quality consistency.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before starting with hooks, make sure you meet the following conditions:
+
+- Claude Code installed and basic configuration completed
+- Basic command line knowledge
+- Recommended to install `jq` tool for processing JSON data (many hook examples use it)
+
+## Hook Event Types Overview
+
+Claude Code provides rich event hooks covering the complete lifecycle from tool calls to session management. Understanding these event types is the foundation for designing efficient hooks, each with its specific purpose and trigger timing.
+
+### Core Events Explained
+
+**PreToolUse** event triggers before a tool call, one of the most commonly used hook types. You can use it to validate commands, modify parameters, or even block certain operations from executing. For example, you can set up a hook to check all Bash commands for potential dangerous operations like deleting files or modifying system configurations. This preventive check mechanism can effectively avoid serious consequences from unintended operations.
+
+**PostToolUse** event triggers after a tool successfully completes execution, making it ideal for automating follow-up tasks. Common use cases include automatically running code formatting tools after file edits, logging operations after command execution, or performing quality checks on generated results. This post-hook makes your development workflow more automated and standardized.
+
+**Notification** event allows you to customize how Claude Code sends notifications. You can integrate desktop notification systems, send emails, or create reminders in team collaboration tools, ensuring you never miss important interaction moments. This feature is particularly valuable for developers who need to frequently switch context while working.
+
+## Quick Start: Create Your First Logging Hook
+
+Let's learn how hooks work through a practical example. In this example, we'll create a hook to log all Bash commands run by Claude Code, which is useful for auditing, compliance checking, and debugging.
+
+### Step 1: Open Hooks Configuration
+
+Run the `/hooks` slash command to open the hooks management interface. In the events list, select the `PreToolUse` hook event since we want to log all tool calls before commands are executed. The unique aspect of PreToolUse hooks is their ability to block tool execution and provide feedback to Claude, which enables sophisticated workflow control.
+
+### Step 2: Configure Matcher
+
+To log only Bash commands, add a matcher. In the matcher input box, type `Bash`, so the hook will only apply to Bash tool calls. The matcher supports exact matching and regular expressions. If you want to match multiple tool types, you can use `|` to separate them, for example `Bash|Edit|Write`. If you want the hook to apply to all tools, just type `*`.
+
+### Step 3: Write Hook Command
+
+Now add the specific hook command. We'll use `jq` tool to format output and write to a log file:
+
+```bash
+jq -r '"\(.tool_input.command) - \(.tool_input.description // "No description")"' >> ~/.claude/bash-command-log.txt
+```
+
+This command extracts the command content and a description (if any), then appends it to the log file. The log file is stored in your home directory, meaning this hook will log Bash command execution history across all your projects.
+
+### Step 4: Save Configuration
+
+Select `User settings` as the storage location, so the hook will apply to all your projects. Save it, then press `Esc` to return to the main interface. Your first hook is now active and will be saved to the `~/.claude/settings.json` file.
+
+### Step 5: Verify Hook Works
+
+Run `/hooks` command to view registered hook configuration, confirming everything is correct:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\\\(.tool_input.command) - \\\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Step 6: Test Effect
+
+Let Claude run a simple command, such as listing directory contents, then check the log file:
+
+```bash
+cat ~/.claude/bash-command-log.txt
+```
+
+You should see output similar to this, indicating the hook is working correctly:
+
+```
+ls - Lists files and directories
+```
+
+## Practical Hook Examples
+
+### Code Auto-Formatting Hook
+
+Automatically formatting code after every file edit is a best practice for maintaining code style consistency. This hook will automatically run after Write or Edit tool execution, formatting TypeScript files with Prettier:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read file_path; if echo \"$file_path\" | grep -q '\\.ts$'; then npx prettier --write \"$file_path\"; fi; }"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+This configuration first extracts the modified file path, then checks if it's a TypeScript file (ending with `.ts`), and if so, automatically runs Prettier formatting. You can extend the condition checking to support `.go`, `.py`, and other languages.
+
+### Markdown Auto-Fix Hook
+
+Maintaining consistent Markdown formatting is also important. The following hook automatically fixes missing language tags and removes extra blank lines from Markdown files:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/markdown_formatter.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The配套 Python script needs to be saved at `.claude/hooks/markdown_formatter.py`, which will automatically detect code block languages, fix formatting issues, and only process Markdown files. This script can intelligently identify common language code features in JSON, Python, JavaScript, Bash, SQL, etc., and add correct language tags to code blocks without them.
+
+### Desktop Notification Hook
+
+When Claude needs your input, desktop notifications ensure you respond promptly. This hook will send system notifications when Claude receives permission requests or idle prompts:
+
+```json
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code' 'Awaiting your input'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Use `notify-send` command (Linux) or similar desktop notification tools to let you know immediately when Claude needs your attention, even when you've switched to another window.
+
+### Sensitive File Protection Hook
+
+Preventing accidental modifications to critical files is an important part of development environment security. The following hook blocks Edit or Write operations on sensitive paths like `.env`, `.git/`, etc.:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json, sys; data=json.load(sys.stdin); path=data.get('tool_input',{}).get('file_path',''); sys.exit(2 if any(p in path for p in ['.env', 'package-lock.json', '.git/']) else 0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Exit code 2 means blocking the operation and displaying an error message to Claude. When the target path contains protected patterns, the hook will block Edit or Write tool execution and tell Claude the operation was rejected.
+
+## Pro Tips
+
+**Start with simple hooks**: When first using hooks, start with non-blocking hooks like logging or notifications. This lets you get familiar with how hooks work without disrupting normal development due to configuration errors.
+
+**Use version control for hook configurations**: Commit project-level hook configurations (`.claude/settings.json`) to version control. This ensures team members share the same workflow standards, improving collaboration efficiency.
+
+**Fully utilize regular expression matchers**: Matchers support full regular expression syntax. You can create very granular filtering rules. For example, use `^(Edit|Write)$` for exact tool name matching, or `.*\.ts$` to match all TypeScript files.
+
+**Use standalone scripts for complex logic**: When hook logic becomes complex, place code in standalone script files. This makes it easier to maintain and allows you to use your IDE's full features for code writing and debugging.
+
+## Summary
+
+Claude Code hooks system provides powerful workflow automation capabilities. From simple command logging to complex code quality checks, and even sensitive file protection mechanisms, hooks can help you build a more standardized and efficient development environment. The key is to choose the right event types for your needs and ensure hook logic is concise and reliable. I recommend starting with the examples in this guide and gradually building a custom automation workflow that fits your team's development process.

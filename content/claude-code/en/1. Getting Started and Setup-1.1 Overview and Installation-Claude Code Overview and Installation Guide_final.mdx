@@ -1,0 +1,333 @@
+---
+title: "Claude Code Overview and Installation Guide"
+description: "Learn about Claude Code's core features, installation methods, and how to start your first AI programming assistant"
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "claude-code-overview-installation"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Overview and Installation Guide
+
+Claude Code is an AI programming tool developed by Anthropic that resides in your terminal, helping you turn ideas into code faster than ever before. This powerful tool integrates automatic completion of tedious tasks, intelligent debugging, and seamless integration.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before starting with Claude Code, make sure you have the following:
+
+- **Operating System**: macOS 13.0+, Ubuntu 20.04+/Debian 10+ or Windows 10+ (supports WSL, WSL 2, or Git for Windows)
+- **Hardware**: 4 GB+ RAM
+- **Network Connection**: Stable internet connection
+- **Shell Environment**: Bash or Zsh (recommended)
+- **Account**: [Claude subscription](https://claude.com/pricing) (Pro, Max, Teams, or Enterprise) or [Claude Console](https://console.anthropic.com/) user
+
+<Note>
+Windows ARM64 does not support local sessions.
+</Note>
+
+## Quick Start: 30-Second Installation
+
+### Step 1: Choose Installation Method
+
+Claude Code offers multiple installation methods to fit different workflows.
+
+**Option A: Native Installation (Recommended)**
+
+**macOS, Linux, WSL:**
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+```batch
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+<ProTip>
+Native installation automatically updates to the latest version in the background, ensuring you always have the latest features and security fixes.
+</ProTip>
+
+**Option B: Homebrew Installation**
+
+```bash
+brew install --cask claude-code
+```
+
+<Note>
+Homebrew installation does not auto-update. You need to periodically run `brew upgrade claude-code` to get the latest features and security fixes.
+</Note>
+
+**Option C: WinGet Installation**
+
+```powershell
+winget install Anthropic.ClaudeCode
+```
+
+<Note>
+WinGet installation does not auto-update. You need to periodically run `winget upgrade Anthropic.ClaudeCode` to get the latest features and security fixes.
+</Note>
+
+<ProTip>
+For most users, native installation is the simplest and recommended method.
+</ProTip>
+
+### Step 2: Verify Installation
+
+After installation is complete, run the following command to verify:
+
+```bash
+claude doctor
+```
+
+This will check your installation type and version, ensuring everything is working correctly.
+
+### Step 3: Login to Your Account
+
+On first use, the system will prompt you to login. You can use either of the following account types:
+
+- **Claude Subscription** (recommended): Subscribe to Claude's [Pro or Max plan](https://claude.ai/pricing) to manage your account in one place
+- **Claude Console**: Connect via [Claude Console](https://console.anthropic.com/), requires active billing
+
+Login command:
+
+```bash
+claude
+# System will prompt you to login on first use
+```
+
+<Note>
+When using Claude Console, the system automatically creates a "Claude Code" workspace for your organization to centrally manage usage tracking.
+</Note>
+
+<Note>
+After logging in, your credentials will be stored, and you won't need to login again.
+</Note>
+
+### Step 4: Start Your First Session
+
+After installing and logging in, navigate to your project directory and start Claude Code:
+
+```bash
+cd your-project
+claude
+```
+
+<ProTip>
+Ensure your project directory is a Git repository, so Claude Code can better understand your code structure.
+</ProTip>
+
+You will see Claude Code's welcome screen, which includes your session information, recent conversations, and latest updates.
+
+## What Claude Code Can Do For You
+
+### Build Features from Descriptions
+
+Tell Claude in plain English what you want to build, and it will create a plan, write code, and ensure it works.
+
+### Debug and Fix Issues
+
+Describe an error or paste an error message, and Claude Code will analyze your codebase, identify the problem, and implement a fix.
+
+### Navigate Any Codebase
+
+Ask any question about your team's codebase, and Claude Code can provide thoughtful answers.
+
+### Automate Tedious Tasks
+
+Fix tricky lint issues, resolve merge conflicts, and write release notes. Do all of this from your development machine with a single command.
+
+### Why Developers Love Claude Code
+
+#### Work in Your Terminal
+
+Not another chat window. Not another IDE. Claude Code meets you where you already work, using the tools you already love.
+
+#### Take Action
+
+Claude Code can directly edit files, run commands, and create commits. Need more? [MCP](/zh-CN/mcp) lets Claude read design docs from your Google Drive, update tickets in your Jira, or use your custom developer tools.
+
+#### Unix Philosophy Design
+
+Claude Code is composable and scriptable. `tail -f app.log | claude -p "Slack me if you see any anomalies"` *works*.
+
+#### Enterprise Ready
+
+Use the Claude API, or host on AWS, GCP. Enterprise-level security, [privacy](/zh-CN/data-usage), and [compliance](https://trust.anthropic.com/) are built-in.
+
+<AdPlaceholder />
+
+## Common Use Cases
+
+### Use Case 1: Quick Prototyping
+
+```bash
+# Describe feature
+claude -p "Create a React form component with name, email, password fields. Use Material UI design."
+
+# Let Claude generate complete component code
+# Provide style reference
+```
+
+**Advantages:**
+- Quick iteration and preview
+- Claude automatically handles form validation and error handling
+- Can easily modify UI styles
+
+### Use Case 2: Code Review and Refactoring
+
+```bash
+# Let Claude analyze code quality
+claude -p "Review the src/auth module for security best practices and potential improvements"
+
+# Generate refactoring suggestions
+claude -p "Convert src/utils functions to TypeScript types, add JSDoc type comments"
+```
+
+### Use Case 3: Multi-Project Coordination
+
+```bash
+# Work on multiple projects in one directory simultaneously
+cd /workspace
+for repo in project1 project2 project3; do
+  claude -p "Generate independent Docker Compose configuration for each project"
+done
+```
+
+<AdPlaceholder />
+
+## Pro Tips
+
+### Tip 1: Use Command Line Mode Efficiently
+
+One of Claude Code's most powerful features is `-p` flag for one-time tasks:
+
+```bash
+# Fix all lint errors
+claude -p "Run 'npm run lint -- --fix' and accept all suggested changes"
+
+# Quick code generation
+claude -p "Generate an Express REST API endpoint with CRUD operations"
+```
+
+<ProTip>
+When using `-p` mode, Claude Code focuses on completing the task without requesting interactive approval.
+</ProTip>
+
+### Tip 2: Break Down Complex Tasks Reasonably
+
+For large tasks, break them into multiple smaller steps:
+
+```bash
+# First step
+claude -p "Set up database schema and migration scripts"
+
+# Second step
+claude -p "Implement user authentication functionality"
+
+# Third step
+claude -p "Write API documentation"
+```
+
+### Tip 3: Fully Utilize Claude's Code Understanding Capabilities
+
+Claude Code can deeply understand large codebases, make full use of this capability:
+
+```bash
+# Let Claude analyze the entire project architecture
+claude -p "Identify design patterns and potential technical debt"
+
+# Let Claude generate architecture documentation
+```
+
+<AdPlaceholder />
+
+## Common Troubleshooting
+
+### Problem 1: Installation Fails
+
+**If installation script fails:**
+
+**Check items:**
+```bash
+# Verify system requirements
+claude doctor
+```
+
+**Check network connection:**
+```bash
+# Test network connection
+curl -I https://claude.ai/
+```
+
+**Retry installation:**
+```bash
+# For native installation
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+### Problem 2: Permission Errors
+
+If Claude Code refuses an operation:
+
+- Check file permissions: `ls -la ~/.claude`
+- View Claude Code configuration: `cat ~/.claude/settings.json`
+- Run `claude config` interactively check permission settings
+
+### Problem 3: Login Issues
+
+**If login fails:**
+
+- Check if account type is correct
+- Verify network connection is working
+- Try re-logging in with `/login` command
+
+**If using Claude Console:**
+- Ensure you have active billing
+- Navigate to [Claude Console](https://console.anthropic.com/) to check billing status
+
+### Problem 4: Slow Performance
+
+**If response is slow:**
+
+- Check network latency
+- Try switching models (if subscription supports multiple models)
+- Simplify conversation history: `/compact` removes unnecessary content
+
+### Problem 5: Context Limits
+
+**If encountering token limit errors:**
+
+- This is a common issue for large documents or long sessions
+- Use `/compact` to compress conversation history
+- Split complex tasks into multiple sessions
+
+### Problem 6: Tool Call Failures
+
+**If Bash command execution fails:**
+
+- Check error message and retry
+- Verify command syntax is correct
+
+<AdPlaceholder />
+
+## Conclusion
+
+Claude Code is not just a chatbot - it's a powerful AI programming assistant that can significantly improve your development efficiency. From simple code generation to complex project architecture analysis, Claude Code can efficiently complete tasks.
+
+By mastering the installation, configuration, and usage tips in this guide, you will be able to:
+- Quickly set up and start using Claude Code
+- Fully utilize its AI capabilities to solve complex problems
+- Automate tedious work to focus on creating value
+- Improve productivity in team collaboration
+
+Start using Claude Code and unleash AI's powerful potential to make coding more efficient and enjoyable!
+
+<AdPlaceholder />

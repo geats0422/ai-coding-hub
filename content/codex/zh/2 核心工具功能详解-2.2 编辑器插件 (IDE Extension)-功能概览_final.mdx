@@ -1,0 +1,128 @@
+---
+title: "功能概述"
+description: "了解 Codex IDE 扩展的核心功能，包括安装、设置以及与 VS Code、Cursor、Windsurf 的集成"
+tool: "codex"
+slug: "ide-extension"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE 扩展
+
+Codex是OpenAI的编码代理，可以读取、编辑和运行代码。它可以帮助您更快地构建、修复错误并理解不熟悉的代码。 Codex VS Code 扩展允许您在 IDE 中并行使用 Codex 或将任务委托给 Codex 云。
+
+Codex 包含在 ChatGPT Plus、Pro、Business、Edu 和 Enterprise 计划中。了解[包含的内容](https://developers.OpenAI.com/Codex/pricing)。
+
+*图片说明：Codex IDE 扩展概述视频展示了使用Codex 在 VS Code 中进行代码编辑和对话的界面布局。 *
+
+<AdPlaceholder />
+
+## 扩展设置
+
+Codex IDE 扩展可用于 VS Code 分支，例如 Cursor 和 Windsurf。您可以从 [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt) 获取 Codex 扩展或将其下载到您的 IDE：- [下载 Visual Studio Code](vscode:extension/OpenAI.chatgpt)
+-[下载 Cursor](cursor:extension/OpenAI.chatgpt)
+-[下载 Windsurf](windsurf:extension/OpenAI.chatgpt)
+-[下载 Visual Studio Code Insiders](https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt)
+-[下载 JetBrains IDE](#jetbrains-ide-integration)
+
+Codex VS Code 扩展可在 macOS 和 Linux 上使用。 Windows 支持是实验性的。为了获得最佳 Windows 体验，请在 WSL 工作区中使用Codex 并遵循我们的[Windows 设置指南](/Codex/windows)。安装后，您将在左侧边栏中看到该扩展以及其他扩展。如果使用 VS Code，如果没有立即看到 Codex，请重新启动编辑器。
+
+如果使用光标，活动栏默认水平显示。折叠的项目可能会隐藏 Codex，以便您可以固定它并重新排列扩展的顺序。
+
+*图像描述：VS Code 侧边栏位置的插图，显示 Codex 扩展图标和已安装扩展的列表。 *
+
+## JetBrains IDE 集成
+
+如果您想将Codex 与 Rider、IntelliJ、PyCharm 或 WebStorm 等 JetBrains IDE 一起使用，请安装 JetBrains IDE 集成。它支持使用 ChatGPT、API 密钥或 JetBrains AI 订阅登录。
+<Callout type="tip">
+JetBrains IDE 集成文档
+</Callout>
+
+### 将Codex移至右侧边栏
+
+在 VS Code 中，您可以将 Codex 图标拖到编辑器右侧，将其移动到右侧边栏。
+
+在某些 IDE（例如 Cursor）中，您可能需要先临时更改活动栏方向：
+
+1. 打开编辑器设置并搜索`activity bar`（在工作区设置中）。
+2. 将方向更改为`vertical`。
+3. 重新启动编辑器。
+
+！[Codex-workbench-setting](https://cdn.OpenAI.com/devhub/docs/Codex-workbench-setting.webp)
+
+现在将 Codex 图标拖到右侧边栏（例如，光标聊天旁边）。 Codex 显示为侧边栏中的另一个选项卡。
+
+移动后，将活动栏方向重置为 `horizontal` 以恢复默认行为。
+
+＃＃ 登录安装扩展程序后，它将提示您使用 ChatGPT 帐户或 API 密钥登录。您的 ChatGPT 计划包括使用积分，因此您无需进行额外设置即可使用 Codex。了解更多信息，请访问[定价页面](https://developers.OpenAI.com/Codex/pricing)。
+
+## 更新扩展
+
+该扩展会自动更新，但您也可以在编辑器中打开扩展页面来检查更新。
+
+## 设置键盘快捷键
+
+Codex 包含可在 IDE 设置中绑定为键盘快捷键的命令（例如，切换 Codex 聊天或将项目添加到 Codex 上下文）。要查看所有可用命令并将它们绑定为键盘快捷键，请选择 Codex 聊天中的设置图标，然后选择 **键盘快捷键**。您也可以参考[Codex IDE 扩展命令](https://developers.OpenAI.com/Codex/ide/commands)页面。
+
+有关支持的斜杠命令的列表，请参阅[Codex IDE 扩展斜杠命令](https://developers.OpenAI.com/Codex/ide/slash-commands)。
+
+---
+
+## 使用Codex IDE 扩展
+
+### 使用编辑器上下文进行提示
+
+在编辑器中使用Codex 聊天、编辑和预览更改。当Codex 从打开的文件和选定的代码中获取上下文时，您可以编写更短的提示文字并获得更快、更相关的结果。
+
+您可以通过如下标记来引用提示中编辑器中的任何文件：
+```
+Use @example.tsx as a reference to add a new page named "Resources" to the app that contains a list of resources defined in @resources.ts
+```
+### 切换模型
+
+您可以使用输入框下方的选择器切换模型。
+
+*图像描述：Codex IDE 扩展中的模型选择器，显示包含可用模型选项的下拉菜单。 *
+
+### 调整推理工作
+
+您可以调整推理工作来控制 Codex 在响应之前思考的时间。更高的努力可以帮助完成复杂的任务，但反应需要更长的时间。更高的努力也会使用更多的代币，并且可能会更快地耗尽您的速率限制（特别是在使用 GPT-5-Codex 时）。
+
+使用上面显示的相同模型选择器，并为每个模型选择`low`、`medium` 或`high`。从`medium` 开始，仅在需要更多深度时才切换到`high`。
+
+### 选择审批模式默认情况下，Codex以`Agent`模式运行。在此模式下，Codex可以自动读取工作目录中的文件、编辑和运行命令。在工作目录之外工作或访问网络之前，Codex 仍然需要您的批准。
+
+当您只想聊天或想在进行更改之前做好计划时，请使用输入框下方的选择器切换到`Chat`。
+
+*图像描述：Codex IDE 扩展中的批准模式选择器，显示三个选项：聊天、代理和代理（完全访问）。 *
+
+如果您需要 Codex 来读取文件、编辑文件以及在未经批准的情况下通过网络访问运行命令，请使用 `Agent (Full Access)`。执行此操作之前请务必小心。
+
+### 委托给云端您可以将较大的作业卸载到云中的Codex，然后跟踪进度并查看结果，而无需离开 IDE。
+
+1. 为Codex 设置[云环境](https://chatgpt.com/Codex/settings/environments)。
+2. 选择您的环境并选择 **在云中运行**。您可以从 `main`（对于开始新想法有用）或从本地更改（对于完成任务有用）运行 Codex。
+
+*图片说明：从IDE启动云任务的界面，显示环境选择和运行选项。 *
+
+当您从本地对话启动云任务时，Codex 会记住对话上下文，以便可以从中断处继续。
+
+### 云任务后续操作Codex 扩展可以轻松预览云中的更改。您可以要求在云中进行后续运行，但通常您需要在本地应用更改以进行测试和完成。 Codex 还保留上下文，以便在您在本地继续对话时节省时间。
+
+*图片说明：将云任务加载到IDE中的界面，显示预览和应用程序选项。 *
+
+您还可以在[Codex 云界面](https://chatgpt.com/Codex)中查看云任务。
+
+### 网络搜索Codex 附带官方网络搜索工具。对于 Codex IDE 扩展中的本地任务，Codex 默认启用 Web 搜索并提供来自 Web 搜索缓存的结果。缓存是由OpenAI维护的Web结果索引，因此缓存模式返回预先索引的结果而不是获取实时页面。这可以减少任意实时内容的即时注入暴露，但您仍应将 Web 结果视为不可信。如果您将沙箱配置为[完全访问](https://developers.OpenAI.com/Codex/security)，网络搜索默认为实时结果。请参阅[基本配置](https://developers.OpenAI.com/Codex/config-basic)禁用网络搜索或切换到实时结果以获取最新数据。
+
+每当Codex 查找某些内容时，您都会在记录或`Codex exec --json` 输出中看到`web_search` 项。### 将图片拖放到提示词中
+
+您可以将图像拖放到提示文字编辑器中，将其作为上下文包含在内。拖放图像时按住 Shift 键。 VS Code 阻止扩展接受拖放。
+
+### 另请参阅
+
+-[Codex IDE 扩展设置](https://developers.OpenAI.com/Codex/ide/settings)
+
+<AdPlaceholder />

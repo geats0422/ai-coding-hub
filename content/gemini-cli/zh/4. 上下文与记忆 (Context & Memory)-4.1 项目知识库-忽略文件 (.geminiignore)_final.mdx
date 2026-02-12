@@ -1,0 +1,76 @@
+---
+title: "忽略文件 (.geminiignore)"
+description: "了解如何使用 .geminiignore 文件排除不必要的文件和目录并优化 Gemini CLI 的上下文搜索。"
+tool: "gemini-cli"
+slug: "ignore-files-geminiignore"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 忽略文件
+
+本文档概述了 Gemini 忽略 (`.geminiignore`)
+Gemini CLI 的功能。
+
+Gemini CLI 包含自动忽略文件的功能，类似于
+`.gitignore`（由 Git 使用）和 `.aiexclude`（由Gemini Code Assist 使用）。添加
+`.geminiignore` 文件的路径会将它们排除在支持的工具之外
+此功能，尽管它们仍然对其他服务可见（例如
+吉特）。
+
+<AdPlaceholder />
+
+## 它是如何工作的
+
+当您添加 `.geminiignore` 文件的路径时，尊重该文件的工具
+将从其操作中排除匹配的文件和目录。例如，
+当您使用`@`命令共享文件时，`.geminiignore`中的任何路径
+文件将被自动排除。在大多数情况下，`.geminiignore` 遵循 `.gitignore` 的约定
+文件：
+
+- 空白行和以`#` 开头的行将被忽略。
+- 支持标准 glob 模式（例如 `*`、`?` 和 `[]`）。
+- 在末尾添加 `/` 将仅匹配目录。
+- 在开头放置 `/` 锚定相对于
+  `.geminiignore` 文件。
+- `!` 否定模式。
+
+您可以随时更新您的`.geminiignore` 文件。要应用更改，您
+必须重新启动您的Gemini CLI 会话。
+
+## 如何使用`.geminiignore`
+
+要启用`.geminiignore`：
+
+1. 在项目目录的根目录中创建一个名为`.geminiignore` 的文件。
+
+要将文件或目录添加到`.geminiignore`：1. 打开`.geminiignore` 文件。
+2. 添加您要忽略的路径或文件，例如：`/archive/` 或
+   `apikeys.txt`。
+
+### `.geminiignore` 示例
+
+您可以使用`.geminiignore`来忽略目录和文件：
+```
+# Exclude your /packages/ directory and all subdirectories
+/packages/
+
+# Exclude your apikeys.txt file
+apikeys.txt
+```
+您可以在 `.geminiignore` 文件中使用 `*` 通配符：
+```
+# Exclude all .md files
+*.md
+```
+最后，您可以使用 `!` 将文件和目录排除在排除之外：
+```
+# Exclude all .md files except README.md
+*.md
+!README.md
+```
+要从 `.geminiignore` 文件中删除路径，请删除相关行。
+
+<AdPlaceholder />

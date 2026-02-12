@@ -1,0 +1,431 @@
+---
+title: "Claude Code Model Selection and Configuration Complete Guide: Optimize AI Reasoning Capabilities"
+description: "Deep dive into Claude Code's model configuration system, including model aliases, opusplan mode, effort level adjustment, and context window optimization."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "model-selection-and-configuration"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Model Selection and Configuration Complete Guide: Optimize AI Reasoning Capabilities
+
+Choosing the right AI model is key to optimizing your Claude Code experience. Different models have different advantages in reasoning capability, speed, and cost. This guide will help you select the best configuration based on your task requirements, fully unleashing Claude Code's potential.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning about model configuration, make sure you have the following:
+
+- **Claude Code**: Installed and working Claude Code
+- **Account Type**: Understand your Anthropic account type (Pro, Max, Teams, or Enterprise)
+- **Basic Concepts**: Understand basic concepts about AI models and context windows
+- **Usage Experience**: Basic experience using Claude Code
+
+## Step 1: Understand Available Models
+
+### Step 1.1: Model Type Overview
+
+Claude Code supports multiple model configuration methods:
+
+- **Model aliases**: Convenient preset configurations
+- **Full model names**: Precise version control
+- **API-specific identifiers**: For different cloud services
+
+**Model configuration options:**
+
+| Configuration Type | Description | Use Case |
+|------------------|-------------|----------|
+| Model alias | Convenient selection method | Daily use |
+| Full model name | Precise version control | Production environment |
+| Bedrock ARN | AWS Bedrock deployment | Enterprise deployment |
+| Foundry name | Microsoft Foundry | Enterprise deployment |
+| Vertex version | Google Cloud Vertex | Enterprise deployment |
+
+### Step 1.2: Model Aliases Explained
+
+Model aliases provide a convenient way to select model settings:
+
+| Model Alias | Description | Use Case |
+|--------------|-------------|----------|
+| `default` | Recommended default settings | Standard tasks |
+| `sonnet` | Latest Sonnet model (Sonnet 4.5) | Daily coding tasks |
+| `opus` | Latest Opus model (Opus 4.6) | Complex reasoning tasks |
+| `haiku` | Fast and efficient Haiku model | Simple tasks |
+| `sonnet[1m]` | Sonnet + 1 million token context | Long sessions |
+| `opusplan` | Hybrid mode | Automated planning and execution |
+
+<ProTip>
+Aliases always point to the latest version. To pin to a specific version, use the full model name.
+</ProTip>
+
+### Step 1.3: Model Capability Comparison
+
+| Model | Reasoning Capability | Speed | Cost | Best For |
+|--------|---------------------|-------|-------|----------|
+| Haiku | Basic | Fastest | Lowest | Simple tasks, quick responses |
+| Sonnet | Medium | Fast | Medium | Daily coding, standard tasks |
+| Opus | Strongest | Slower | Highest | Complex reasoning, architecture decisions |
+
+## Step 2: Configure Models
+
+### Step 2.1: Configuration Method Priority
+
+Claude Code supports multiple configuration methods, ordered by priority:
+
+1. **During session**: Use `/model <alias|name>` to dynamically switch
+2. **At startup**: Use `claude --model <alias|name>` command line argument
+3. **Environment variable**: Set `ANTHROPIC_MODEL=<alias|name>`
+4. **Settings file**: Configure permanently in `settings.json`
+
+**Command line examples:**
+```bash
+# Start with Opus
+claude --model opus
+
+# Start with Sonnet
+claude --model sonnet
+```
+
+**In-session switching:**
+```bash
+# Switch to Sonnet
+/model sonnet
+
+# Switch to Opus
+/model opus
+```
+
+<ProTip>
+In-session switching doesn't clear current conversation context, allowing seamless model transitions.
+</ProTip>
+
+### Step 2.2: Settings File Configuration
+
+Configure the default model permanently in `settings.json`:
+
+```json
+{
+  "model": "opus"
+}
+```
+
+### Step 2.3: Use Environment Variables
+
+```bash
+# Set default model
+export ANTHROPIC_MODEL=opus
+
+# Or configure in settings
+{
+  "env": {
+    "ANTHROPIC_MODEL": "opus"
+  }
+}
+```
+
+<AdPlaceholder />
+
+## Step 3: Use opusplan Hybrid Mode
+
+### Step 3.1: Understanding opusplan
+
+`opusplan` is an intelligent hybrid mode that combines the strengths of two models:
+
+- **Planning mode**: Uses Opus for complex reasoning and architecture decisions
+- **Execution mode**: Automatically switches to Sonnet for code generation and implementation
+
+**Workflow:**
+```
+User request → Opus plans → Sonnet executes → Returns results
+```
+
+<ProTip>
+opusplan gives you the best of both worlds: Opus's superior reasoning for planning, Sonnet's efficiency for execution.
+</ProTip>
+
+### Step 3.2: Enable opusplan
+
+```bash
+# Command line startup
+claude --model opusplan
+
+# Or switch in session
+/model opusplan
+```
+
+### Step 3.3: Use Cases
+
+opusplan is particularly suitable for the following scenarios:
+
+- **Complex feature development**: Tasks requiring deep analysis and planning
+- **Architecture refactoring**: Systematic changes involving multiple modules
+- **New project kickstart**: Design decisions requiring comprehensive consideration
+
+## Step 4: Adjust Effort Level
+
+### Step 4.1: Understanding Effort Level
+
+Effort level controls Opus 4.6's adaptive reasoning, dynamically allocating thinking resources based on task complexity.
+
+| Effort Level | Description | Use Case |
+|---------------|-------------|----------|
+| Low | Fast response | Direct tasks, simple queries |
+| Medium | Balanced | General coding tasks |
+| High | Deep reasoning | Complex problems, architecture decisions |
+
+### Step 4.2: Configure Effort Level
+
+**Method 1: Use `/model` command**
+```bash
+/model opus
+# Then use left/right arrow keys to adjust effort level slider
+```
+
+**Method 2: Environment variable**
+```bash
+export CLAUDE_CODE_EFFORT_LEVEL=medium
+```
+
+**Method 3: Settings file**
+```json
+{
+  "effortLevel": "medium"
+}
+```
+
+<Note>
+Effort level is currently only supported on Opus 4.6.
+</Note>
+
+### Step 4.3: Choose Appropriate Effort Level
+
+**Low effort level suitable for:**
+- Simple code modifications
+- Quick Q&A
+- File searching and reading
+- Regular bug fixes
+
+**Medium effort level suitable for:**
+- Feature implementation
+- Code refactoring
+- Test writing
+- Documentation updates
+
+**High effort level suitable for:**
+- Complex architecture design
+- Multi-module coordination
+- Security reviews
+- Performance optimization
+
+## Step 5: Extend Context Window
+
+### Step 5.1: Understanding 1 Million Token Context
+
+The `[1m]` suffix enables a 1 million token context window for long sessions.
+
+**Usage examples:**
+```bash
+# Use sonnet[1m]
+/model sonnet[1m]
+
+# Or append to full model name
+/model claude-sonnet-4-5-20250929[1m]
+```
+
+<Note>
+For Opus 4.6, the 1 million token context window is available for API and usage-based billing users. Pro, Max, Teams, and Enterprise subscription users may not have access at launch.
+</Note>
+
+### Step 5.2: Suitable Scenarios
+
+Extended context window is particularly suitable for:
+
+- **Large codebase analysis**: Needing to understand multiple modules simultaneously
+- **Long conversation sessions**: Continuous multi-round discussions
+- **Documentation-heavy projects**: Needing to reference large amounts of documentation
+- **Cross-file refactoring**: Involving numerous related files
+
+### Step 5.3: Cost Considerations
+
+Extended context models have [different pricing](https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing).
+
+<ProTip>
+Only use extended context when truly necessary to control costs.
+</ProTip>
+
+## Step 6: Environment Variable Configuration
+
+### Step 6.1: Alias Mapping Environment Variables
+
+Use environment variables to control which model aliases point to:
+
+| Environment Variable | Description | Example Value |
+|---------------------|-------------|---------------|
+| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Opus alias mapping | `claude-opus-4-5-20251101` |
+| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Sonnet alias mapping | `claude-sonnet-4-5-20250929` |
+| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Haiku alias mapping | `claude-haiku-20250501` |
+| `CLAUDE_CODE_SUBAGENT_MODEL` | Subagent default model | `sonnet` |
+
+### Step 6.2: Configuration Example
+
+```json
+{
+  "env": {
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-opus-4-5-20251101",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-sonnet-4-5-20250929",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
+  }
+}
+```
+
+<Note>
+`ANTHROPIC_SMALL_FAST_MODEL` is deprecated, use `ANTHROPIC_DEFAULT_HAIKU_MODEL` instead.
+</Note>
+
+## Step 7: Prompt Caching Configuration
+
+### Step 7.1: Understanding Prompt Caching
+
+Claude Code automatically uses prompt caching to optimize performance and reduce costs.
+
+**Environment variables for fine-grained cache behavior control:**
+
+| Environment Variable | Description | Example |
+|---------------------|-------------|----------|
+| `DISABLE_PROMPT_CACHING` | Disable all caching | `1` |
+| `DISABLE_PROMPT_CACHING_HAIKU` | Disable Haiku caching only | `1` |
+| `DISABLE_PROMPT_CACHING_SONNET` | Disable Sonnet caching only | `1` |
+| `DISABLE_PROMPT_CACHING_OPUS` | Disable Opus caching only | `1` |
+
+### Step 7.2: Configuration Example
+
+```json
+{
+  "env": {
+    "DISABLE_PROMPT_CACHING": "0",
+    "DISABLE_PROMPT_CACHING_OPUS": "1"
+  }
+}
+```
+
+<ProTip>
+Global setting `DISABLE_PROMPT_CACHING` takes precedence over model-specific settings.
+</ProTip>
+
+## Step 8: Check Current Model
+
+### Method 1: Use Status Line
+
+If status line is configured, you can directly view the current model.
+
+### Method 2: Use /status Command
+
+```bash
+/status
+```
+
+This command displays:
+- Current model in use
+- Account information
+- Connection status
+
+## Pro Tips
+
+### Tip 1: Choose Model Based on Task
+
+| Task Type | Recommended Model | Why |
+|-------------|-------------------|------|
+| Quick Q&A | haiku | Fastest |
+| Code reading | sonnet | Cost-effective |
+| Feature development | sonnet or opusplan | Balance efficiency and quality |
+| Architecture design | opus | Strongest reasoning |
+| Complex refactoring | opusplan | Intelligent planning and execution |
+
+<ProTip>
+Building a model selection decision tree helps team members make correct choices quickly.
+</ProTip>
+
+### Tip 2: Make Good Use of opusplan
+
+opusplan is a powerful tool for complex tasks:
+
+```bash
+# For large feature development
+/model opusplan
+> Implement user authentication module including login, registration, password reset features
+
+# Opus plans the architecture first
+# Then Sonnet executes the specific implementation
+```
+
+### Tip 3: Cost Optimization Strategy
+
+- **Daily tasks**: Use Sonnet
+- **Complex tasks**: Use Opus for short periods
+- **Simple tasks**: Use Haiku
+- **Long sessions**: Selectively use `[1m]`
+
+### Tip 4: Configure Team Standards
+
+Set default models at the project level:
+
+```json
+// .claude/settings.json
+{
+  "model": "opusplan",
+  "effortLevel": "medium"
+}
+```
+
+<ProTip>
+Unified model configuration for the team reduces confusion and improves collaboration efficiency.
+</ProTip>
+
+## Common Troubleshooting
+
+### Problem 1: Model Switch Not Working
+
+**Solutions:**
+1. Check configuration priority (session > command line > environment variable > settings file)
+2. Confirm model name or alias is correct
+3. Restart Claude Code session
+
+### Problem 2: Usage Threshold Reached
+
+**Solutions:**
+1. Claude Code may automatically fall back to Sonnet
+2. Consider using Sonnet for daily tasks
+3. Optimize prompts to reduce token usage
+
+### Problem 3: Effort Level Unavailable
+
+**Solutions:**
+1. Confirm you're using Opus 4.6
+2. Check if slider is shown in `/model` command
+3. Restart session and try again
+
+### Problem 4: Extended Context Unavailable
+
+**Solutions:**
+1. Confirm account type supports it
+2. Check model version compatibility
+3. Consider using alternative solutions
+
+## Conclusion
+
+Mastering Claude Code's model configuration system is key to optimizing development efficiency. By learning from this guide, you have learned:
+
+- ✅ Available model types and aliases
+- ✅ Multiple configuration methods and priorities
+- ✅ opusplan hybrid mode usage
+- ✅ Effort level adjustment methods
+- ✅ Extended context window configuration
+- ✅ Prompt caching control
+
+<ProTip>
+Choose models flexibly based on task requirements to find the best balance between efficiency and capability.
+</ProTip>
+
+<AdPlaceholder />

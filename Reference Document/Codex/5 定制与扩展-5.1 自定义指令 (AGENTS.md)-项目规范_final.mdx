@@ -1,0 +1,206 @@
+---
+title: "项目规范"
+description: "了解如何使用 AGENTS.md 文件为 Codex 定义项目特定的自定义指令和工作规范"
+tool: "codex"
+slug: "agents-md"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 自定义指令与 AGENTS.md
+
+Codex 在执行任何工作之前读取 `AGENTS.md` 文件。通过分层全局指导和项目特定覆盖，您可以为每次任务建立一致的期望，无论您打开哪个存储库。
+
+<AdPlaceholder />
+
+## Codex 如何发现指导
+
+Codex 在启动时构建指令链（一次每个运行；在 TUI 中通常意味着每个启动的会话一次）。发现遵循此优先级顺序：
+
+1. **全局范围：** 在您的 Codex 主目录中（默认为 `~/.codex`，除非您设置 `CODEX_HOME`），Codex 如果存在则读取 `AGENTS.override.md`。否则，Codex 读取 `AGENTS.md`。Codex 仅使用此级别的第一个非空文件。
+2. **项目范围：** 从项目根目录（通常是 Git 根目录）开始，Codex 向下遍历到您当前的工作目录。如果 Codex 找不到项目根目录，它仅检查当前目录。在路径上的每个目录中，它检查 `AGENTS.override.md`，然后是 `AGENTS.md`，然后是 `project_doc_fallback_filenames` 中的任何备用名称。Codex 每个目录最多包含一个文件。
+3. **合并顺序：** Codex 从根向下连接文件，用空行将它们连接在一起。更接近您当前目录的文件会覆盖更早的指导，因为它们出现在组合提示词的后面。
+
+Codex 跳过空文件，并在组合大小达到 `project_doc_max_bytes` 定义的限制时停止添加文件（默认为 32 KiB）。有关这些旋钮的详细信息，请参阅[项目指令发现](https://developers.openai.com/codex/config-advanced#project-instructions-discovery)。达到上限时增大限制或将指令拆分到嵌套目录中。
+
+## 创建全局指导
+
+在您的 Codex 主目录中创建持久默认值，以便每个存储库继承您的工作协议。
+
+1. 确保目录存在：
+
+    ```bash
+    mkdir -p ~/.codex
+    ```
+
+2. 创建带有可重用偏好的 `~/.codex/AGENTS.md`：
+
+    ```md
+    # ~/.codex/AGENTS.md
+
+    ## 工作协议
+
+    - 修改 JavaScript 文件后始终运行 `npm test`。
+    - 安装依赖项时优先使用 `pnpm`。
+    - 在添加新的生产依赖项之前要求确认。
+    ```
+
+3. 从任何地方运行 Codex 以确认它加载了文件：
+
+    ```bash
+    codex --ask-for-approval never "Summarize the current instructions."
+    ```
+
+    预期结果：Codex 在提出工作之前引用 `~/.codex/AGENTS.md` 中的项目。
+
+当您需要临时的全局覆盖而不删除基本文件时，使用 `~/.codex/AGENTS.override.md`。删除覆盖以恢复共享指导。
+
+## 分层项目指令
+
+存储库级别的文件让 Codex 了解项目规范，同时仍然继承您的全局默认值。
+
+1. 在您的存储库根目录中添加包含基本设置的 `AGENTS.md`：
+
+    ```md
+    # AGENTS.md
+
+    ## 存储库期望
+
+    - 打开拉取请求之前运行 `npm run lint`。
+    - 更改行为时在 `docs/` 中记录公共实用程序。
+    ```
+
+2. 在嵌套目录中添加覆盖，当特定团队需要不同规则时。例如，在 `services/payments/` 中创建 `AGENTS.override.md`：
+
+    ```md
+    # services/payments/AGENTS.override.md
+
+    ## 支付服务规则
+
+    - 使用 `make test-payments` 而不是 `npm test`。
+    - 在不通知安全频道的情况下永远不要轮换 API 密钥。
+    ```
+
+3. 从支付目录启动 Codex：
+
+    ```bash
+    codex --cd services/payments --ask-for-approval never "List the instruction sources you loaded."
+    ```
+
+    预期结果：Codex 首先报告全局文件，其次是存储库根目录 `AGENTS.md`，最后是支付覆盖。
+
+Codex 在到达您的当前目录时停止搜索，因此将覆盖放置得尽可能靠近专业化工作。
+
+<FileTree>
+  tree={[
+    {
+      name: "AGENTS.md",
+      comment: "存储库期望",
+      highlight: true,
+    },
+    {
+      name: "services/",
+      open: true,
+      children: [
+        {
+          name: "payments/",
+          open: true,
+          children: [
+            {
+              name: "AGENTS.md",
+              comment: "因为覆盖存在而被忽略",
+            },
+            {
+              name: "AGENTS.override.md",
+              comment: "支付服务规则",
+              highlight: true,
+            },
+            { name: "README.md" },
+          ],
+        },
+        {
+          name: "search/",
+          children: [{ name: "AGENTS.md" }, { name: "…", placeholder: true }],
+        },
+      ],
+    },
+  ]}
+/>
+
+## 自定义备用文件名
+
+如果您的存储库已经使用不同的文件名（例如 `TEAM_GUIDE.md`），将其添加到备用列表中，以便 Codex 将其视为指令文件。
+
+1. 编辑您的 Codex 配置：
+
+    ```toml
+    # ~/.codex/config.toml
+    project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
+    project_doc_max_bytes = 65536
+    ```
+
+2. 重启 Codex 或运行新命令以加载更新的配置。
+
+现在 Codex 按此顺序检查每个目录：`AGENTS.override.md`、`AGENTS.md`、`TEAM_GUIDE.md`、`.agents.md`。此列表中未列出的文件名会被忽略用于指令发现。更大的字节限制允许在截断之前进行更多组合指导。
+
+使用备用列表就位后，Codex 将备用文件视为指令：
+
+<FileTree>
+  tree={[
+    {
+      name: "TEAM_GUIDE.md",
+      comment: "通过备用列表检测",
+      highlight: true,
+    },
+    {
+      name: ".agents.md",
+      comment: "根目录中的备用文件",
+    },
+    {
+      name: "support/",
+      open: true,
+      children: [
+        {
+          name: "AGENTS.override.md",
+          comment: "覆盖备用指导",
+          highlight: true,
+        },
+        {
+          name: "playbooks/",
+          children: [{ name: "…", placeholder: true }],
+        },
+      ],
+    },
+  ]}
+/>
+
+当您想要不同的配置文件时，设置 `CODEX_HOME` 环境变量，例如项目特定的自动化用户：
+
+```bash
+CODEX_HOME=$(pwd)/.codex codex exec "List active instruction sources"
+```
+
+预期结果：输出列出相对于自定义 `.codex` 目录的文件。
+
+## 验证您的设置
+
+- 从存储库根目录运行 `codex --ask-for-approval never "Summarize the current instructions."`。Codex 应该按优先级顺序回显全局和项目文件中的指导。
+- 使用 `codex --cd subdir --ask-for-approval never "Show which instruction files are active."` 确认嵌套覆盖替换更广泛的规则。
+- 检查 `~/.codex/log/codex-tui.log`（或如果启用了会话日志，则为最近的 `session-*.jsonl` 文件），如果您需要审计 Codex 加载了哪些指令文件。
+- 如果指导看起来陈旧，请在目标目录中重启 Codex。Codex 每次运行（以及每个 TUI 会话开始时）重建指令链，因此没有缓存需要手动清除。
+
+## 排查发现的问题
+
+- **什么都没加载：** 确认您在预期的存储库中，并且 `codex status` 报告您期望的工作区根目录。确保指令文件包含内容；Codex 会忽略空文件。
+- **出现错误的指导：** 在目录树中查找更高的 `AGENTS.override.md` 或您的 Codex 主目录下。重命名或删除覆盖以回退到常规文件。
+- **Codex 忽略备用名称：** 确认您在 `project_doc_fallback_filenames` 中列出的名称没有拼写错误，然后重启 Codex 以使更新的配置生效。
+- **指导被截断：** 增大 `project_doc_max_bytes` 或将大文件拆分到嵌套目录中以保持关键指导完整。
+- **配置文件混淆：** 在启动 Codex 之前运行 `echo $CODEX_HOME`。非默认值指向与您编辑的不同的主目录。
+
+## 下一步
+
+- 访问官方 [AGENTS.md](https://agents.md) 网站了解更多信息。
+- 查看[提示词 Codex](https://developers.openai.com/codex/prompting)以了解与持久指导配合良好的对话模式。
+
+<AdPlaceholder />

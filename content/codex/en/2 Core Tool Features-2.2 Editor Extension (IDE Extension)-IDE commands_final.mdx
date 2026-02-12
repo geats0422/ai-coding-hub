@@ -1,0 +1,38 @@
+---
+title: "IDE commands"
+description: "Learn about the commands and keyboard shortcuts available for the Codex VS Code extension"
+tool: "codex"
+slug: "ide-commands"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE extension commands
+
+Use these commands to control Codex from the VS Code command panel. You can also bind them to keyboard shortcuts.
+
+<AdPlaceholder />
+
+## Assign shortcut keys
+
+To assign or change shortcut keys for Codex commands:
+
+1. Open the Command Palette (press **Cmd+Shift+P** on macOS, **Ctrl+Shift+P** on Windows/Linux).
+2. Run **Preferences: Open Keyboard Shortcuts**.
+3. Search for `Codex` or the command ID (for example, `chatgpt.newChat`).
+4. Select the pencil icon and enter the shortcut key you want.
+
+## Extended commands
+
+| Command | Default shortcut keys | Description |
+| ---- | ---------- | ---- |
+| `chatgpt.addToThread` | - | Add the selected text range as context for the current thread |
+| `chatgpt.addFileToThread` | - | Add the entire file as the context of the current thread |
+| `chatgpt.newChat` | macOS: `Cmd+N`<br />Windows/Linux: `Ctrl+N` | Create new thread |
+| `chatgpt.implementTodo` | - | Ask Codex to process selected TODO comments |
+| `chatgpt.newCodexPanel` | - | Create a new Codex panel |
+| `chatgpt.openSidebar` | - | Open the Codex sidebar panel |
+
+<AdPlaceholder />

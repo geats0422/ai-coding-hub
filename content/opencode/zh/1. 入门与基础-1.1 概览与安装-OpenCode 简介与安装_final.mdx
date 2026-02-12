@@ -1,0 +1,312 @@
+---
+title: OpenCode 简介与安装
+tool: "opencode"
+slug: opencode-intro
+description: 开始使用 OpenCode - 一个可用的开源 AI 编程助手，提供终端界面、桌面应用或 IDE 扩展。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 是一个开源 AI 编程助手。它提供基于终端的界面、桌面应用或 IDE 扩展。
+
+<AdPlaceholder />
+
+## 前置要求
+
+要在终端中使用 OpenCode，你需要：
+
+一个现代终端模拟器，例如：
+
+WezTerm，跨平台
+Alacritty，跨平台
+Ghostty，Linux 和 macOS
+Kitty，Linux 和 macOS
+你要使用的 LLM 提供商的 API 密钥。
+
+## 安装
+
+安装 OpenCode 最简单的方法是通过安装脚本。
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+你也可以使用以下命令安装：
+
+使用 Node.js
+
+- npm
+```bash
+npm install -g opencode-ai
+```
+- Bun
+```bash
+bun install -g opencode-ai
+```
+- pnpm
+```bash
+pnup install -g opencode-ai
+```
+Yarn
+```bash
+yarn global add opencode-ai
+```
+
+<AdPlaceholder />
+
+在 macOS 和 Linux 上使用 Homebrew
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+<Callout type="tip">
+我们推荐使用 OpenCode tap 以获取最新版本。官方 brew install opencode 公式由 Homebrew 团队维护，更新频率较低。
+</Callout>
+
+在 Arch Linux 上使用 Paru
+
+```bash
+paru -S opencode-bin
+```
+
+<Callout type="warning">
+推荐：使用 WSL
+为了在 Windows 上获得最佳体验，我们推荐使用 Windows Subsystem for Linux (WSL)。它提供更好的性能和与 OpenCode 功能的完全兼容性。
+</Callout>
+
+使用 Chocolatey
+```bash
+choco install opencode
+```
+
+使用 Scoop
+```bash
+scoop install opencode
+```
+
+使用 NPM
+
+```bash
+npm install -g opencode-ai
+```
+
+使用 Mise
+
+```bash
+mise use -g github:anomalyco/opencode
+```
+
+使用 Docker
+
+```bash
+docker run -it --rm ghcr.io/anomalyco/opencode
+```
+
+在 Windows 上使用 Bun 安装 OpenCode 的支持目前正在进行中。
+
+你也可以从 Releases 页面获取二进制文件。
+
+<AdPlaceholder />
+
+## 配置
+
+通过 OpenCode，你可以通过配置他们的 API 密钥来使用任何 LLM 提供商。
+
+如果你是首次使用 LLM 提供商，我们推荐使用 OpenCode Zen。它是经过 OpenCode 团队测试和验证的模型精选列表。
+
+在 TUI 中运行 `/connect` 命令，选择 opencode，然后前往 opencode.ai/auth。
+
+```bash
+/connect
+```
+
+登录，添加你的账单详情，然后复制你的 API 密钥。
+
+粘贴你的 API 密钥。
+
+```bash
+┌ API key
+│
+│
+└ enter
+```
+
+或者，你可以选择其他提供商之一。了解更多。
+
+## 初始化
+
+既然你已经配置了提供商，你可以导航到你要处理的项目。
+
+```bash
+cd /path/to/project
+```
+
+然后运行 OpenCode。
+
+```bash
+opencode
+```
+
+接下来，通过运行以下命令为项目初始化 OpenCode。
+
+```bash
+/init
+```
+
+这将使 OpenCode 分析你的项目并在项目根目录创建 AGENTS.md 文件。
+
+<Callout type="tip">
+你应该将项目的 AGENTS.md 文件提交到 Git。
+</Callout>
+
+这有助于 OpenCode 理解项目结构和使用的编码模式。
+
+<AdPlaceholder />
+
+## 使用
+
+现在你已准备好使用 OpenCode 来处理你的项目。随意向它提问！
+
+如果你是首次使用 AI 编程助手，以下是一些可能有帮助的示例。
+
+## 提问问题
+
+你可以让 OpenCode 为你解释代码库。
+
+<Callout type="tip">
+使用 @ 键来模糊搜索项目中的文件。
+</Callout>
+
+```bash
+@packages/functions/src/api/index.ts 中的身份验证是如何处理的？
+```
+
+如果你没有参与代码库的某部分，这会有所帮助。
+
+## 添加功能
+
+你可以让 OpenCode 为你的项目添加新功能。但我们首先推荐让它创建一个计划。
+
+创建计划
+
+OpenCode 有一个计划模式，禁用其进行更改的能力，而是建议它将如何实现该功能。
+
+使用 `Tab` 键切换到该模式。你将在右下角看到指示器。
+
+```bash
+<TAB>
+```
+
+现在让我们描述我们希望它做什么。
+
+```bash
+当用户删除笔记时，我们希望在数据库中将其标记为已删除。
+然后创建一个显示所有最近删除笔记的屏幕。
+从这个屏幕，用户可以取消删除笔记或永久删除它。
+```
+
+你想为 OpenCode 提供足够的细节以理解你想要的。像与团队中的初级开发者交谈一样与它交流会有所帮助。
+
+<Callout type="tip">
+为 OpenCode 提供足够的上下文和示例以帮助它理解你想要的。
+</Callout>
+
+迭代计划
+
+一旦它为你提供了计划，你可以提供反馈或添加更多细节。
+
+```bash
+我们希望使用我以前使用过的设计来设计这个新屏幕。
+[图片 #1] 看看这张图片并使用它作为参考。
+```
+
+<Callout type="tip">
+将图片拖放到终端中以将其添加到提示中。
+</Callout>
+
+OpenCode 可以扫描你提供的任何图片并将它们添加到提示中。你可以通过将图片拖放到终端中来实现这一点。
+
+构建功能
+
+一旦你对计划感到满意，通过再次按 `Tab` 键切换回构建模式。
+
+```bash
+<TAB>
+```
+
+并要求它进行更改。
+
+```bash
+听起来不错！继续进行更改。
+```
+
+## 进行更改
+
+对于更直接的更改，你可以让 OpenCode 直接构建它而无需先查看计划。
+
+```bash
+我们需要为 /settings 路由添加身份验证。查看一下这是在 @packages/functions/src/notes.ts 中如何处理的
+并在 @packages/functions/src/settings.ts 中实现相同的逻辑
+```
+
+你要确保提供足够多的详细信息，以便 OpenCode 进行正确的更改。
+
+## 撤销更改
+
+假设你让 OpenCode 进行一些更改。
+
+你能重构 @packages/functions/src/api/index.ts 中的函数吗？
+
+但你意识到这不是你想要的。你可以使用 `/undo` 命令撤消更改。
+
+```bash
+/undo
+```
+
+OpenCode 现在将撤消你所做的更改并再次显示你的原始消息。
+
+```bash
+你能重构 @packages/functions/src/api/index.ts 中的函数吗？
+```
+
+从这里你可以调整提示并要求 OpenCode 再次尝试。
+
+<Callout type="tip">
+你可以运行多次 /undo 来撤消多次更改。
+</Callout>
+
+或者你可以使用 `/redo` 命令重做更改。
+
+```bash
+/redo
+```
+
+<AdPlaceholder />
+
+## 分享
+
+你与 OpenCode 的对话可以与你的团队分享。
+
+```bash
+/share
+```
+
+这将创建一个指向当前对话的链接并将其复制到你的剪贴板。
+
+<Callout type="note">
+对话默认不会分享。
+</Callout>
+
+这是一个与 OpenCode 对话的示例。
+
+## 自定义
+
+就是这样！你现在是使用 OpenCode 的专业人士了。
+
+要让它成为你自己的，我们推荐选择一个主题、自定义快捷键、配置代码格式化器、创建自定义命令或玩弄一下 OpenCode 配置。
+
+<AdPlaceholder />

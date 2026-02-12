@@ -1,0 +1,213 @@
+---
+title: "CLI 基础功能"
+description: "了解 Codex CLI 的核心功能，包括交互模式、命令概述和命令行选项"
+tool: "codex"
+slug: "codex-cli"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex CLI
+
+Codex CLI 是 OpenAI 的编码代理，您可以从终端在本地运行。它可以读取、更改和运行您机器上的代码。
+它是[开源的](https://github.com/openai/codex)，使用 Rust 构建，速度和效率都很高。
+
+Codex 包含在 ChatGPT Plus、Pro、Business、Edu 和 Enterprise 计划中。了解[包含的内容](https://developers.openai.com/codex/pricing)。
+
+*Image Description: Codex CLI 概览视频展示终端界面，显示交互式对话、代码编辑和命令执行的界面布局。*
+
+<AdPlaceholder />
+
+## CLI 设置
+
+Codex CLI 在 macOS 和 Linux 上可用。Windows 支持是实验性的。要获得最佳 Windows 体验，请在 WSL 工作区中使用 Codex，并遵循我们的 [Windows 设置指南](/codex/windows)。
+
+---
+
+## 使用 Codex CLI
+
+### 交互模式运行
+
+运行 `codex` 启动交互式终端 UI（TUI）会话。
+
+```bash
+codex
+```
+
+您也可以在命令行上指定初始提示词。
+
+```bash
+codex "Explain this codebase to me"
+```
+
+会话打开后，您可以：
+
+- 发送提示词、代码片段或截图（请参阅[图像输入](#image-inputs)）直接到编辑器。
+- 查看 Codex 在更改之前的计划，并内联批准或拒绝步骤。
+- 使用向上/向下键在编辑器的草稿历史中导航；Codex 会恢复先前的草稿文本和图像占位符。
+- 按 Ctrl+C 或使用 `/exit` 在完成时关闭交互式会话。
+
+### 恢复对话
+
+Codex 会在本地存储您的记录，以便您可以从上次中断的地方继续而不是重复上下文。当您想要重新打开具有相同代码库状态和指令的早期线程时，使用 `resume` 子命令。
+
+- `codex resume` 启动最近交互式会话的选择器。高亮显示一个运行以查看其摘要，然后按 Enter 重新打开它。
+- `codex resume --all` 显示当前工作目录之外的会话，以便您可以重新打开任何本地运行。
+- `codex resume --last` 跳过选择器，直接跳转到您最近一次从当前工作目录开始的会话（添加 `--all` 以忽略当前工作目录过滤器）。
+- `codex resume <SESSION_ID>` 定位特定的运行。您可以从选择器、`/status` 或 `~/.codex/sessions/` 下的文件复制 ID。
+
+非交互式自动化运行也可以恢复：
+
+```bash
+codex exec resume --last "Fix the race conditions you found"
+codex exec resume 7f9f9a2e-1b3c-4c7a-9b0e-.... "Implement the plan"
+```
+
+每次恢复的运行都会保留原始记录、计划历史和批准，因此 Codex 可以在您提供新指令时使用先前的上下文。如果需要在恢复之前引导环境，可以使用 `--cd` 覆盖工作目录或使用 `--add-dir` 添加额外的根目录。
+
+### 模型和推理
+
+对于 Codex 中的大多数编码任务，`gpt-5.3-codex` 是首选模型。它适用于 ChatGPT 身份验证的 Codex 会话，包括 Codex 应用、CLI、IDE 扩展和 Codex 云。使用 `/model` 命令在会话中切换模型，或在启动 CLI 时指定一个。
+
+```bash
+codex --model gpt-5.3-codex
+```
+
+[详细了解 Codex 中可用的模型](https://developers.openai.com/codex/models)。
+
+### 功能标志
+
+Codex 包含一小部分功能标志。使用 `features` 子命令检查可用的功能并将其更改持久化到您的配置中。
+
+```bash
+codex features list
+codex features enable unified_exec
+codex features disable shell_snapshot
+```
+
+`codex features enable <feature>` 和 `codex features disable <feature>` 会写入 `~/.codex/config.toml`。如果您使用 `--profile` 启动 Codex，Codex 会将更改存储到该配置文件中而不是根配置中。
+
+### 图像输入
+
+附加截图或设计规范，以便 Codex 可以与您的提示词一起读取图像详细信息。您可以将图像粘贴到交互式编辑器中或在命令行上提供文件。
+
+```bash
+codex -i screenshot.png "Explain this error"
+```
+
+```bash
+codex --image img1.png,img2.jpg "Summarize these diagrams"
+```
+
+Codex 接受 PNG 和 JPEG 等常见格式。使用逗号分隔的文件名表示两张或更多图像，并将它们与文本指令结合以添加上下文。
+
+### 运行本地代码审查
+
+在 CLI 中键入 `/review` 以打开 Codex 的代码审查预设。CLI 会启动一个专门的审查器，读取您选择的差异并报告优先的、可操作的发现，而不会触及您的工作树。默认情况下，它使用当前会话模型；设置 `config.toml` 中的 `review_model` 以覆盖。
+
+- **针对基础分支的审查**允许您选择本地分支；Codex 会找出与其上游的合并基准，差异化您的工作，并在您打开拉取请求之前突出最大的风险。
+- **审查未提交的更改**检查所有已暂存、未暂存或未跟踪的内容，以便您可以在提交之前解决问题。
+- **审查提交**列出最近的提交，并让 Codex 读取您所选 SHA 的精确更改集。
+- **自定义审查指令**接受您自己的措辞（例如，"关注可访问性回归"），并使用该提示词运行相同的审查器。
+
+每次运行在记录中显示为自己的轮次，因此您可以随着代码的发展重新运行审查并比较反馈。
+
+### 网页搜索
+
+Codex 附带了一个官方的网页搜索工具。对于 Codex CLI 中的本地任务，Codex 默认启用网页搜索并从网页搜索缓存中提供结果。缓存是 OpenAI 维护的网页结果索引，因此缓存模式返回预索引的结果而不是获取实时页面。这减少了来自任意实时内容的提示注入暴露，但您仍应将网页结果视为不受信任的。如果您使用 `--yolo` 或其他[完全访问沙箱设置](https://developers.openai.com/codex/security)，网页搜索默认为实时结果。要获取最新数据，请为单次运行传递 `--search` 或在[基本配置](https://developers.openai.com/codex/config-basic)中设置 `web_search = "live"`。您也可以设置 `web_search = "disabled"` 以关闭该工具。
+
+每当 Codex 查找某些内容时，您会在记录或 `codex exec --json` 输出中看到 `web_search` 项目。
+
+### 使用输入提示词运行
+
+当您只需要快速答案时，使用单个提示词运行 Codex 并跳过交互式 UI。
+
+```bash
+codex "explain this codebase"
+```
+
+Codex 将读取工作目录，制定计划，并将响应流式传输回您的终端然后退出。将此与 `--path` 等标志结合以针对特定目录，或 `--model` 一开始就调整行为。
+
+### Shell 补全
+
+通过为您的 shell 安装生成的补全脚本来加速日常使用：
+
+```bash
+codex completion bash
+codex completion zsh
+codex completion fish
+```
+
+在 shell 配置文件中运行补全脚本以为新会话设置补全。例如，如果您使用 `zsh`，可以将以下内容添加到您的 `~/.zshrc` 文件：
+
+```bash
+# ~/.zshrc
+eval "$(codex completion zsh)"
+```
+
+启动新会话，键入 `codex`，然后按 Tab 键查看补全。如果您看到 `command not found: compdef` 错误，请在 `eval "$(codex completion zsh)"` 行之前将 `autoload -Uz compinit && compinit` 添加到您的 `~/.zshrc` 文件，然后重新启动 shell。
+
+### 批准模式
+
+批准模式定义了 Codex 在不停止确认的情况下可以执行多少操作。在交互式会话中使用 `/permissions` 随着舒适度的变化切换模式。
+
+- **自动**（默认）允许 Codex 在工作目录内读取文件、编辑和运行命令。它仍然会在触及该范围之外的任何内容或使用网络之前询问。
+- **只读**将 Codex 保持在咨询模式。它可以浏览文件，但不会进行更改或运行命令，直到您批准计划。
+- **完全访问**授予 Codex 在不询问的情况下跨您的机器工作的能力，包括网络访问。谨慎使用，仅当您信任代码库和任务时。
+
+Codex 总是会显示其操作的记录，因此您可以使用常规的 git 工作流查看或回滚更改。
+
+### 脚本化 Codex
+
+使用 `exec` 子命令自动化工作流或将 Codex 连接到您现有的脚本。这会以非交互方式运行 Codex，将最终计划和结果管道传输回 `stdout`。
+
+```bash
+codex exec "fix the CI failure"
+```
+
+将 `exec` 与 shell 脚本结合以构建自定义工作流，例如自动更新变更日志、排序问题或在 PR 发送之前执行编辑检查。
+
+### 使用 Codex 云
+
+`codex cloud` 命令允许您在不离开终端的情况下分类和启动 [Codex 云任务](https://developers.openai.com/codex/cloud)。不带参数运行它以打开交互式选择器，浏览活动或完成的任务，并将更改应用到您的本地项目。
+
+您也可以直接从终端启动任务：
+
+```bash
+codex cloud exec --env ENV_ID "Summarize open bugs"
+```
+
+添加 `--attempts`（1-4）以请求 Codex 云生成多个解决方案（best-of-N runs）。例如，`codex cloud exec --env ENV_ID --attempts 3 "Summarize open bugs"`。
+
+环境 ID 来自您的 Codex 云配置——使用 `codex cloud` 并按 Ctrl+O 选择环境，或使用 Web 仪表板确认确切值。身份验证遵循您现有的 CLI 登录，如果提交失败，命令会以非零退出，以便您可以将其连接到脚本或 CI。
+
+### 斜杠命令
+
+斜杠命令让您快速访问专业化的工作流，如 `/review`、`/fork` 或您自己的可重用提示词。Codex 附带了一组精心设计的内置命令，您可以为自己创建自定义命令以用于特定于团队的任务或个人快捷方式。
+
+请参阅[斜杠命令指南](https://developers.openai.com/codex/guides/slash-commands)以浏览内置命令目录，了解如何创作自定义命令，以及它们在磁盘上的存储位置。
+
+### 提示词编辑器
+
+当您起草较长的提示词时，切换到完整编辑器然后将结果发送回编辑器可能会更容易。
+
+在提示词输入中，按 Ctrl+G 打开由 `VISUAL` 环境变量定义的编辑器（如果 `VISUAL` 未设置，则使用 `EDITOR`）。
+
+### 模型上下文协议（MCP）
+
+通过配置模型上下文协议服务器将 Codex 连接到更多工具。在 `~/.codex/config.toml` 中添加 STDIO 或流式 HTTP 服务器，或使用 `codex mcp` CLI 命令管理它们——Codex 在会话启动时自动启动它们，并将它们的工具暴露在内置工具旁边。当您需要它在另一个代理中时，您甚至可以将 Codex 本身作为 MCP 服务器运行。
+
+请参阅[模型上下文协议](https://developers.openai.com/codex/mcp)以了解示例配置、支持的身份验证流程以及更详细的指南。
+
+### 提示和快捷键
+
+- 在编辑器中键入 `@` 以打开工作区根目录的模糊文件搜索；按 Tab 或 Enter 将突出显示的路径放入您的消息中。
+- 在 Codex 运行时按 Enter 以将新指令注入当前轮次，或按 Tab 键将后续提示词排队到下一轮次。
+- 在行前加上 `!` 以运行本地 shell 命令（例如，`!ls`）。Codex 将输出视为用户提供的命令结果，并且仍然应用您的批准和沙箱设置。
+- 在编辑器为空时连续按 Esc 两次以编辑您的上一条用户消息。继续按 Esc 以在记录中进一步回退，然后按 Enter 以从该点分支。
+- 使用 `codex --cd <path>` 从任何目录启动 Codex 以设置工作根目录，而无需先运行 `cd`。活动路径显示在 TUI 标头中。
+- 当您需要跨多个项目协调更改时，使用 `--add-dir` 公开更多可写根目录（例如，`codex --cd apps/frontend --add-dir ../backend --add-dir ../shared`）。
+- 确保您的环境在启动 Codex 之前已经设置好，因此它不会花费令牌来探测要激活什么。例如，来源您的 Python 虚拟环境（或其它语言环境），启动任何所需的守护进程，并提前导出您期望使用的环境变量。
+
+<AdPlaceholder />

@@ -1,0 +1,618 @@
+---
+title: 配置文件
+tool: "opencode"
+slug: config
+description: 使用 OpenCode JSON 配置 - 使用 JSON 配置文件配置 OpenCode，支持 JSON 和 JSONC 格式。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+你可以使用 JSON 配置文件配置 OpenCode。
+
+## 格式
+
+OpenCode 支持 JSON 和 JSONC（带注释的 JSON）格式。
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  // 主题配置
+  "theme": "opencode",
+  "model": "anthropic/claude-sonnet-4-5",
+  "autoupdate": true
+}
+```
+
+## 位置
+
+你可以将配置放在几个不同的位置，它们具有不同的优先顺序。
+
+<Callout type="note">
+配置文件是合并的，不是替换的。
+</Callout>
+
+配置文件是合并的，而不是替换的。来自以下配置位置的设置会被合并。后面的配置仅在冲突的键上覆盖前面的配置。所有配置的非冲突设置都会被保留。
+
+例如，如果你的全局配置设置了 theme: "opencode" 和 autoupdate: true，而你的项目配置设置了 model: "anthropic/claude-sonnet-4-5"，最终配置将包括这三个设置。
+
+## 优先顺序
+
+按以下顺序加载配置源（后面的源覆盖前面的源）：
+
+1. 远程配置（来自 .well-known/opencode）- 组织默认值
+2. 全局配置（~/.config/opencode/opencode.json）- 用户偏好
+3. 自定义配置（OPENCODE_CONFIG 环境变量）- 自定义覆盖
+4. 项目配置（项目中的 opencode.json）- 项目特定设置
+5. .opencode 目录 - 代理、命令、插件
+6. 内联配置（OPENCODE_CONFIG_CONTENT 环境变量）- 运行时覆盖
+
+这意味着项目配置可以覆盖全局默认值，全局配置可以覆盖远程组织默认值。
+
+<Callout type="note">
+.opencode 和 ~/.config/opencode 目录对子目录使用复数名称：agents/、commands/、modes/、plugins/、skills/、tools/ 和 themes/。也支持单数名称（如 agent/）以实现向后兼容。
+</Callout>
+
+## 远程
+
+组织可以通过 .well-known/opencode 端点提供默认配置。当你对支持此功能的提供商进行身份验证时，会自动获取。
+
+远程配置首先被加载，作为基础层。所有其他配置源（全局、项目）可以覆盖这些默认值。
+
+例如，如果你的组织提供了默认禁用的 MCP 服务器：
+
+```json
+// 来自 .well-known/opencode 的远程配置
+{
+  "mcp": {
+    "jira": {
+      "type": "remote",
+      "url": "https://jira.example.com/mcp",
+      "enabled": false
+    }
+  }
+}
+```
+
+你可以在本地配置中启用特定服务器：
+
+```json
+{
+  "mcp": {
+    "jira": {
+      "type": "remote",
+      "url": "https://jira.example.com/mcp",
+      "enabled": true
+    }
+  }
+}
+```
+
+## 全局
+
+将全局 OpenCode 配置放在 ~/.config/opencode/opencode.json 中。使用全局配置进行用户范围的偏好设置，如主题、提供商或快捷键。
+
+全局配置覆盖远程组织默认值。
+
+## 每项目
+
+在项目根目录中添加 opencode.json。项目配置在标准配置文件中具有最高优先级 - 它同时覆盖全局和远程配置。
+
+<Callout type="tip">
+将项目特定配置放在项目的根目录中。
+</Callout>
+
+当 OpenCode 启动时，它会在当前目录或向上遍历到最近的 Git 目录查找配置文件。
+
+这也安全地可以提交到 Git，并使用与全局配置相同的架构。
+
+## 自定义路径
+
+使用 OPENCODE_CONFIG 环境变量指定自定义配置文件路径。
+
+```bash
+export OPENCODE_CONFIG=/path/to/my/custom-config.json
+opencode run "Hello world"
+```
+
+自定义配置在优先顺序中位于全局配置和项目配置之间。
+
+## 自定义目录
+
+使用 OPENCODE_CONFIG_DIR 环境变量指定自定义配置目录。该目录将被搜索代理、命令、模式和插件，就像标准的 .opencode 目录一样，并且应遵循相同的结构。
+
+```bash
+export OPENCODE_CONFIG_DIR=/path/to/my/config-directory
+opencode run "Hello world"
+```
+
+自定义目录在全局配置和 .opencode 目录之后加载，因此它可以覆盖它们的设置。
+
+## 架构
+
+配置文件在 opencode.ai/config.json 中定义了一个架构。你的编辑器应该能够基于架构进行验证和自动完成。
+
+## TUI
+
+你可以通过 tui 选项配置 TUI 特定设置。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "tui": {
+    "scroll_speed": 3,
+    "scroll_acceleration": {
+      "enabled": true
+    },
+    "diff_style": "auto"
+  }
+}
+```
+
+可用选项：
+
+- `scroll_acceleration.enabled` - 启用 macOS 风格滚动加速。优先于 scroll_speed。
+- `scroll_speed` - 自定义滚动速度倍数（默认：3，最小值：1）。如果 scroll_acceleration.enabled 设置为 true，则忽略此设置。
+- `diff_style` - 控制差异渲染。"auto" 根据终端宽度自适应，"stacked" 始终显示单列。
+
+了解更多关于使用 TUI 的信息。
+
+## 服务器
+
+你可以通过 server 选项为 opencode serve 和 opencode web 命令配置服务器设置。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "server": {
+    "port": 4096,
+    "hostname": "0.0.0.0",
+    "mdns": true,
+    "mdnsDomain": "myproject.local",
+    "cors": ["http://localhost:5173"]
+  }
+}
+```
+
+可用选项：
+
+- `port` - 要监听的端口。
+- `hostname` - 要监听的主机名。当启用了 mdns 且未设置主机名时，默认为 0.0.0.0。
+- `mdns` - 启用 mDNS 服务发现。这允许网络上的其他设备发现你的 OpenCode 服务器。
+- `mdnsDomain` - mDNS 服务的自定义域名。默认为 opencode.local。在同一网络上运行多个实例时很有用。
+- `cors` - 在使用基于浏览器的客户端时允许 CORS 的其他浏览器来源。值必须是完整来源（scheme + host + 可选端口），例如 https://app.example.com。
+
+了解更多关于服务器的信息。
+
+## 工具
+
+你可以通过 tools 选项管理 LLM 可以使用的工具。
+
+```json
+{
+  "tools": {
+    "write": false,
+    "bash": false
+  }
+}
+```
+
+了解更多关于工具。
+
+## 模型
+
+你可以通过 provider、model 和 small_model 选项在 OpenCode 配置中配置你要使用的提供商和模型。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {},
+  "model": "anthropic/claude-sonnet-4-5",
+  "small_model": "anthropic/claude-haiku-4-5"
+}
+```
+
+small_model 选项配置了一个单独的模型用于轻量级任务，如标题生成。默认情况下，OpenCode 尝试使用提供商提供的更便宜的模型（如果可用），否则回退到你的主模型。
+
+提供商选项可以包括 timeout 和 setCacheKey：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "anthropic": {
+      "options": {
+        "timeout": 600000,
+        "setCacheKey": true
+      }
+    }
+  }
+}
+```
+
+- `timeout` - 请求超时（毫秒，默认：300000）。设置为 false 以禁用。
+- `setCacheKey` - 确保始终为指定的提供商设置缓存键。
+
+你也可以配置本地模型。了解更多。
+
+## 提供商特定选项
+
+某些提供商支持通用 timeout 和 apiKey 设置之外的额外配置选项。
+
+### Amazon Bedrock
+
+Amazon Bedrock 支持 AWS 特定配置：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "amazon-bedrock": {
+      "options": {
+        "region": "us-east-1",
+        "profile": "my-aws-profile",
+        "endpoint": "https://bedrock-runtime.us-east-1.vpce-xxxxx.amazonaws.com"
+      }
+    }
+  }
+}
+```
+
+- `region` - Bedrock 的 AWS 区域（默认为 AWS_REGION 环境变量或 us-east-1）
+- `profile` - 来自 ~/.aws/credentials 的 AWS 命名配置文件（默认为 AWS_PROFILE 环境变量）
+- `endpoint` - 用于 VPC 端点的自定义端点 URL。这是使用 AWS 特定术语的通用 baseURL 选项的别名。如果同时指定，则 endpoint 优先。
+
+<Callout type="note">
+Bearer 令牌（AWS_BEARER_TOKEN_BEDROCK 或 /connect）优先于基于配置文件的认证。查看身份验证优先级以了解详情。
+</Callout>
+
+了解更多关于 Amazon Bedrock 配置。
+
+## 主题
+
+你可以通过 theme 选项在 OpenCode 配置中配置你要使用的主题。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": ""
+}
+```
+
+了解更多。
+
+## 代理
+
+你可以通过 agent 选项为特定任务配置专门的代理。
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agent": {
+    "code-reviewer": {
+      "description": "审查代码的最佳实践和潜在问题",
+      "model": "anthropic/claude-sonnet-4-5",
+      "prompt": "你是一个代码审查者。专注于安全性、性能和可维护性。",
+      "tools": {
+        // 为仅审查代理禁用文件修改工具
+        "write": false,
+        "edit": false
+      }
+    }
+  }
+}
+```
+
+你也可以使用 ~/.config/opencode/agents/ 或 .opencode/agents/ 中的 markdown 文件定义代理。了解更多。
+
+## 默认代理
+
+你可以通过 default_agent 选项设置默认代理。这决定了未明确指定时使用的代理。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "default_agent": "plan"
+}
+```
+
+默认代理必须是主代理（不是子代理）。这可以是内置代理，如"build" 或 "plan"，或者是你定义的自定义代理。如果指定的代理不存在或者是子代理，OpenCode 将回退到"build"并显示警告。
+
+此设置适用于所有界面：TUI、CLI（opencode run）、桌面应用和 GitHub Action。
+
+## 分享
+
+你可以通过 share 选项配置分享功能。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "share": "manual"
+}
+```
+
+此选项接受：
+
+- `"manual"` - 允许通过命令手动分享（默认）
+- `"auto"` - 自动分享新对话
+- `"disabled"` - 完全禁用分享
+
+默认情况下，分享设置为手动模式，你需要使用 /share 命令明确分享对话。
+
+## 命令
+
+你可以通过 command 选项为重复性任务配置自定义命令。
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "command": {
+    "test": {
+      "template": "运行完整的测试套件并生成覆盖率报告。\\n专注于失败的测试并建议修复。",
+      "description": "使用覆盖率运行测试",
+      "agent": "build",
+      "model": "anthropic/claude-haiku-4-5"
+    },
+    "component": {
+      "template": "创建一个名为 $ARGUMENTS 且支持 TypeScript 的新 React 组件。\\n包含正确的类型和基本结构。",
+      "description": "创建一个新组件"
+    }
+  }
+}
+```
+
+你也可以使用 ~/.config/opencode/commands/ 或 .opencode/commands/ 中的 markdown 文件定义命令。了解更多。
+
+## 快捷键
+
+你可以通过 keybinds 选项自定义快捷键。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "keybinds": {}
+}
+```
+
+了解更多。
+
+## 自动更新
+
+OpenCode 会在启动时自动下载任何新更新。你可以使用 autoupdate 选项禁用此功能。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "autoupdate": false
+}
+```
+
+如果你不想进行更新但希望在新版本可用时收到通知，请将 autoupdate 设置为 "notify"。请注意，这仅在你未使用包管理器（如 Homebrew）安装时才有效。
+
+## 格式化器
+
+你可以通过 formatter 选项配置代码格式化器。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "prettier": {
+      "disabled": true
+    },
+    "custom-prettier": {
+      "command": ["npx", "prettier", "--write", "$FILE"],
+      "environment": {
+        "NODE_ENV": "development"
+      },
+      "extensions": [".js", ".ts", ".jsx", ".tsx"]
+    }
+  }
+}
+```
+
+了解更多关于格式化器。
+
+## 权限
+
+默认情况下，opencode 允许所有操作而无需明确批准。你可以使用 permission 选项更改此行为。
+
+例如，要确保 edit 和 bash 工具需要用户批准：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "edit": "ask",
+    "bash": "ask"
+  }
+}
+```
+
+了解更多关于权限。
+
+## 压缩
+
+你可以通过 compaction 选项控制上下文压缩行为。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "compaction": {
+    "auto": true,
+    "prune": true
+  }
+}
+```
+
+- `auto` - 在上下文已满时自动压缩会话（默认：true）。
+- `prune` - 删除旧工具输出以节省令牌（默认：true）。
+
+## 监视器
+
+你可以通过 watcher 选项配置文件监视器忽略模式。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "watcher": {
+    "ignore": ["node_modules/**", "dist/**", ".git/**"]
+  }
+}
+```
+
+模式遵循 glob 语法。使用此设置从文件监视中排除嘈杂的目录。
+
+## MCP 服务器
+
+你可以通过 mcp 选项配置你要使用的 MCP 服务器。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {}
+}
+```
+
+了解更多。
+
+## 插件
+
+插件使用自定义工具、挂钩和集成来扩展 OpenCode。
+
+将插件文件放在 .opencode/plugins/ 或 ~/.config/opencode/plugins/ 中。你也可以通过 plugin 选项从 npm 加载插件。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-helicone-session", "@my-org/custom-plugin"]
+}
+```
+
+了解更多。
+
+## 指令
+
+你可以通过 instructions 选项为正在使用的模型配置指令。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["CONTRIBUTING.md", "docs/guidelines.md", ".cursor/rules/*.md"]
+}
+```
+
+此选项接受路径和 glob 模式的数组，以指令文件。了解更多关于规则。
+
+## 禁用的提供商
+
+你可以通过 disabled_providers 选项禁用自动加载的提供商。即使其凭据可用，这对于防止加载某些提供商很有用。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "disabled_providers": ["openai", "gemini"]
+}
+```
+
+<Callout type="note">
+disabled_providers 优先于 enabled_providers。
+</Callout>
+
+disabled_providers 选项接受提供商 ID 数组。当提供商被禁用时：
+
+- 即使设置了环境变量，也不会加载。
+- 即使通过 /connect 命令配置了 API 密钥，也不会加载。
+- 该提供商的模型不会出现在模型选择列表中。
+
+## 启用的提供商
+
+你可以通过 enabled_providers 选项指定提供商的白名单。设置后，仅指定的提供商将被启用，其他所有提供商将被忽略。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "enabled_providers": ["anthropic", "openai"]
+}
+```
+
+当你想要将 OpenCode 限制为仅使用特定提供商，而不是一一禁用时很有用。
+
+<Callout type="note">
+disabled_providers 优先于 enabled_providers。
+</Callout>
+
+如果提供商同时出现在 enabled_providers 和 disabled_providers 中，则 disabled_providers 优先以实现向后兼容。
+
+## 实验性
+
+experimental 键包含处于活跃开发中的选项。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "experimental": {}
+}
+```
+
+<Callout type="warning">
+实验性选项不稳定。它们可能会更改或被删除，恕不另行通知。
+</Callout>
+
+## 变量
+
+你可以在配置文件中使用变量替换来引用环境变量和文件内容。
+
+### 环境变量
+
+使用 `{env:VARIABLE_NAME}` 替换环境变量：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "{env:OPENCODE_MODEL}",
+  "provider": {
+    "anthropic": {
+      "models": {},
+      "options": {
+        "apiKey": "{env:ANTHROPIC_API_KEY}"
+      }
+    }
+  }
+}
+```
+
+如果未设置环境变量，则将其替换为空字符串。
+
+### 文件
+
+使用 `{file:path/to/file}` 替换文件内容：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["./custom-instructions.md"],
+  "provider": {
+    "openai": {
+      "options": {
+        "apiKey": "{file:~/.secrets/openai-key}"
+      }
+    }
+  }
+}
+```
+
+文件路径可以是：
+
+- 相对于配置文件目录
+- 或以 / 或 ~ 开头的绝对路径
+
+这些适用于：
+
+- 将敏感数据（如 API 密钥）保存在单独的文件中。
+- 在配置中包含大型指令文件而不使其杂乱。
+- 跨多个配置文件共享通用配置片段。
+
+<AdPlaceholder />

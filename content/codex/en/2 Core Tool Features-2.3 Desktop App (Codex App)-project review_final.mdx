@@ -1,0 +1,78 @@
+---
+title: "project review"
+description: "Learn about review panel features in the Codex app, including diff viewing, inline comments, and file management"
+tool: "codex"
+slug: "codex-app-review"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# review
+
+The review panel helps you understand what has been changed in Codex, provide targeted feedback, and decide what to keep.
+
+It only works for projects located in Git repositories. If your project isn't already a Git repository, the review panel will prompt you to create one.
+
+<AdPlaceholder />
+
+## The changes it shows
+
+The review panel reflects the status of your Git repository, not just the content of Codex edits. This means it will display:
+
+- Codex changes
+- Your own changes
+- Any other uncommitted changes in the repository
+
+By default, the review panel focuses on uncommitted changes. You can also switch the scope to:
+
+- **All branch changes** (differences from base branch)
+- **Last round changes** (latest assistant round only)
+
+When working locally, you can also switch between **Unstaged** and **Staged** changes.
+
+## Browse review panel
+
+- Clicking on a file name will usually open the file in the editor of your choice. You can choose your default editor in [设置](https://developers.openai.com/codex/settings).
+- Click on the filename background to expand or collapse the differences.
+- Clicking on a single row while holding down **Cmd** will open that row in your selection editor.
+- If you are happy with the changes, you can [暂存更改或回滚不喜欢的更改](#暂存和回滚文件).
+
+## Inline comments for feedback
+
+Inline comments allow you to attach feedback directly to specific lines in the diff. This is usually the fastest way to guide the Codex to a proper repair.
+
+To leave an inline comment:
+
+1. Open the review panel.
+2. Hover over the line where you want to comment.
+3. Click the **+** button that appears.
+4. Write your feedback and submit it.
+5. After all feedback is completed, send a message back to the thread.
+
+Because comments are anchored to a line, Codex can often respond more precisely than general instructions.
+
+Inline comments are considered review guidance. After leaving a comment, send a follow-up message with clear intent, such as "Address comments inline and keep scope to a minimum."
+
+## Code review resultsIf you run a code review using `/review`, comments will appear directly in the review panel.
+
+*Image Description: Inline code review comment interface displayed in the review panel. *
+
+##Staging and rolling back files
+
+The review panel includes Git actions so you can shape your differences before committing.
+
+You can stage, unstage, or roll back changes at multiple levels:
+
+- **Entire Diff**: Use the action buttons in the review header (e.g. "Stage All" or "Rollback All")
+- **Per File**: Stage, unstage or rollback individual files
+- **Per Block**: stage, unstage or rollback a single block
+
+Use staging when you want to accept partial work and rollback when you want to discard it.
+
+### Partial temporary status
+
+Git can represent staged and unstaged changes in the same file. When this happens, it appears that the panel "shows the same file twice" in staged and unstaged views. This is normal Git behavior.
+
+<AdPlaceholder />

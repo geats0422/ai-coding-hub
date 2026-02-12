@@ -1,0 +1,61 @@
+---
+title: "Trusted Folders"
+description: "Explore the Gemini CLI's Trusted Folders feature and learn how to configure and protect access to sensitive directories."
+tool: "gemini-cli"
+slug: "trusted-folders"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Trusted Folders
+
+This document provides information about the Trusted Folders feature in Gemini CLI.
+
+<Callout type="note">
+Note: This is a placeholder document. The actual content for trusted folders
+configuration and usage should be added here.
+</Callout>
+
+<AdPlaceholder />
+
+## Overview
+
+The Trusted Folders feature allows you to specify directories that are considered
+safe for Gemini CLI operations. This helps prevent accidental modifications to
+sensitive or important directories.
+
+## Configuration
+
+To configure trusted folders, you need to modify your `settings.json` file.
+
+### Settings structure
+
+```jso
+{
+  "security": {
+    "trustedFolders": [
+      "/path/to/trusted/directory",
+      "/another/trusted/path"
+    ]
+  }
+}
+```
+
+## Usage
+
+When trusted folders are configured, Gemini CLI will:
+
+- Allow file operations within trusted directories without additional warnings
+- Potentially restrict operations outside of trusted folders
+- Provide enhanced safety guarantees for important project directories
+
+## Best practices
+
+- Only add directories that you explicitly trust
+- Regularly review your trusted folders list
+- Be cautious when adding system directories
+- Consider using absolute paths for reliability
+
+<AdPlaceholder />

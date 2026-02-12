@@ -1,0 +1,480 @@
+---
+title: "Claude Code Status Bar Customization Complete Guide: Creating Personalized Information Panel"
+description: "Learn how to create custom status bars for Claude Code, displaying real-time information like model name, directory, Git branch, and context usage."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "status-bar-customization"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Status Bar Customization Complete Guide: Creating Personalized Information Panel
+
+The status bar is an important information panel at the bottom of the Claude Code interface, similar to the terminal prompt in a shell. By customizing the status bar, you can view real-time information about the current model, working directory, Git branch, and resource usage, making development more efficient.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning about status bar customization, make sure you have the following:
+
+- **Claude Code**: Installed and working Claude Code
+- **Scripting Basics**: Understand basic Bash or Python scripting
+- **Command Line Tools**: Familiar with terminal operations and permission settings
+- **jq Tool**: Recommended to install jq for JSON parsing
+
+## Step 1: Understand Status Bar System
+
+### Step 1.1: Status Bar Overview
+
+The status line displays at the bottom of the Claude Code interface, providing real-time context information:
+
+- **Update timing**: Updates when conversation messages update
+- **Update frequency**: Runs at most once every 300 milliseconds
+- **Display method**: First line of command stdout becomes status bar text
+- **Styling support**: Supports ANSI color codes for styling
+
+<ProTip>
+The status bar helps you quickly understand current session state without interrupting your workflow.
+</ProTip>
+
+### Step 1.2: Configuration Methods
+
+There are two ways to configure the status bar:
+
+**Method 1: Use interactive command**
+```bash
+/statusline
+```
+
+Claude Code will help you set up a custom status bar, defaulting to reproduce your terminal prompt behavior.
+
+**Method 2: Manual configuration**
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh",
+    "padding": 0
+  }
+}
+```
+
+<Note>
+`padding` parameter is optional, set to 0 to let status bar extend to the edge.
+</Note>
+
+## Step 2: Understand Input Data
+
+### Step 2.1: JSON Input Structure
+
+The status bar command receives JSON-formatted session context via stdin:
+
+```json
+{
+  "hook_event_name": "Status",
+  "session_id": "abc123...",
+  "transcript_path": "/path/to/transcript.json",
+  "cwd": "/current/working/directory",
+  "model": {
+    "id": "claude-opus-4-1",
+    "display_name": "Opus"
+  },
+  "workspace": {
+    "current_dir": "/current/working/directory",
+    "project_dir": "/original/project/directory"
+  },
+  "version": "1.0.80",
+  "output_style": {
+    "name": "default"
+  },
+  "cost": {
+    "total_cost_usd": 0.01234,
+    "total_duration_ms": 45000,
+    "total_api_duration_ms": 2300,
+    "total_lines_added": 156,
+    "total_lines_removed": 23
+  },
+  "context_window": {
+    "total_input_tokens": 15234,
+    "total_output_tokens": 4521,
+    "context_window_size": 200000,
+    "current_usage": {
+      "input_tokens": 8500,
+      "output_tokens": 1200,
+      "cache_creation_input_tokens": 5000,
+      "cache_read_input_tokens": 2000
+    }
+  }
+}
+```
+
+### Step 2.2: Key Data Fields
+
+| Field | Description | Use |
+|--------|-------------|------|
+| `model.display_name` | Model display name | Display current AI model |
+| `workspace.current_dir` | Current working directory | Display location info |
+| `workspace.project_dir` | Project root directory | Distinguish projects |
+| `cost.total_cost_usd` | Cumulative cost | Track spending |
+| `cost.total_duration_ms` | Cumulative time | Performance monitoring |
+| `context_window` | Context usage | Resource monitoring |
+
+## Step 3: Create Basic Status Bar
+
+### Step 3.1: Bash Script Template
+
+Create your first status bar script:
+
+```bash
+#!/bin/bash
+# Read JSON input from stdin
+input=$(cat)
+
+# Use jq to extract values
+MODEL_DISPLAY=$(echo "$input" | jq -r '.model.display_name')
+CURRENT_DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+
+echo "[$MODEL_DISPLAY] 📁 ${CURRENT_DIR##*/}"
+```
+
+<ProTip>
+`${CURRENT_DIR##*/}` only displays the current directory name instead of the full path, making it more concise.
+</ProTip>
+
+### Step 3.2: Set Script Permissions
+
+```bash
+chmod +x ~/.claude/statusline.sh
+```
+
+### Step 3.3: Configure Status Bar
+
+Add configuration to `settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/statusline.sh"
+  }
+}
+```
+
+## Step 4: Create Git-Aware Status Bar
+
+### Step 4.1: Display Git Branch
+
+```bash
+#!/bin/bash
+input=$(cat)
+
+MODEL_DISPLAY=$(echo "$input" | jq -r '.model.display_name')
+CURRENT_DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+
+# If in a git repository, show git branch
+GIT_BRANCH=""
+if git rev-parse --git-dir > /dev/null 2>&1; then
+    BRANCH=$(git branch --show-current 2>/dev/null)
+    if [ -n "$BRANCH" ]; then
+        GIT_BRANCH=" | 🌿 $BRANCH"
+    fi
+fi
+
+echo "[$MODEL_DISPLAY] 📁 ${CURRENT_DIR##*/}$GIT_BRANCH"
+```
+
+<ProTip>
+Git branch information is particularly useful for multi-branch development workflows.
+</ProTip>
+
+### Step 4.2: Python Version
+
+```python
+#!/usr/bin/env python3
+import json
+import sys
+import os
+
+data = json.load(sys.stdin)
+
+model = data['model']['display_name']
+current_dir = os.path.basename(data['workspace']['current_dir'])
+
+git_branch = ""
+if os.path.exists('.git'):
+    try:
+        with open('.git/HEAD', 'r') as f:
+            ref = f.read().strip()
+            if ref.startswith('ref: refs/heads/'):
+                git_branch = f" | 🌿 {ref.replace('ref: refs/heads/', '')}"
+    except:
+        pass
+
+print(f"[{model}] 📁 {current_dir}{git_branch}")
+```
+
+### Step 4.3: Node.js Version
+
+```javascript
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+
+let input = '';
+process.stdin.on('data', chunk => input += chunk);
+process.stdin.on('end', () => {
+    const data = JSON.parse(input);
+    
+    const model = data.model.display_name;
+    const currentDir = path.basename(data.workspace.current_dir);
+    
+    let gitBranch = '';
+    try {
+        const headContent = fs.readFileSync('.git/HEAD', 'utf8').trim();
+        if (headContent.startsWith('ref: refs/heads/')) {
+            gitBranch = ` | 🌿 ${headContent.replace('ref: refs/heads/', '')}`;
+        }
+    } catch (e) {
+        // Not a git repository or cannot read HEAD
+    }
+    
+    console.log(`[${model}] 📁 ${currentDir}${gitBranch}`);
+});
+```
+
+## Step 5: Create Helper Functions
+
+### Step 5.1: Bash Helper Function Template
+
+For complex scripts, use helper functions to simplify data extraction:
+
+```bash
+#!/bin/bash
+input=$(cat)
+
+# Helper functions for common extractions
+get_model_name() { echo "$input" | jq -r '.model.display_name'; }
+get_current_dir() { echo "$input" | jq -r '.workspace.current_dir'; }
+get_project_dir() { echo "$input" | jq -r '.workspace.project_dir'; }
+get_version() { echo "$input" | jq -r '.version'; }
+get_cost() { echo "$input" | jq -r '.cost.total_cost_usd'; }
+get_duration() { echo "$input" | jq -r '.cost.total_duration_ms'; }
+get_lines_added() { echo "$input" | jq -r '.cost.total_lines_added'; }
+get_lines_removed() { echo "$input" | jq -r '.cost.total_lines_removed'; }
+get_input_tokens() { echo "$input" | jq -r '.context_window.total_input_tokens'; }
+get_output_tokens() { echo "$input" | jq -r '.context_window.total_output_tokens'; }
+get_context_window_size() { echo "$input" | jq -r '.context_window.context_window_size'; }
+
+# Use helper functions
+MODEL=$(get_model_name)
+DIR=$(get_current_dir)
+echo "[$MODEL] 📁 ${DIR##*/}"
+```
+
+<ProTip>
+Helper functions make scripts more modular, easier to maintain and extend.
+</ProTip>
+
+## Step 6: Monitor Context Usage
+
+### Step 6.1: Display Context Percentage
+
+```bash
+#!/bin/bash
+input=$(cat)
+
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+CONTEXT_SIZE=$(echo "$input" | jq -r '.context_window.context_window_size')
+USAGE=$(echo "$input" | jq '.context_window.current_usage')
+
+if [ "$USAGE" != "null" ]; then
+    CURRENT_TOKENS=$(echo "$USAGE" | jq '.input_tokens + .cache_creation_input_tokens + .cache_read_input_tokens')
+    PERCENT_USED=$((CURRENT_TOKENS * 100 / CONTEXT_SIZE))
+    echo "[$MODEL] Context: ${PERCENT_USED}%"
+else
+    echo "[$MODEL] Context: 0%"
+fi
+```
+
+### Step 6.2: Display Cost Information
+
+```bash
+#!/bin/bash
+input=$(cat)
+
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd')
+DURATION=$(echo "$input" | jq -r '.cost.total_duration_ms')
+
+echo "[$MODEL] 💰 \$$COST | ⏱️ ${DURATION}ms"
+```
+
+<ProTip>
+Cost and duration monitoring is helpful for managing project budgets and optimizing efficiency.
+</ProTip>
+
+## Step 7: Use Claude to Generate Status Bar
+
+### Step 7.1: Interactive Generation
+
+Run the following command to let Claude Code help generate a status bar:
+
+```bash
+/statusline show model name in orange
+```
+
+### Step 7.2: Customization Requirements
+
+You can provide specific instructions to Claude:
+
+```bash
+/statusline show model, directory, and git branch in different colors
+/statusline show context usage percentage and current cost
+/statusline create a minimal status line with just model and branch
+```
+
+## Step 8: Test and Debug
+
+### Step 8.1: Manually Test Script
+
+Test your script using mock JSON data:
+
+```bash
+echo '{"model":{"display_name":"Test"},"workspace":{"current_dir":"/test"}}' | ./statusline.sh
+```
+
+### Step 8.2: Common Troubleshooting Issues
+
+| Problem | Solution |
+|---------|----------|
+| Status bar not displaying | Check if script is executable (chmod +x) |
+| Script has no output | Ensure output to stdout (not stderr) |
+| JSON parsing failed | Verify jq is correctly installed |
+| Colors not working | Check if terminal supports ANSI colors |
+
+<ProTip>
+Keep status bar concise, displaying only the most important information for quick scanning.
+</ProTip>
+
+## Pro Tips
+
+### Tip 1: Keep It Concise
+
+Status bar should fit on one line:
+
+```bash
+# Good example
+echo "[Opus] 📁 project | main"
+
+# Bad example (too long)
+echo "[Opus 4.6] 📁 /Users/user/projects/my-project/src/components | feature/new-auth-system"
+```
+
+<ProTip>
+A concise status bar is easier to scan quickly without being distracting.
+</ProTip>
+
+### Tip 2: Use Emojis
+
+Use emojis to make information easily recognizable:
+
+| Information Type | Emoji |
+|----------------|-------|
+| Model | 🤖 |
+| Directory | 📁 |
+| Git branch | 🌿 |
+| Cost | 💰 |
+| Time | ⏱️ |
+| Lines of code | 📝 |
+| Context | 🧠 |
+
+### Tip 3: Color Coding
+
+Use ANSI color codes for visual distinction:
+
+```bash
+# Red for Opus (complex tasks)
+echo -e "\033[31m[Opus]\033[0m 📁 ${DIR##*/}"
+
+# Green for Sonnet (daily tasks)
+echo -e "\033[32m[Sonnet]\033[0m 📁 ${DIR##*/}"
+```
+
+### Tip 4: Performance Optimization
+
+For expensive operations (like git status), consider caching:
+
+```bash
+#!/bin/bash
+CACHE_FILE="/tmp/statusline_git_cache"
+
+# Check if cache is valid (within 5 seconds)
+if [ -f "$CACHE_FILE" ] && [ $(( $(date +%s) - $(stat -c %Y "$CACHE_FILE") )) -lt 5 ]; then
+    GIT_BRANCH=$(cat "$CACHE_FILE")
+else
+    GIT_BRANCH=$(git branch --show-current 2>/dev/null)
+    echo "$GIT_BRANCH" > "$CACHE_FILE" 2>/dev/null
+fi
+
+echo "[Opus] 📁 ${PWD##*/} | 🌿 $GIT_BRANCH"
+```
+
+<ProTip>
+Caching can significantly reduce status bar refresh performance overhead.
+</ProTip>
+
+## Common Troubleshooting
+
+### Problem 1: Script Permission Errors
+
+**Solution:**
+```bash
+chmod +x ~/.claude/statusline.sh
+```
+
+### Problem 2: jq Not Installed
+
+**Solution (macOS):**
+```bash
+brew install jq
+```
+
+**Solution (Ubuntu/Debian):**
+```bash
+sudo apt-get install jq
+```
+
+### Problem 3: Output Format Issues
+
+Ensure script outputs plain text, no other characters:
+
+```bash
+# Correct
+echo "[$MODEL] 📁 ${DIR##*/}"
+
+# Incorrect (includes extra spaces)
+echo " [$MODEL] 📁 ${DIR##*/} "
+```
+
+### Problem 4: Not Updating Timely
+
+Status bar updates are delayed up to 300ms. If you need more frequent updates, consider lowering the threshold (use cautiously).
+
+## Conclusion
+
+Custom status bars are a powerful tool for enhancing Claude Code experience. By learning from this guide, you have learned:
+
+- ✅ Status bar system basics
+- ✅ Create various types of status bar scripts
+- ✅ Extract and use session context data
+- ✅ Add Git branch and cost monitoring
+- ✅ Test and debug techniques
+- ✅ Performance optimization methods
+
+<ProTip>
+A well-designed status bar lets you quickly access key information, improving development efficiency.
+</ProTip>
+
+<AdPlaceholder />

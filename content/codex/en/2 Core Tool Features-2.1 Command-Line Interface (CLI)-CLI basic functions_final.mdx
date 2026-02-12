@@ -1,0 +1,187 @@
+---
+title: "CLI basic functions"
+description: "Learn about the core features of the Codex CLI, including interactive mode, command overview, and command line options"
+tool: "codex"
+slug: "codex-cli"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex CLI
+
+Codex CLI is OpenAI's coding agent that you can run locally from your terminal. It can read, change, and run code on your machine.
+It's [开源的](https://github.com/openai/codex), built in Rust and very fast and efficient.
+
+Codex is included in ChatGPT Plus, Pro, Business, Edu and Enterprise plans. Get to know [包含的内容](https://developers.openai.com/codex/pricing).
+
+*Image Description: Codex CLI overview video shows the terminal interface, showing the interface layout for interactive dialogue, code editing, and command execution. *
+
+<AdPlaceholder />
+
+## CLI settings
+
+Codex CLI is available on macOS and Linux. Windows support is experimental. For the best Windows experience, use Codex in a WSL workspace and follow our [Windows 设置指南](/codex/windows).
+
+---
+
+## Using Codex CLI
+
+### Run in interactive mode
+
+Run `codex` to start an interactive terminal UI (TUI) session.
+```bas
+codex
+```You
+ can also specify the initial prompt word on the command line.
+```bas
+codex "Explain this codebase to me"
+```Once
+ a session is open, you can:
+
+- Send prompts, code snippets or screenshots (see [图像输入](#image-inputs)) directly to the editor.
+- View the Codex schedule before changes and inline approval or rejection steps.
+- Use the up/down keys to navigate through the editor's draft history; Codex restores previous draft text and image placeholders.
+- Press Ctrl+C or use `/exit` to close the interactive session when finished.
+
+### Restore conversation
+
+Codex stores your records locally so that you can continue where you left off rather than repeating context. Use the `resume` subcommand when you want to reopen an earlier thread with the same code base state and instructions.
+
+- `codex resume` The selector that started the most recent interactive session. Highlight a run to see its summary, then press Enter to reopen it.
+- `codex resume --all` Show sessions outside the current working directory so you can reopen any local runs.
+- `codex resume --last` Skips the selector and jumps directly to your last session started in the current working directory (add `--all` to ignore the current working directory filter).
+- `codex resume <SESSION_ID>` Target specific runs. You can copy the ID from a file under the selector, `/status` or `~/.codex/sessions/`.
+
+Non-interactive automation runs can also be resumed:
+```bas
+codex exec resume --last "Fix the race conditions you found"
+codex exec resume 7f9f9a2e-1b3c-4c7a-9b0e-.... "Implement the plan"
+```Each
+ restored run retains the original records, schedule history, and approvals, so Codex can use the previous context when you provide new instructions. If you need to boot the environment before restoring, you can use `--cd` to overwrite the working directory or use `--add-dir` to add an additional root directory.
+
+### Models and Inference
+
+For most coding tasks in Codex, `gpt-5.3-codex` is the model of choice. It works with ChatGPT authenticated Codex sessions, including Codex apps, CLIs, IDE extensions, and Codex Cloud. Use the `/model` command to switch models within a session, or specify one when launching the CLI.
+```bas
+codex --model gpt-5.3-codex
+```
+[详细了解 Codex 中可用的模型](https://developers.openai.com/codex/models).
+
+### Function flags
+
+The Codex contains a small set of feature flags. Use the `features` subcommand to check the available features and persist their changes to your configuration.
+```bas
+codex features list
+codex features enable unified_exec
+codex features disable shell_snapshot
+`
+```codex
+ features enable `<feature>`` and `codex features disable `<feature>`` will be written to `~/.codex/config.toml`. If you start Codex with `--profile`, Codex will store changes in that configuration file instead of the root configuration.
+
+### Image input
+
+Attach a screenshot or design spec so Codex can read the image details along with your prompt word. You can paste the image into the interactive editor or provide the file on the command line.
+```bas
+codex -i screenshot.png "Explain this error"
+```
+
+```bas
+codex --image img1.png,img2.jpg "Summarize these diagrams"
+```Codex
+ accepts common formats such as PNG and JPEG. Use comma-separated file names for two or more images and combine them with text instructions to add context.
+
+### Run local code review
+
+Type `/review` in the CLI to open Codex's code review preset. The CLI launches a specialized reviewer that reads the diffs you select and reports prioritized, actionable findings without touching your work tree. By default, it uses the current session model; set `review_model` in `config.toml` to override.
+
+- **Review Against Base Branch** allows you to select a local branch; Codex will find a merge baseline with its upstream, differentiate your work, and highlight the biggest risks before you open a pull request.
+- **Review Uncommitted Changes** Review everything that is staged, unstaged, or untracked so you can resolve issues before committing.
+- **Review Commits** Lists recent commits and lets Codex read the precise set of changes for your chosen SHA.
+- **Custom Review Instructions** Accept your own wording (e.g., "Concerned about accessibility regressions") and run the same reviewer with that prompt word.
+
+Each run appears as its own turn in the record, so you can rerun the review and compare feedback as your code evolves.
+
+### Web searchCodex comes with an official web search tool. For local tasks in the Codex CLI, Codex enables web search by default and serves results from the web search cache. The cache is an index of web results maintained by OpenAI, so cache mode returns pre-indexed results rather than fetching live pages. This reduces prompt injection exposure from arbitrary live content, but you should still treat web results as untrusted. If you use `--yolo` or another [完全访问沙箱设置](https://developers.openai.com/codex/security), web searches default to live results. To get the latest data, pass `--search` for a single run or set `web_search = "live"` in [基本配置](https://developers.openai.com/codex/config-basic). You can also set `web_search = "disabled"` to turn off the tool.
+
+Whenever Codex looks for something, you'll see `web_search` items in the record or `codex exec --json` output.
+
+### Run using input prompt word
+
+When you just need a quick answer, run the Codex with a single prompt word and skip the interactive UI.
+```bas
+codex "explain this codebase"
+```Codex
+ will read the working directory, make a plan, stream the response back to your terminal and exit. Combine this with a flag like `--path` to target a specific directory, or `--model` to adjust the behavior right from the start.
+
+### Shell completion
+
+Speed up daily usage by installing generated completion scripts for your shell:
+```bas
+codex completion bash
+codex completion zsh
+codex completion fish
+```Run
+ the completion script in a shell configuration file to set completion for a new session. For example, if you use `zsh`, you can add the following to your `~/.zshrc` file:
+```bas
+# ~/.zshrc
+eval "$(codex completion zsh)"
+```Start
+ a new session, type `codex`, and then press Tab to see completion. If you see `command not found: compdef` errors, add `autoload -Uz compinit && compinit` to your `~/.zshrc` file before the `eval "$(codex completion zsh)"` line and restart the shell.
+
+### Approval Mode
+
+Approval mode defines how much the Codex can do without halting confirmations. Use `/permissions` in an interactive session to switch modes as comfort level changes.
+
+- **AUTO** (default) allows Codex to read files, edit and run commands within the working directory. It will still ask before touching anything outside that range or using the network.
+- **Read Only** Keeps the Codex in advisory mode. It can browse files but won't make changes or run commands until you approve the plan.
+- **Full Access** grants Codex the ability to work across your machines without asking, including network access. Use with caution and only if you trust the codebase and task.
+
+Codex always displays a record of its operations, so you can review or rollback changes using your regular git workflow.
+
+### Scripted Codex
+
+Use the `exec` subcommand to automate workflows or connect Codex to your existing scripts. This runs the Codex non-interactively, piping the final plan and results back to `stdout`.
+```bas
+codex exec "fix the CI failure"
+```Combine
+ `exec` with shell scripts to build custom workflows, such as automatically updating the change log, sorting issues, or performing edit checks before a PR is sent.
+
+### Using Codex Cloud
+
+The `codex cloud` command allows you to categorize and launch [Codex 云任务](https://developers.openai.com/codex/cloud) without leaving the terminal. Run it without arguments to open an interactive selector, browse active or completed tasks, and apply changes to your local project.
+
+You can also start the task directly from the terminal:
+```bas
+codex cloud exec --env ENV_ID "Summarize open bugs"
+```Add
+ `--attempts` (1-4) to request the Codex cloud to generate multiple solutions (best-of-N runs). For example, `codex cloud exec --env ENV_ID --attempts 3 "Summarize open bugs"`.
+
+The environment ID comes from your Codex Cloud configuration - use `codex cloud` and press Ctrl+O to select the environment, or use the web dashboard to confirm the exact value. Authentication follows your existing CLI login, and if the commit fails, the command exits with non-zero so you can connect it to a script or CI.
+
+### Slash command
+
+Slash commands give you quick access to specialized workflows such as `/review`, `/fork` or your own reusable prompt words. Codex comes with a carefully designed set of built-in commands, and you can create custom commands for yourself for team-specific tasks or personal shortcuts.
+
+See [斜杠命令指南](https://developers.openai.com/codex/guides/slash-commands) to browse the built-in command directory, learn how to author custom commands, and where they are stored on disk.
+
+### Prompt word editor
+
+When you draft longer prompt words, it may be easier to switch to the full editor and then send the results back to the editor.
+
+In prompt word input, press Ctrl+G to open the editor defined by the `VISUAL` environment variable (if `VISUAL` is not set, `EDITOR` is used).
+
+### Model Context Protocol (MCP)Connect Codex to more tools by configuring a model context protocol server. Add STDIO or streaming HTTP servers in `~/.codex/config.toml`, or manage them using `codex mcp` CLI commands - Codex automatically starts them on session start and exposes their tools alongside the built-in tools. You can even run Codex itself as an MCP server when you need it in another proxy.
+
+See [模型上下文协议](https://developers.openai.com/codex/mcp) for sample configurations, supported authentication flows, and more detailed guidance.
+
+### Tips and shortcut keys- Type `@` in the editor to open a fuzzy file search of the workspace root; press Tab or Enter to place the highlighted path in your message.
+- Press Enter while the Codex is running to inject new instructions into the current round, or press Tab to queue subsequent prompt words to the next round.
+- Prepend the line with `!` to run a local shell command (for example, `!ls`). Codex treats the output as the result of user-supplied commands and still applies your approval and sandbox settings.
+- Press Esc twice when the editor is empty to edit your last user message. Keep pressing Esc to go further back in the record, then press Enter to branch from that point.
+- Use `codex --cd <path>` to launch Codex from any directory to set a working root directory without running `cd` first. The active path is shown in the TUI header.
+- Use `--add-dir` to expose more writable roots (for example, `codex --cd apps/frontend --add-dir ../backend --add-dir ../shared`) when you need to coordinate changes across multiple projects.
+- Make sure your environment is set up before starting Codex so it doesn't spend tokens probing what to activate. For example, source your Python virtual environment (or other locale), start any required daemons, and export the environment variables you expect to use ahead of time.
+
+<AdPlaceholder />

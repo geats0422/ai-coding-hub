@@ -1,0 +1,221 @@
+---
+title: "界面主题（Themes）"
+description: "探索 Gemini CLI 支持的各种主题，包括深色主题、浅色主题以及如何创建自定义主题。"
+tool: "gemini-cli"
+slug: "ui-themes"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 主题
+
+Gemini CLI支持多种主题来定制其配色方案和
+外观。您可以通过`/theme`更改主题以满足您的喜好
+命令或`"theme":`配置设置。
+
+<AdPlaceholder />
+
+## 可用主题
+
+Gemini CLI 附带了一系列预定义主题，您可以将其列出
+在Gemini CLI 中使用`/theme` 命令：
+
+- **黑暗主题：**
+  -`ANSI`
+  -`Atom One`
+  -`Ayu`
+  -`Default`
+  -`Dracula`
+  -`GitHub`
+- **浅色主题：**
+  -`ANSI Light`
+  -`Ayu Light`
+  -`Default Light`
+  -`GitHub Light`
+  -`Google Code`
+  -`Xcode`
+
+### 改变主题1. 在Gemini CLI 中输入`/theme`。
+2. 将出现一个对话框或选择提示，列出可用的主题。
+3. 使用箭头键选择主题。某些界面可能会提供实时
+    在您选择时预览或突出显示。
+4. 确认您选择应用主题。
+
+<Callout type="note">
+注意：如果您的 `settings.json` 文件中定义了主题（通过名称或
+通过文件路径），您必须先从文件中删除 `"theme"` 设置，然后才能
+可以使用`/theme`命令更改主题。
+</Callout>
+
+### 主题持久化
+
+选定的主题保存在 Gemini CLI 中
+[configuration](/docs/get-started/configuration) 所以你的偏好是
+跨会话记住。
+
+---
+
+## 自定义颜色主题Gemini CLI 允许您通过指定来创建自己的自定义颜色主题
+在你的`settings.json` 文件中。这使您可以完全控制调色板
+在 CLI 中使用。
+
+### 如何定义自定义主题
+
+将 `customThemes` 块添加到您的用户、项目或系统 `settings.json`
+文件。每个自定义主题都被定义为一个具有唯一名称和一组
+颜色键。例如：
+```
+jso
+n
+{
+  "ui": {
+    "customThemes": {
+      "MyCustomTheme": {
+        "name": "MyCustomTheme",
+        "type": "custom",
+        "Background": "#181818",
+        ...
+      }
+    }
+  }
+}
+```
+**颜色键：**
+
+-`Background`
+-`Foreground`
+-`LightBlue`
+-`AccentBlue`
+-`AccentPurple`
+-`AccentCyan`
+-`AccentGreen`
+-`AccentYellow`
+-`AccentRed`
+-`Comment`
+-`Gray`
+- `DiffAdded`（可选，用于在差异中添加行）
+- `DiffRemoved`（可选，用于删除差异中的行）
+
+您还可以通过添加嵌套的 `text` 对象来覆盖各个 UI 文本角色。
+该对象支持键 `primary`、`secondary`、`link`、`accent` 和
+`response`。当提供 `text.response` 时，它优先于
+`text.primary` 用于在聊天中渲染模型响应。
+
+**所需属性：**- `name`（必须与`customThemes`对象中的键匹配并且是字符串）
+- `type`（必须是字符串`"custom"`）
+-`Background`
+-`Foreground`
+-`LightBlue`
+-`AccentBlue`
+-`AccentPurple`
+-`AccentCyan`
+-`AccentGreen`
+-`AccentYellow`
+-`AccentRed`
+-`Comment`
+-`Gray`
+
+<Callout type="tip">
+您可以使用十六进制代码（例如`#FF0000`）**或**标准 CSS 颜色名称
+（例如，`coral`、`teal`、`blue`）任何颜色值。
+</Callout>
+
+您可以使用十六进制代码（例如`#FF0000`）**或**标准 CSS 颜色名称
+（例如，`coral`、`teal`、`blue`）任何颜色值。参见
+[CSS color names](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#color_keywords)
+获取受支持名称的完整列表。
+
+您可以通过添加更多条目来定义多个自定义主题
+`customThemes`对象。### 从文件加载主题
+
+除了`settings.json`中定义自定义主题外，您还可以加载
+通过指定文件路径直接从 JSON 文件获取主题
+`settings.json`。这对于共享主题或将它们与主题分开非常有用
+你的主要配置。
+
+要从文件加载主题，请将 `settings.json` 中的 `theme` 属性设置为
+主题文件的路径：
+```
+jso
+n
+{
+  "ui": {
+    "theme": "/path/to/your/theme.json"
+  }
+}
+```
+主题文件必须是有效的 JSON 文件，其结构与主题文件相同
+`settings.json` 中定义的自定义主题。
+
+**示例`my-theme.json`：**
+```
+jso
+n
+{
+  "name": "My File Theme",
+  "type": "custom",
+  "Background": "#282A36",
+  "Foreground": "#F8F8F2",
+  "LightBlue": "#82AAFF",
+  "AccentBlue": "#61AFEF",
+  "AccentPurple": "#BD93F9",
+  "AccentCyan": "#8BE9FD",
+  "AccentGreen": "#50FA7B",
+  "AccentYellow": "#F1FA8C",
+  "AccentRed": "#FF5555",
+  "Comment": "#6272A4",
+  "Gray": "#ABB2BF",
+  "DiffAdded": "#A6E3A1",
+  "DiffRemoved": "#F38BA8",
+  "GradientColors": ["#4796E4", "#847ACE", "#C3677F"]
+}
+```
+<Callout type="warning">
+安全说明：为了您的安全，Gemini CLI 将仅加载以下主题文件
+位于您的主目录中。如果您尝试从以下位置加载主题
+在您的主目录之外，将显示警告并且主题将不会
+被加载。这是为了防止从以下位置加载潜在的恶意主题文件
+不受信任的来源。
+</Callout>
+
+### 使用您的自定义主题- 使用Gemini CLI 中的`/theme` 命令选择您的自定义主题。您的定制
+  主题将出现在主题选择对话框中。
+- 或者，通过将 `"theme": "MyCustomTheme"` 添加到 `ui` 将其设置为默认值
+  `settings.json` 中的对象。
+- 可以在用户、项目或系统级别设置自定义主题，并遵循
+  与其他相同[configuration precedence](/docs/get-started/configuration)
+  设置。
+
+---
+
+## 黑暗主题
+
+### ANSI
+
+### Atom OneDark
+
+###香鱼
+
+### 默认
+
+###德古拉
+
+### GitHub
+
+## 浅色主题
+
+### ANSI 光
+
+### 香鱼灯
+
+### 默认灯光
+
+### GitHub 之光
+
+### 谷歌代码
+
+### Xcode
+
+<AdPlaceholder />

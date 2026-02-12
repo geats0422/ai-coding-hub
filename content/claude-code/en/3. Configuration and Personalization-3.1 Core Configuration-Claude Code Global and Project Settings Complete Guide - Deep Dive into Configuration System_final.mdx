@@ -1,0 +1,501 @@
+---
+title: "Claude Code Global and Project Settings Complete Guide: Deep Dive into Configuration System"
+description: "Deep dive into Claude Code's configuration system, including scope priority, settings file structure, permission management, environment variables, and sandbox configuration."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "global-and-project-settings"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Global and Project Settings Complete Guide: Deep Dive into Configuration System
+
+Claude Code provides a flexible and powerful configuration system that supports multiple scenarios from personal preferences to enterprise deployments. Mastering this configuration system will help you customize Claude Code to fit your specific needs, perfectly adapting it to your workflow.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning the configuration system, make sure you have the following:
+
+- **Claude Code**: Installed and working Claude Code
+- **JSON Basics**: Understand basic JSON syntax
+- **Editor**: Code editor with JSON syntax highlighting
+- **Project Experience**: Experience using version control systems
+
+## Step 1: Understand Configuration Scope System
+
+### Step 1.1: Four Scope Types
+
+Claude Code uses a **scope system** to determine where configuration applies and who it's shared with. Understanding scopes is the foundation of proper configuration.
+
+| Scope | Location | Affects | Shared with Team? |
+|--------|---------|----------|-------------------|
+| **Managed** | System-level `managed-settings.json` | All users on machine | Yes (deployed by IT) |
+| **User** | `~/.claude/` directory | You, across all projects | No |
+| **Project** | `.claude/` in repository | All collaborators on this repository | Yes (committed to git) |
+| **Local** | `.claude/*.local.*` files | You, only in this repository | No (gitignored) |
+
+<ProTip>
+Choosing the right scope ensures configuration meets your needs without affecting others.
+</ProTip>
+
+### Step 1.2: Choose the Right Scope
+
+**Managed scope is for:**
+
+- Security policies that must be enforced organization-wide
+- Compliance requirements that cannot be overridden
+- Standardized configurations deployed by IT/DevOps
+
+**User scope is for:**
+
+- Personal preferences you want to use everywhere (themes, editor settings)
+- Tools and plugins you use across all projects
+- API keys and authentication (securely stored)
+
+**Project scope is for:**
+
+- Team-shared settings (permissions, hooks, MCP servers)
+- Plugins the entire team should have
+- Standardized tools for collaboration across collaborators
+
+**Local scope is for:**
+
+- Project-specific personal overrides
+- Testing configurations before sharing with team
+- Machine-specific settings that don't apply to others
+
+### Step 1.3: Scope Priority
+
+When the same setting is configured in multiple scopes, more specific scopes take precedence:
+
+1. **Managed** (highest) - Cannot be overridden by anything
+2. **Command line arguments** - Temporary session overrides
+3. **Local** - Overrides project and user settings
+4. **Project** - Overrides user settings
+5. **User** (lowest) - Applied when no other scope specifies the setting
+
+<Note>
+For example, if you allow a permission in user settings but deny it in project settings, project settings take precedence and permission is blocked.
+</Note>
+
+## Step 2: Settings File Structure
+
+### Step 2.1: Understand Settings Files
+
+`settings.json` file is the official mechanism for configuring Claude Code:
+
+**User settings:**
+```json
+~/.claude/settings.json
+```
+
+**Project settings:**
+```json
+.claude/settings.json  // For team sharing
+.claude/settings.local.json  // For personal preferences
+```
+
+**Managed settings:**
+```json
+// macOS
+/Library/Application Support/ClaudeCode/
+
+// Linux and WSL
+/etc/claude-code/
+
+// Windows
+C:\Program Files\ClaudeCode\
+```
+
+<Note>
+These are system-wide paths requiring administrator permissions, designed for deployment by IT administrators.
+</Note>
+
+### Step 2.2: JSON Schema Validation
+
+Add `$schema` line in settings.json to enable autocomplete and validation:
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run test *)",
+      "Read(~/.zshrc)"
+    ],
+    "deny": [
+      "Bash(curl *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1"
+  }
+}
+```
+
+<ProTip>
+After adding JSON Schema, editors like VS Code, Cursor, and others that support JSON schema validation can provide autocomplete and inline validation.
+</ProTip>
+
+### Step 2.3: Automatic Backup
+
+Claude Code automatically creates timestamped backups of configuration files and keeps the last five backups to prevent data loss.
+
+## Step 3: Core Settings Configuration
+
+### Step 3.1: Common Settings
+
+| Setting | Description | Example |
+|----------|-------------|---------|
+| `apiKeyHelper` | Custom API key generation script | `/bin/generate_temp_api_key.sh` |
+| `cleanupPeriodDays` | Session cleanup period (default: 30) | `20` |
+| `companyAnnouncements` | Announcements shown at startup | `["Welcome!"]` |
+| `env` | Environment variables | `{"FOO": "bar"}` |
+| `model` | Default model override | `"claude-sonnet-4-5-20250929"` |
+| `outputStyle` | Output style | `"Explanatory"` |
+| `language` | Response language | `"japanese"` |
+| `alwaysThinkingEnabled` | Enable extended thinking by default | `true` |
+| `showTurnDuration` | Show response time | `true` |
+
+### Step 3.2: Configuration Example
+
+```json
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Read",
+      "Edit"
+    ],
+    "deny": [
+      "Bash(curl *)",
+      "Read(./.env)",
+      "Read(./secrets/**)"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1"
+  },
+  "outputStyle": "Explanatory",
+  "language": "en",
+  "alwaysThinkingEnabled": true
+}
+```
+
+<AdPlaceholder />
+
+## Step 4: Permissions System Configuration
+
+### Step 4.1: Permissions Rule Syntax
+
+Permission rules follow format `Tool` or `Tool(specifier)`:
+
+| Rule Example | Effect |
+|---------------|---------|
+| `Bash` | Matches all Bash commands |
+| `Bash(npm run *)` | Matches commands starting with `npm run` |
+| `Read(./.env)` | Matches reading `.env file` |
+| `WebFetch(domain:example.com)` | Matches fetch requests to example.com |
+
+**Rule evaluation order:** Deny → Ask → Allow
+
+### Step 4.2: Permissions Configuration Example
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run lint)",
+      "Bash(npm run test *)",
+      "Bash(git *)",
+      "Read",
+      "Edit",
+      "Glob"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(git commit *)"
+    ],
+    "deny": [
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "WebFetch"
+    ],
+    "additionalDirectories": [
+      "../shared-utils/"
+    ],
+    "defaultMode": "acceptEdits"
+  }
+}
+```
+
+### Step 4.3: Exclude Sensitive Files
+
+Use `permissions.deny` to block access to sensitive files:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./secrets/**)",
+      "Read(./config/credentials.json)",
+      "Read(./build)"
+    ]
+  }
+}
+```
+
+<ProTip>
+Files matching these patterns are excluded from file discovery and search results, and read operations to these files are denied.
+</ProTip>
+
+## Step 5: Sandbox Configuration
+
+### Step 5.1: Enable Sandbox
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "excludedCommands": ["git", "docker"]
+  }
+}
+```
+
+### Step 5.2: Network Configuration
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "network": {
+      "allowedDomains": ["github.com", "*.npmjs.org"],
+      "allowUnixSockets": ["~/.ssh/agent-socket"],
+      "allowLocalBinding": true
+    }
+  }
+}
+```
+
+## Step 6: Subagent Configuration
+
+### Step 6.1: Subagent Storage Location
+
+- **User subagents**: `~/.claude/agents/` - Available in all projects
+- **Project subagents**: `.claude/agents/` - Specific to project, can be shared with team
+
+### Step 6.2: Create Custom Subagent
+
+Create Markdown files in the `agents/` directory:
+
+```markdown
+---
+name: code-reviewer
+description: Professional code review assistant
+tools: Read, Grep, Glob
+model: sonnet
+---
+
+# Code Review Assistant
+
+When reviewing code:
+1. Analyze code quality and readability
+2. Check for security issues
+3. Evaluate performance impact
+4. Provide improvement suggestions
+```
+
+## Step 7: Plugin Configuration
+
+### Step 7.1: Enable Plugins
+
+```json
+{
+  "enabledPlugins": {
+    "formatter@team-tools": true,
+    "deployment-tools@team-tools": true,
+    "experimental-features@personal": false
+  }
+}
+```
+
+### Step 7.2: Configure Extra Marketplaces
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "acme-tools": {
+      "source": {
+        "source": "github",
+        "repo": "acme-corp/claude-plugins"
+      }
+    }
+  }
+}
+```
+
+<ProTip>
+When repository contains `extraKnownMarketplaces`, team members are prompted to install marketplace and plugins.
+</ProTip>
+
+## Step 8: Environment Variables Configuration
+
+### Step 8.1: Common Environment Variables
+
+| Variable | Description |
+|-----------|-------------|
+| `ANTHROPIC_API_KEY` | API key |
+| `ANTHROPIC_MODEL` | Model to use |
+| `CLAUDE_CODE_ENABLE_TELEMETRY` | Enable telemetry |
+| `BASH_DEFAULT_TIMEOUT_MS` | Default timeout |
+| `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` | Compression threshold |
+
+### Step 8.2: Configure Environment Variables in Settings
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "ANTHROPIC_MODEL": "claude-sonnet-4-20250501",
+    "BASH_DEFAULT_TIMEOUT_MS": "120000"
+  }
+}
+```
+
+## Pro Tips
+
+### Tip 1: Use Local Scope for Experiments
+
+Before sharing configuration with team, test in Local scope first:
+
+```json
+// .claude/settings.local.json
+{
+  "outputStyle": "Explanatory",
+  "alwaysThinkingEnabled": true
+}
+```
+
+<ProTip>
+Local scope configurations are not committed to version control, perfect for personal experimentation.
+</ProTip>
+
+### Tip 2: Organize Permission Rules
+
+Organize permission rules by tool type:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      // Bash commands
+      "Bash(npm run *)",
+      "Bash(git *)",
+      // File operations
+      "Read",
+      "Edit",
+      // Search
+      "Glob",
+      "Grep"
+    ],
+    "deny": [
+      // Sensitive files
+      "Read(./.env*)",
+      "Read(./secrets/**)",
+      // Dangerous commands
+      "Bash(rm -rf *)",
+      "Bash(format *)"
+    ]
+  }
+}
+```
+
+### Tip 3: Make Good Use of Company Announcements
+
+Use `companyAnnouncements` to keep team information synchronized:
+
+```json
+{
+  "companyAnnouncements": [
+    "Welcome to the new project! Please check code standards documentation.",
+    "Reminder: Code review is due this Friday.",
+    "Important: New security policy is in effect."
+  ]
+}
+```
+
+### Tip 4: Configure Attribution
+
+Customize git commit and PR attribution:
+
+```json
+{
+  "attribution": {
+    "commit": "🤖 Generated with Claude Code\n\nCo-Authored-By: AI <ai@company.com>",
+    "pr": "🤖 Generated with Claude Code"
+  }
+}
+```
+
+## Common Troubleshooting
+
+### Problem 1: Configuration Not Taking Effect
+
+**Solutions:**
+1. Check if configuration file path is correct
+2. Verify JSON syntax is valid
+3. Confirm scope priority is correct
+4. Restart Claude Code session
+
+### Problem 2: Permission Denied
+
+**Solutions:**
+1. Check if deny rules override allow rules
+2. Confirm rule syntax is correct
+3. Verify if project settings override user settings
+4. Use `/permissions` command to check current permission status
+
+### Problem 3: Managed Settings Cannot Be Overridden
+
+**Solutions:**
+1. Managed settings have highest priority and cannot be overridden
+2. Contact system administrator to request changes
+3. Use Local scope for personal adjustments
+
+### Problem 4: JSON Schema Validation Fails
+
+**Solutions:**
+1. Check if $schema URL is correct
+2. Verify all property names and types
+3. Refer to official JSON Schema documentation
+4. Use online JSON validation tools
+
+## Conclusion
+
+Mastering Claude Code's configuration system is key to deeply customizing your usage experience. By learning from this guide, you have learned:
+
+- ✅ Four configuration scopes and their priorities
+- ✅ Settings file structure and locations
+- ✅ Permissions system configuration methods
+- ✅ Sandbox and network configuration
+- ✅ Subagent and plugin configuration
+- ✅ Environment variable settings
+
+<ProTip>
+Proper configuration allows Claude Code to better adapt to your workflow, improving development efficiency.
+</ProTip>
+
+<AdPlaceholder />

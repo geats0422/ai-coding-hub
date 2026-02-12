@@ -1,0 +1,143 @@
+---
+title: Web 界面
+tool: "opencode"
+slug: web-interface
+description: 在浏览器中使用 OpenCode - 一个提供同样强大 AI 编程体验的 Web 应用程序，无需终端。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 可以作为 Web 应用程序在你的浏览器中运行，提供同样强大 AI 编程体验而无需终端。
+
+<AdPlaceholder />
+
+## 入门
+
+运行以下命令启动 Web 界面：
+
+```bash
+opencode web
+```
+
+这将在 127.0.0.1 上启动一个本地服务器，使用随机可用端口，并自动在你的默认浏览器中打开 OpenCode。
+
+<Callout type="warning">
+如果未设置 OPENCODE_SERVER_PASSWORD，服务器将是不安全的。这对于本地使用是可以的，但对于网络访问应该进行设置。
+</Callout>
+
+<Callout type="note">
+Windows 用户：为了获得最佳体验，请从 WSL 而不是 PowerShell 运行 opencode web。这确保了适当的文件系统访问和终端集成。
+</Callout>
+
+<AdPlaceholder />
+
+## 配置
+
+你可以使用命令行标志或在你的配置文件中配置 Web 服务器。
+
+### 端口
+
+默认情况下，OpenCode 选择一个可用端口。你可以指定一个端口：
+
+```bash
+opencode web --port 4096
+```
+
+### 主机名
+
+默认情况下，服务器绑定到 127.0.0.1（仅 localhost）。要使 OpenCode 在你的网络上可访问：
+
+```bash
+opencode web --hostname 0.0.0.0
+```
+
+使用 0.0.0.0 时，OpenCode 将显示本地和网络地址：
+
+  本地访问：       http://localhost:4096
+  网络访问：     http://192.168.1.100:4096
+
+### mDNS 发现
+
+启用 mDNS 使你的服务器可在本地网络上发现：
+
+```bash
+opencode web --mdns
+```
+
+这会自动将主机名设置为 0.0.0.0，并将服务器通告为 opencode.local。
+
+你可以自定义 mDNS 域名以便在同一网络上运行多个实例：
+
+```bash
+opencode web --mdns --mdns-domain myproject.local
+```
+
+### CORS
+
+要允许额外的域用于 CORS（对于自定义前端很有用）：
+
+```bash
+opencode web --cors https://example.com
+```
+
+<AdPlaceholder />
+
+## 身份验证
+
+要通过设置密码来保护访问，使用 OPENCODE_SERVER_PASSWORD 环境变量：
+
+```bash
+OPENCODE_SERVER_PASSWORD=secret opencode web
+```
+
+用户名默认为 opencode，但可以使用 OPENCODE_SERVER_USERNAME 进行更改。
+
+<AdPlaceholder />
+
+## 使用 Web 界面
+
+启动后，Web 界面提供对你的 OpenCode 会话的访问。
+
+### 会话
+
+从主页查看和管理你的会话。你可以看到活动的会话并启动新的会话。
+
+### 服务器状态
+
+点击"查看服务器"以查看已连接的服务器及其状态。
+
+## 附加终端
+
+你可以将终端 TUI 附加到正在运行的 Web 服务器：
+
+```bash
+# 启动 Web 服务器
+opencode web --port 4096
+
+# 在另一个终端中，附加 TUI
+opencode attach http://localhost:4096
+```
+
+这允许你同时使用 Web 界面和终端，共享相同的会话和状态。
+
+<Callout type="note">
+你也可以在 opencode.json 配置文件中配置服务器设置：
+</Callout>
+
+```json
+{
+  "server": {
+    "port": 4096,
+    "hostname": "0.0.0.0",
+    "mdns": true,
+    "cors": ["https://example.com"]
+  }
+}
+```
+
+命令行标志优先于配置文件设置。
+
+<AdPlaceholder />

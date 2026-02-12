@@ -1,0 +1,71 @@
+---
+title: "选型"
+description: "了解如何使用 /model 命令选择 Gemini 模型，包括 Auto、Pro 和 Flash 模型的优点、缺点和最佳实践。"
+tool: "gemini-cli"
+slug: "model-selection"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Gemini CLI 型号选择（`/model` 命令）
+
+选择您的 Gemini CLI 型号。 `/model` 命令可让您配置模型
+由 Gemini CLI 使用，让您更好地控制结果。使用**专业版**
+用于复杂任务和推理的模型，用于高速结果的 **Flash** 模型，
+或（推荐）**自动** 设置来选择最适合您任务的模型。
+
+<Callout type="note">
+注意： `/model` 命令（和 `--model` 标志）不会覆盖
+子代理使用的模型。因此，即使使用 `/model` 标志，您
+可能会在您的模型使用报告中看到其他模型。
+</Callout>
+
+<AdPlaceholder />
+
+## 如何使用`/model`命令
+
+在 Gemini CLI 中使用以下命令：
+```
+/model
+```
+运行此命令将打开一个包含您的选项的对话框：|选项 |描述 |型号|
+| ----------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+|自动 (Gemini 3) |让系统为您的任务选择最佳的Gemini 3 模型。   | Gemini-3-pro-preview（如果启用）、Gemini-3-flash-preview（如果启用）|
+|自动 (Gemini 2.5) |让系统为您的任务选择最佳的Gemini 2.5 模型。 | Gemini-2.5-pro、Gemini-2.5-flash |
+|手册|选择特定型号。                                       |任何可用的型号。                                                   |我们建议选择上述**自动**选项之一。但是，您可以
+选择 **手动** 从可用型号中选择特定型号。
+
+### Gemini 3及预览功能
+
+<Callout type="note">
+注意：Gemini 3 目前不适用于所有账户类型。学习
+更多关于Gemini 3访问，请参考
+[Gemini 3 on Gemini CLI](/docs/get-started/Gemini-3)。
+</Callout>
+
+要启用Gemini 3 Pro 和Gemini 3 Flash（如果可用），请启用
+[**Preview Features** by using the @@P0@@ command](/docs/cli/settings)。
+
+您还可以使用`--model`标志来指定特定的Gemini模型
+启动。有关更多详细信息，请参阅
+[configuration documentation](/docs/get-started/configuration)。
+
+对这些设置的更改将应用于所有后续交互
+Gemini CLI。## 模型选择的最佳实践
+
+- **默认为自动。** 对于大多数用户来说，_Auto_ 选项模型提供了
+  速度和性能之间的平衡，自动选择正确的
+  基于任务复杂性的模型。示例：开发网络
+  应用程序可能包括复杂任务的混合（构建架构和
+  搭建项目）和简单的任务（生成 CSS）。
+
+- **如果您没有获得想要的结果，请切换到专业版。**如果您认为
+  需要您的模型更“聪明”一点，您可以手动选择 Pro。专业版
+  将为您提供最高水平的推理和创造力。示例：
+  复杂或多阶段的调试任务。- **如果您需要更快的结果，请切换到 Flash 或 Flash-Lite。** 如果您需要
+  简单响应快速，Flash或Flash-Lite是最佳选择。示例：
+  将 JSON 对象转换为 YAML 字符串。
+
+<AdPlaceholder />

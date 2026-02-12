@@ -1,0 +1,134 @@
+---
+title: "Refined rule control"
+description: "Learn how to use the rules system to fine-grainly control the commands that Codex can run outside of the sandbox, including creation, testing, and rule language syntax"
+tool: "codex"
+slug: "rules"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Rules
+
+Use rules to control which commands Codex can run outside of the sandbox.
+
+Rules are experimental and subject to change.
+
+<AdPlaceholder />
+
+## Create rules file
+
+1. Create a `.rules` file (e.g. `~/.codex/rules/default.rules`) under `./codex/rules/`.
+2. Add rules. This example allows `gh pr view` to run outside the sandbox before allowing the prompt.
+```pytho
+    # 在沙箱外运行带有前缀 `gh pr view` 的命令之前提示。
+    prefix_rule(
+        # 要匹配的前缀。
+        pattern = ["gh", "pr", "view"],
+
+        # 当 Codex 请求运行匹配的命令时采取的操作。
+        decision = "prompt",
+
+        # 此规则存在的原因（可选的理由）。
+        justification = "批准时允许查看 PR",
+
+        # `match` 和 `not_match` 是可选的"内联单元测试"，您可以在其中提供应该（或不应该）匹配此规则的命令示例。
+        match = [
+            "gh pr view 7888",
+            "gh pr view --repo openai/codex",
+            "gh pr view 7888 --json title,body,comments",
+        ],
+        not_match = [
+            # 不匹配，因为 `pattern` 必须是精确前缀。
+            "gh pr --repo openai/codex view 7888",
+        ],
+    )
+    
+```3
+. Restart Codex.
+
+Codex scans every [团队配置](https://developers.openai.com/codex/enterprise/admin-setup#team-config) position for `rules/` at startup. When you add a command to the allow list in TUI, the Codex writes `~/.codex/rules/default.rules` at the user level so that future runs can skip the prompt.
+
+When smart approval is enabled (default), Codex may suggest `prefix_rule` for you during an upgrade request. Double-check suggested prefixes before accepting them.
+
+Administrators can also enforce restrictive `prefix_rule` entries from [@@P3@@](https://developers.openai.com/codex/security#admin-enforced-requirements-requirementstoml).
+
+## Understand the rule fields
+
+`prefix_rule()` supports the following fields:- `pattern` **(required)**: Defines a non-empty list of command prefixes to match. Each element is:
+  - Literal string (e.g. `"pr"`).
+  - Literal union (e.g. `["view", "list"]`) to match alternatives at that parameter position.
+- `decision` ** (default `"allow"`)**: The action to take when the rule matches.当多个规则匹配时，Codex 应用最严格的决定（`forbidden` > `prompt` > `allow`）。
+  - `allow`: Run commands outside the sandbox without prompting.
+  - `prompt`: Prompt before each match call.
+  - `forbidden`: Block the request without prompting.
+- `justification` **(optional)**: Non-null, readable reason for the rule. Codex may display it in an approval prompt or in a rejection message. When you use `forbidden`, include recommended alternatives in the justification (e.g. `"Use \`rg\` instead of \`grep\`."`).
+- `match` and `not_match` ** (default is `[]`**): Example of Codex validation when loading rules. Use these to catch errors before the rule takes effect.
+
+When Codex considers running a command, it compares the command's argument list to `pattern`. Internally, Codex treats commands as argument lists (just like `execvp(3)` receives them).
+
+## Shell wrappers and compound commands
+
+Some tools wrap multiple shell commands into a single call, for example:
+```tex
+["bash", "-lc", "git add . && rm -rf /"]
+```Because
+ such commands can hide multiple operations in a single string, the Codex treats `bash -lc`, `bash -c` and their `zsh` / `sh` equivalents specially.
+
+### Codex When is it safe to split a script?
+
+If the shell script is a linear chain of commands consisting only of:
+
+- Ordinary words (no variable expansion, no `VAR=...`, `$FOO`, `*`, etc.)
+- Concatenated by safe operators (`&&`, `||`, `;` or `|`)
+
+Then Codex (using tree-sitter) parses it and splits it into individual commands before applying your rules.
+
+The above script is treated as two separate commands:
+
+- `["git", "add", "."]`
+- `["rm", "-rf", "/"]`
+
+Codex then evaluates each command against your rules, with the strictest result winning.
+
+Even if you allow `pattern=["git", "add"]`, the Codex will not automatically allow `git add . && rm -rf /` because the `rm -rf /` part is evaluated separately and prevents the entire call from being automatically allowed.
+
+This prevents dangerous commands from being smuggled along with safe commands.
+
+### Codex When not to split a script
+
+If the script uses more advanced shell features, such as:
+
+- Redirect (`>`, `>>`, `<`)
+- Replacement (`$(...)`, `...`)
+- Environment variables (`FOO=bar`)
+- Wildcard pattern (`*`, `?`)
+- Control flow (`if`, `for`, `&&` with assignment, etc.)
+
+Then Codex won't try to interpret or split it.
+
+In these cases, the entire call is treated as:
+```tex
+["bash", "-lc", "<full script>")
+```and
+ your rule applies to that **single** call.
+
+With this handling, you get per-command evaluation safety when safe, and conservative behavior when unsafe.
+
+## Test rule file
+
+Use `codex execpolicy check` to test how your rules apply to commands:
+```shel
+codex execpolicy check --pretty \
+  --rules ~/.codex/rules/default.rules \
+  -- gh pr view 7888 --json title,body,comments
+```
+This
+ command emits JSON showing the most restrictive decision and any matching rules, including any `justification` values ​​in the matching rules. Combine the files using multiple `--rules` flags, and add `--pretty` to format the output.
+
+## Understand the rule language
+
+The `.rules` file format uses `Starlark` (see [语言规范](https://github.com/bazelbuild/starlark/blob/master/spec.md)). The syntax is like Python, but designed to run safely: the rules engine can run it without side effects (for example, touching the file system).
+
+<AdPlaceholder />

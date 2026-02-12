@@ -1,0 +1,70 @@
+---
+title: "系统提示词覆盖"
+description: "了解如何在 Gemini CLI 中覆盖系统提示词以自定义 AI 行为。"
+tool: "gemini-cli"
+slug: "system-prompt-override"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 系统提示覆盖
+
+本文档提供有关Gemini CLI 中的系统提示覆盖功能的信息。
+
+<Callout type="note">
+注意：这是一个占位符文档。系统提示的实际内容
+应在此处添加覆盖功能。
+</Callout>
+
+<AdPlaceholder />
+
+## 概述
+
+系统提示覆盖功能允许高级用户自定义或替换
+Gemini CLI 使用的默认系统提示符。这使得可以进行微调控制
+AI 的行为和反应。
+
+## 用法
+
+要覆盖系统提示，您可以：
+
+1.使用命令行标志
+2.通过settings.json进行配置
+3.设置环境变量
+
+### 命令行使用
+```
+bas
+h
+gemini --system-prompt "Your custom system prompt here"
+```
+### 配置
+
+将自定义系统提示添加到您的`settings.json`：
+```
+jso
+n
+{
+  "systemPrompt": {
+    "custom": "Your custom system prompt...",
+    "enabled": true
+  }
+}
+```
+## 注意事项
+
+- 自定义系统提示可能会显着改变人工智能行为
+- 生产使用前进行彻底测试
+- 注意潜在的安全隐患
+- 考虑对工具使用和响应的影响
+
+## 最佳实践
+
+- 从小的修改开始
+- 在安全的环境中进行测试
+- 记录您的自定义提示
+- 定期审查变更
+
+<AdPlaceholder />

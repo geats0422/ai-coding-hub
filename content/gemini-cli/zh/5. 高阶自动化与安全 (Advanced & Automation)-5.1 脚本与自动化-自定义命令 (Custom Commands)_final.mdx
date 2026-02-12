@@ -1,0 +1,311 @@
+---
+title: "自定义命令"
+description: "了解如何在 Gemini CLI 中创建和使用自定义命令，通过 TOML 文件保存和重复使用常用的提示词。"
+tool: "gemini-cli"
+slug: "custom-commands"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 自定义命令
+
+自定义命令可让您保存并重复使用您最喜欢或最常用的命令
+提示作为 Gemini CLI 中的个人快捷方式。您可以创建这样的命令
+特定于单个项目或全局可用的命令
+您的所有项目，简化您的工作流程并确保一致性。
+
+<AdPlaceholder />
+
+## 文件位置和优先级
+
+Gemini CLI 发现来自两个位置的命令，并按特定顺序加载：1. **用户命令（全局）：** 位于`~/.Gemini/commands/`。这些命令
+    可用于您正在从事的任何项目。
+2. **项目命令（本地）：** 位于
+    `<your-project-root>/.Gemini/commands/`。这些命令特定于
+    当前项目，可以签入版本控制以共享
+    你的团队。
+
+如果项目目录中的命令与用户中的命令同名
+目录中，**project 命令将始终被使用。**这允许项目
+使用特定于项目的版本覆盖全局命令。
+
+## 命名和命名空间命令的名称由相对于`commands` 的文件路径确定
+目录。子目录用于创建命名空间命令，路径为
+分隔符（`/` 或`\`）转换为冒号（`:`）。
+
+-`~/.Gemini/commands/test.toml`处的文件成为命令`/test`。
+- `<project>/.Gemini/commands/git/commit.toml` 处的文件成为命名空间
+  命令`/git:commit`。
+
+## TOML 文件格式 (v1)
+
+您的命令定义文件必须以 TOML 格式编写并使用
+`.toml` 文件扩展名。
+
+### 必填字段
+
+- `prompt`（字符串）：当Gemini模型
+  命令被执行。这可以是单行或多行字符串。
+
+### 可选字段- `description`（字符串）：命令内容的简短一行描述
+  确实如此。该文本将显示在 `/help` 菜单中您的命令旁边。
+  **如果省略此字段，将从中生成通用描述
+  文件名.**
+
+## 处理参数
+
+自定义命令支持两种强大的参数处理方法。命令行界面
+根据您的命令内容自动选择正确的方法
+`prompt`。
+
+### 1. 使用`{{args}}`进行上下文感知注入
+
+如果您的`prompt`包含特殊占位符`{{args}}`，CLI将
+将该占位符替换为用户在命令名称后键入的文本。
+
+此注入的行为取决于它的使用位置：
+
+**A。原始注入（外部 shell 命令）**当在提示的主体中使用时，参数的注入与
+用户输入了它们。
+
+**示例（`git/fix.toml`）：**
+```
+tom
+l
+# Invoked via: /git:fix "Button is misaligned"
+
+description = "Generates a fix for a given issue."
+prompt = "Please provide a code fix for the issue described here: {{args}}."
+```
+该模型接收：
+`Please provide a code fix for the issue described here: "Button is misaligned".`
+
+**B。在 shell 命令中使用参数（`!{...}` 块内）**
+
+当您在 shell 注入块 (`!{...}`) 中使用 `{{args}}` 时，参数
+在替换之前会自动**外壳转义**。这可以让您
+安全地将参数传递给 shell 命令，确保生成的命令是
+语法正确且安全，同时防止命令注入
+漏洞。
+
+**示例（`/grep-code.toml`）：**
+```
+tom
+l
+prompt = """
+Please summarize the findings for the pattern `{{args}}`.
+
+Search Results:
+!{grep -r {{args}} .}
+"""
+```
+当您运行`/grep-code It's complicated`时：
+
+1. CLI 看到`{{args}}` 在`!{...}` 外部和内部都使用。
+2. 外部：第一个`{{args}}` 被`It's complicated` 替换为raw。
+3. 内部：第二个 `{{args}}` 被转义版本替换（例如，在
+   Linux：`"It\'s complicated"`）。
+4. 执行的命令为`grep -r "It's complicated" .`。
+5. CLI 会在执行前提示您确认此准确、安全的命令。
+6. 发送最终提示。
+
+### 2. 默认参数处理
+
+如果您的`prompt`**不**包含特殊占位符`{{args}}`，则
+CLI 使用默认行为来处理参数。如果您为命令提供参数（例如`/mycommand arg1`），CLI 将
+将您键入的完整命令附加到提示符末尾，并用两个分隔
+换行符。这使得模型能够看到原始指令和
+您刚才提供的具体论点。
+
+如果您**未**提供任何参数（例如`/mycommand`），则会发送提示
+完全按原样添加到模型，不添加任何内容。
+
+**示例（`changelog.toml`）：**
+
+此示例展示了如何通过定义角色来创建强大的命令
+模型，解释在哪里可以找到用户的输入，并指定预期的
+格式和行为。
+```
+tom
+l
+# In: <project>/.gemini/commands/changelog.toml
+# Invoked via: /changelog 1.2.0 added "Support for default argument parsing."
+
+description = "Adds a new entry to the project's CHANGELOG.md file."
+prompt = """
+# Task: Update Changelog
+
+You are an expert maintainer of this software project. A user has invoked a command to add a new entry to the changelog.
+
+**The user's raw command is appended below your instructions.**
+
+Your task is to parse the `<version>`, `<change_type>`, and `<message>` from their input and use the `write_file` tool to correctly update the `CHANGELOG.md` file.
+
+## Expected Format
+The command follows this format: `/changelog <version> <type> <message>`
+- `<type>` must be one of: "added", "changed", "fixed", "removed".
+
+## Behavior
+1. Read the `CHANGELOG.md` file.
+2. Find the section for the specified `<version>`.
+3. Add the `<message>` under the correct `<type>` heading.
+4. If the version or type section doesn't exist, create it.
+5. Adhere strictly to the "Keep a Changelog" format.
+"""
+```
+当您运行`/changelog 1.2.0 added "New feature"`时，最终文本发送到
+model 将是原始提示符，后跟两个换行符和您的命令
+键入。
+
+### 3.使用`!{...}`执行shell命令
+
+您可以通过直接在内部执行 shell 命令来使命令动态化
+你的`prompt`并注入他们的输出。这是收集背景信息的理想选择
+从您的本地环境，例如读取文件内容或检查状态
+吉特。
+
+当自定义命令尝试执行 shell 命令时，Gemini CLI 现在将
+在继续之前提示您确认。这是一项安全措施
+确保只能运行预期的命令。
+
+**它是如何工作的：**1. **注入命令：** 使用`!{...}`语法。
+2. **参数替换：** 如果`{{args}}`存在于块内，则它
+    自动进行 shell 转义（参见
+    [Context-Aware Injection](#1-context-aware-injection-with-args) 以上）。
+3. **稳健的解析：** 解析器正确处理复杂的 shell 命令，
+    包括嵌套大括号，例如 JSON 有效负载。 **注：**里面的内容
+    `!{...}` 必须具有平衡的大括号（`{` 和`}`）。如果您需要执行
+    包含不平衡大括号的命令，请考虑将其包装在外部
+    脚本文件并调用 `!{...}` 块中的脚本。
+4. **安全检查和确认：** CLI执行安全检查
+    最终的已解析命令（在参数被转义和替换之后）。一个
+    将出现对话框，显示要执行的确切命令。
+5. **执行并报错：**命令执行完毕。如果命令
+    失败，注入提示符的输出将包含错误消息
+    (stderr) 后跟状态行，例如，
+    `[Shell command exited with code 1]`。这有助于模型理解
+    失败的背景。**示例（`git/commit.toml`）：**
+
+此命令获取暂存的 git diff 并使用它来要求模型编写一个
+提交消息。
+````toml
+# In: <project>/.gemini/commands/git/commit.toml
+# Invoked via: /git:commit
+
+description = "Generates a Git commit message based on staged changes."
+
+# The prompt uses !{...} to execute the command and inject its output.
+prompt = """
+Please generate a Conventional Commit message based on the following git diff:
+
+```
+差异
+!{git diff --staged}
+```
+
+"""
+
+````
+
+When you run `/git:commit`, the CLI first executes `git diff --staged`, then
+replaces `!{git diff --staged}` with the output of that command before sending
+the final, complete prompt to the model.
+
+### 4. Injecting file content with `@{...}`
+
+You can directly embed the content of a file or a directory listing into your
+prompt using the `@{...}` 语法。这对于创建以下命令很有用
+对特定文件进行操作。
+
+**它是如何工作的：**- **文件注入**：`@{path/to/file.txt}`被替换为内容
+  `file.txt`。
+- **多模式支持**：如果路径指向支持的图像（例如，PNG、
+  JPEG）、PDF、音频或视频文件，它将被正确编码并注入为
+  多模态输入。其他二进制文件会被妥善处理并被跳过。
+- **目录列表**：遍历`@{path/to/dir}`并显示每个文件
+  目录内的所有子目录都会插入到提示符中。这个
+  如果启用，则尊重 `.gitignore` 和 `.geminiignore`。
+- **工作空间感知**：该命令搜索当前的路径
+  目录和任何其他工作区目录。允许绝对路径，如果
+  他们在工作空间内。
+- **处理顺序**：处理带有`@{...}`的文件内容注入
+  _before_ shell 命令 (`!{...}`) 和参数替换 (`{{args}}`)。
+- **解析**：解析器需要`@{...}`（路径）中的内容来
+  有平衡的大括号（`{` 和 `}`）。**示例（`review.toml`）：**
+
+此命令注入_固定_最佳实践文件的内容
+(`docs/best-practices.md`) 并使用用户的参数来提供上下文
+审查。
+```
+tom
+l
+# In: <project>/.gemini/commands/review.toml
+# Invoked via: /review FileCommandLoader.ts
+
+description = "Reviews the provided context using a best practice guide."
+prompt = """
+You are an expert code reviewer.
+
+Your task is to review {{args}}.
+
+Use the following best practices when providing your review:
+
+@{docs/best-practices.md}
+"""
+```
+当您运行 `/review FileCommandLoader.ts` 时，`@{docs/best-practices.md}`
+占位符被该文件的内容替换，`{{args}}`被替换
+在最终提示发送到模型之前，通过您提供的文本。
+
+---
+
+## 示例：“纯函数”重构命令
+
+让我们创建一个全局命令，要求模型重构一段代码。
+
+**1.创建文件和目录：**
+
+首先，确保用户命令目录存在，然后创建一个`refactor`
+组织和最终 TOML 文件的子目录。
+```
+bas
+h
+mkdir -p ~/.gemini/commands/refactor
+touch ~/.gemini/commands/refactor/pure.toml
+```
+**2.将内容添加到文件中：**
+
+在编辑器中打开 `~/.Gemini/commands/refactor/pure.toml` 并添加
+以下内容。我们包括可选的 `description` 以获得最佳效果
+练习。
+```
+tom
+l
+# In: ~/.gemini/commands/refactor/pure.toml
+# This command will be invoked via: /refactor:pure
+
+description = "Asks the model to refactor the current context into a pure function."
+
+prompt = """
+Please analyze the code I've provided in the current context.
+Refactor it into a pure function.
+
+Your response should include:
+1. The refactored, pure function code block.
+2. A brief explanation of the key changes you made and why they contribute to purity.
+"""
+```
+**3.运行命令：**
+
+就是这样！您现在可以在 CLI 中运行命令。首先，您可以添加一个文件
+到上下文，然后调用您的命令：
+```
+> @my-messy-function.js
+> /refactor:pure
+```
+Gemini
+ CLI 然后将执行 TOML 文件中定义的多行提示符。
+
+<AdPlaceholder />

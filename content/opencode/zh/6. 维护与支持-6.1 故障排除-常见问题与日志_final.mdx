@@ -1,0 +1,268 @@
+---
+title: 故障排除
+tool: "opencode"
+slug: troubleshooting
+description: 常见问题以及如何解决它们 - 要调试 OpenCode 的问题，请首先检查日志及其存储在磁盘上的本地数据。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+要调试 OpenCode 的问题，请首先检查日志及其存储在磁盘上的本地数据。
+
+## 日志 (Logs)
+
+日志文件写入到：
+
+- macOS/Linux: `~/.local/share/opencode/log/`
+- Windows: 按 `WIN+R` 并粘贴 `%USERPROFILE%\.local\share\opencode\log`
+
+日志文件以时间戳命名 (例如, `2025-01-09T123456.log`)，并保留最近的 10 个日志文件。
+
+你可以使用 `--log-level` 命令行选项设置日志级别以获取更详细的调试信息。例如，`opencode --log-level DEBUG`。
+
+## 存储 (Storage)
+
+opencode 将会话数据和其他应用程序数据存储在磁盘上的：
+
+- macOS/Linux: `~/.local/share/opencode/`
+- Windows: 按 `WIN+R` 并粘贴 `%USERPROFILE%\.local\share\opencode`
+
+此目录包含：
+
+- `auth.json` - 身份验证数据，如 API 密钥、OAuth 令牌
+- `log/` - 应用程序日志
+- `project/` - 特定于项目的数据，如会话和消息数据
+
+如果项目在 Git 仓库中，它存储在 `./<project-slug>/storage/` 中
+如果它不是 Git 仓库，它存储在 `./global/storage/` 中
+
+## 桌面应用程序 (Desktop app)
+
+OpenCode Desktop 在后台运行本地 OpenCode 服务器 (opencode-cli sidecar)。大多数问题是由行为不端的插件、损坏的缓存或错误的服务器设置引起的。
+
+### 快速检查 (Quick checks)
+
+- 完全退出并重新启动应用程序。
+- 如果应用程序显示错误屏幕，请点击重新启动并复制错误详细信息。
+- 仅限 macOS: OpenCode 菜单 -> Reload Webview (如果 UI 空白/冻结会有帮助)。
+
+### 禁用插件 (Disable plugins)
+
+如果桌面应用程序在启动时崩溃、挂起或行为异常，请首先禁用插件。
+
+#### 检查全局配置
+
+打开你的全局配置文件并查找 `plugin` 键。
+
+- macOS/Linux: `~/.config/opencode/opencode.jsonc` (或 `~/.config/opencode/opencode.json`)
+- macOS/Linux (旧安装): `~/.local/share/opencode/opencode.jsonc`
+- Windows: 按 `WIN+R` 并粘贴 `%USERPROFILE%\.config\opencode\opencode.jsonc`
+
+如果你配置了插件，请通过删除键或将其设置为空数组来暂时禁用它们：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": [],
+}
+```
+
+#### 检查插件目录
+
+OpenCode 还可以从磁盘加载本地插件。暂时将这些移开 (或重命名文件夹) 并重新启动桌面应用程序：
+
+- 全局插件: `~/.config/opencode/plugins/`
+- 项目插件 (仅当你使用每个项目配置时): `<your-project>/.opencode/plugins/`
+
+如果应用程序再次开始工作，请一次重新启用一个插件，以找出导致问题的插件。
+
+### 清除缓存 (Clear the cache)
+
+如果禁用插件没有帮助 (或插件安装卡住)，请清除缓存以便 OpenCode 可以重建它。
+
+1. 完全退出 OpenCode Desktop。
+2. 删除缓存目录：
+   - macOS: Finder -> Cmd+Shift+G -> 粘贴 `~/.cache/opencode`
+   - Linux: 删除 `~/.cache/opencode` (或运行 `rm -rf ~/.cache/opencode`)
+   - Windows: 按 `WIN+R` 并粘贴 `%USERPROFILE%\.cache\opencode`
+3. 重新启动 OpenCode Desktop。
+
+### 修复服务器连接问题 (Fix server connection issues)
+
+OpenCode Desktop 可以启动自己的本地服务器 (默认) 或连接到你配置的服务器 URL。
+
+如果你看到 "Connection Failed" 对话框 (或应用程序从未通过启动屏幕)，请检查自定义服务器 URL。
+
+#### 清除桌面默认服务器 URL
+
+从主屏幕，点击服务器名称 (带有状态点) 以打开服务器选择器。在默认服务器部分，点击清除 (Clear)。
+
+#### 从你的配置中移除 server.port / server.hostname
+
+如果你的 `opencode.json(c)` 包含 `server` 部分，请暂时将其移除并重新启动桌面应用程序。
+
+#### 检查环境变量
+
+如果你在环境中设置了 `OPENCODE_PORT`，桌面应用程序将尝试使用该端口作为本地服务器。
+
+取消设置 `OPENCODE_PORT` (或选择一个空闲端口) 并重新启动。
+
+### Linux: Wayland / X11 问题
+
+在 Linux 上，某些 Wayland 设置可能会导致空白窗口或合成器错误。
+
+如果你在 Wayland 上并且应用程序空白/崩溃，请尝试使用 `OC_ALLOW_WAYLAND=1` 启动。
+
+如果这使情况变得更糟，请将其移除并尝试在 X11 会话下启动。
+
+### Windows: WebView2 运行时
+
+在 Windows 上，OpenCode Desktop 需要 Microsoft Edge WebView2 Runtime。如果应用程序打开为空白窗口或无法启动，请安装/更新 WebView2 并重试。
+
+### Windows: 一般性能问题
+
+如果你在 Windows 上遇到性能缓慢、文件访问问题或终端问题，请尝试使用 WSL (Windows Subsystem for Linux)。WSL 提供了一个与 OpenCode 功能更无缝协作的 Linux 环境。
+
+### 通知不显示 (Notifications not showing)
+
+OpenCode Desktop 仅在以下情况下显示系统通知：
+
+1. 在你的操作系统设置中为 OpenCode 启用了通知，并且
+2. 应用程序窗口未聚焦。
+
+### 重置桌面应用程序存储 (最后手段)
+
+如果应用程序无法启动并且你无法从 UI 清除设置，请重置桌面应用程序的保存状态。
+
+1. 退出 OpenCode Desktop。
+2. 查找并删除这些文件 (它们位于 OpenCode Desktop 应用程序数据目录中)：
+   - `opencode.settings.dat` (桌面默认服务器 URL)
+   - `opencode.global.dat` 和 `opencode.workspace.*.dat` (UI 状态，如最近的服务器/项目)
+
+要快速找到目录：
+
+- macOS: Finder -> Cmd+Shift+G -> `~/Library/Application Support` (然后搜索上面的文件名)
+- Linux: 在 `~/.local/share` 下搜索上面的文件名
+- Windows: 按 `WIN+R` -> `%APPDATA%` (然后搜索上面的文件名)
+
+## 获取帮助 (Getting help)
+
+如果你在使用 OpenCode 时遇到问题：
+
+### 在 GitHub 上报告问题
+
+报告错误或请求功能的最佳方式是通过我们的 GitHub 仓库：
+
+github.com/anomalyco/opencode/issues
+
+在创建新问题之前，请搜索现有问题以查看你的问题是否已被报告。
+
+### 加入我们的 Discord
+
+如需实时帮助和社区讨论，请加入我们的 Discord 服务器：
+
+opencode.ai/discord
+
+## 常见问题 (Common issues)
+
+以下是一些常见问题以及如何解决它们。
+
+### OpenCode 无法启动
+
+- 检查日志以获取错误消息
+- 尝试使用 `--print-logs` 运行以在终端中查看输出
+- 确保你拥有最新版本 `opencode upgrade`
+
+### 身份验证问题
+
+- 尝试在 TUI 中使用 `/connect` 命令重新进行身份验证
+- 检查你的 API 密钥是否有效
+- 确保你的网络允许连接到提供商的 API
+
+### 模型不可用
+
+- 检查你是否已通过提供商进行身份验证
+- 验证配置中的模型名称是否正确
+- 某些模型可能需要特定的访问权限或订阅
+
+<Callout type="note">
+如果你遇到 `ProviderModelNotFoundError`，你很可能在某处错误地引用了模型。模型应像这样引用：`<providerId>/<modelId>`
+</Callout>
+
+示例：
+
+- `openai/gpt-4.1`
+- `openrouter/google/gemini-2.5-flash`
+- `opencode/kimi-k2`
+
+要弄清楚你有权访问哪些模型，请运行 `opencode models`
+
+### ProviderInitError
+
+如果你遇到 `ProviderInitError`，你可能有无效或损坏的配置。
+
+要解决此问题：
+
+1. 首先，按照提供商指南验证你的提供商设置是否正确
+
+2. 如果问题仍然存在，请尝试清除存储的配置：
+
+```bash
+rm -rf ~/.local/share/opencode
+```
+
+在 Windows 上，按 `WIN+R` 并删除：`%USERPROFILE%\.local\share\opencode`
+
+3. 在 TUI 中使用 `/connect` 命令重新通过你的提供商进行身份验证。
+
+### AI_APICallError 和提供商包问题
+
+如果你遇到 API 调用错误，这可能是由于过时的提供商包。opencode 根据需要动态安装提供商包 (OpenAI, Anthropic, Google 等) 并将它们缓存在本地。
+
+要解决提供商包问题：
+
+1. 清除提供商包缓存：
+
+```bash
+rm -rf ~/.cache/opencode
+```
+
+在 Windows 上，按 `WIN+R` 并删除：`%USERPROFILE%\.cache\opencode`
+
+2. 重新启动 opencode 以重新安装最新的提供商包
+
+这将强制 opencode 下载提供商包的最新版本，这通常可以解决模型参数和 API 更改的兼容性问题。
+
+### 复制/粘贴在 Linux 上不起作用
+
+Linux 用户需要安装以下剪贴板实用程序之一才能使复制/粘贴功能正常工作：
+
+对于 X11 系统：
+
+```bash
+apt install -y xclip
+# or
+apt install -y xsel
+```
+
+对于 Wayland 系统：
+
+```bash
+apt install -y wl-clipboard
+```
+
+对于无头环境：
+
+```bash
+apt install -y xvfb
+# and run:
+Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+export DISPLAY=:99.0
+```
+
+opencode 将检测你是否正在使用 Wayland 并首选 `wl-clipboard`，否则它将尝试按顺序查找剪贴板工具：`xclip` 和 `xsel`。
+
+<AdPlaceholder />

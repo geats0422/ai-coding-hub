@@ -1,0 +1,362 @@
+---
+title: 主题
+tool: "opencode"
+slug: themes
+description: 选择内置主题或定义自己的主题 - OpenCode 支持多种主题，包括系统自适应主题和自定义主题。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+通过 OpenCode，你可以从几个内置主题中选择，使用适你终端主题的主题，或定义自己的自定义主题。
+
+默认情况下，OpenCode 使用我们自己的 opencode 主题。
+
+## 终端要求
+
+为了使主题以其完整的调色板正确显示，你的终端必须支持真彩色（24 位颜色）。大多数现代终端默认支持这一点，但可能需要启用它：
+
+- 检查支持：运行 `echo $COLORTERM` - 它应该输出 truecolor 或 24bit
+- 启用真彩色：在你的 shell 配置文件中设置环境变量 `COLORTERM=truecolor`
+- 终端兼容性：确保你的终端模拟器支持 24 位颜色（大多数现代终端如 iTerm2、Alacritty、Kitty、Windows Terminal 和 GNOME Terminal 的最新版本都支持）
+
+如果不支持真彩色，主题可能会以降低的颜色准确性显示或回退到最近的 256 色近似。
+
+<AdPlaceholder />
+
+## 内置主题
+
+OpenCode 附带了几个内置主题。
+
+| 名称 | 描述 |
+|------|----------|
+| system | 适你终端的背景颜色 |
+| tokyonight | 基于 Tokyonight 主题 |
+| everforest | 基于 Everforest 主题 |
+| ayu | 基于 Ayu 深色主题 |
+| catppuccin | 基于 Catppuccin 主题 |
+| catppuccin-macchiato | 基于 Catppuccin 主题 |
+| gruvbox | 基于 Gruvbox 主题 |
+| kanagawa | 基于 Kanagawa 主题 |
+| nord | 基于 Nord 主题 |
+| matrix | 黑客风格的绿色主题 |
+| one-dark | 基于 Atom One Dark 主题 |
+
+我们正在不断添加新主题。
+
+## 系统主题
+
+系统主题设计为自动适应终端的配色方案。与使用固定颜色的传统主题不同，系统主题：
+
+- 生成灰度：根据终端的背景颜色创建自定义灰度，确保最佳对比度
+- 使用 ANSI 颜色：使用标准 ANSI 颜色（0-15）进行语法高亮和 UI 元素，这些颜色尊重终端的调色板
+- 保留终端默认：使用 none 表示文本和背景颜色以维护终端的原生外观
+
+系统主题适用于：
+
+- 希望 OpenCode 匹配终端的外观
+- 使用自定义终端配色方案
+- 偏好所有终端应用之间的一致外观
+
+<AdPlaceholder />
+
+## 使用主题
+
+你可以通过使用 /theme 命令调出主题选择来选择主题。或者你可以在配置中指定它。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "tokyonight"
+}
+```
+
+## 自定义主题
+
+OpenCode 支持灵活的基于 JSON 的主题系统，允许用户轻松创建和自定义主题。
+
+### 层次结构
+
+主题从多个目录按以下顺序加载，后面的目录覆盖前面的目录：
+
+- 内置主题 - 这些嵌入在二进制文件中
+- 用户配置目录 - 在 ~/.config/opencode/themes/*.json 或 $XDG_CONFIG_HOME/opencode/themes/*.json 中定义
+- 项目根目录 - 在 `<project-root>/.opencode/themes/*.json` 中定义
+- 当前工作目录 - 在 ./.opencode/themes/*.json 中定义
+
+如果多个目录包含同名的主题，则使用来自较高优先级目录的主题。
+
+### 创建主题
+
+要创建自定义主题，请在某个主题目录中创建一个 JSON 文件。
+
+对于用户范围的的主题：
+
+```bash
+mkdir -p ~/.config/opencode/themes
+vim ~/.config/opencode/themes/my-theme.json
+```
+
+对于项目特定的主题：
+
+```bash
+mkdir -p .opencode/themes
+vim .opencode/themes/my-theme.json
+```
+
+<AdPlaceholder />
+
+## JSON 格式
+
+主题使用灵活的 JSON 格式，支持：
+
+- 十六进制颜色："#ffffff"
+- ANSI 颜色：3（0-255）
+- 颜色引用："primary" 或自定义定义
+- 深色/浅色变体：`{"dark": "#000"，"light": "#fff"}`
+- 无颜色："none" - 使用终端的默认颜色或透明
+
+### 颜色定义
+
+defs 部分是可选的，它允许你在主题中定义可重用的颜色。
+
+### 终端默认
+
+特殊值 "none" 可用于任何颜色以继承终端的默认颜色。这对于创建与终端配色方案无缝融合的主题特别有用：
+
+- `"text": "none"` - 使用终端的默认前景颜色
+- `"background": "none"` - 使用终端的默认背景颜色
+
+### 示例
+
+这是一个自定义主题的示例：
+
+```json
+{
+  "$schema": "https://opencode.ai/theme.json",
+  "defs": {
+    "nord0": "#2E3440",
+    "nord1": "#3B4252",
+    "nord2": "#434C5E",
+    "nord3": "#4C566A",
+    "nord4": "#D8DEE9",
+    "nord5": "#E5E9F0",
+    "nord6": "#ECEFF4",
+    "nord7": "#8FBCBB",
+    "nord8": "#88C0D0",
+    "nord9": "#81A1C1",
+    "nord10": "#5E81AC",
+    "nord11": "#BF616A",
+    "nord12": "#D08770",
+    "nord13": "#EBCB8B",
+    "nord14": "#A3BE8C",
+    "nord15": "#B48EAD"
+  },
+  "theme": {
+    "primary": {
+      "dark": "nord8",
+      "light": "nord10"
+    },
+    "secondary": {
+      "dark": "nord9",
+      "light": "nord9"
+    },
+    "accent": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "error": {
+      "dark": "nord11",
+      "light": "nord11"
+    },
+    "warning": {
+      "dark": "nord12",
+      "light": "nord12"
+    },
+    "success": {
+      "dark": "nord14",
+      "light": "nord14"
+    },
+    "info": {
+      "dark": "nord8",
+      "light": "nord10"
+    },
+    "text": {
+      "dark": "nord4",
+      "light": "nord0"
+    },
+    "textMuted": {
+      "dark": "nord3",
+      "light": "nord1"
+    },
+    "background": {
+      "dark": "nord0",
+      "light": "nord6"
+    },
+    "backgroundPanel": {
+      "dark": "nord1",
+      "light": "nord5"
+    },
+    "backgroundElement": {
+      "dark": "nord1",
+      "light": "nord4"
+    },
+    "border": {
+      "dark": "nord2",
+      "light": "nord3"
+    },
+    "borderActive": {
+      "dark": "nord3",
+      "light": "nord2"
+    },
+    "borderSubtle": {
+      "dark": "nord2",
+      "light": "nord3"
+    },
+    "diffAdded": {
+      "dark": "nord14",
+      "light": "nord14"
+    },
+    "diffRemoved": {
+      "dark": "nord11",
+      "light": "nord11"
+    },
+    "diffContext": {
+      "dark": "nord3",
+      "light": "nord3"
+    },
+    "diffHunkHeader": {
+      "dark": "nord3",
+      "light": "nord3"
+    },
+    "diffHighlightAdded": {
+      "dark": "nord14",
+      "light": "nord14"
+    },
+    "diffHighlightRemoved": {
+      "dark": "nord11",
+      "light": "nord11"
+    },
+    "diffAddedBg": {
+      "dark": "#3B4252",
+      "light": "#E5E9F0"
+    },
+    "diffRemovedBg": {
+      "dark": "#3B4252",
+      "light": "#E5E9F0"
+    },
+    "diffContextBg": {
+      "dark": "nord1",
+      "light": "nord5"
+    },
+    "diffLineNumber": {
+      "dark": "nord2",
+      "light": "nord4"
+    },
+    "diffAddedLineNumberBg": {
+      "dark": "#3B4252",
+      "light": "#E5E9F0"
+    },
+    "diffRemovedLineNumberBg": {
+      "dark": "#3B4252",
+      "light": "#E5E9F0"
+    },
+    "markdownText": {
+      "dark": "nord4",
+      "light": "nord0"
+    },
+    "markdownHeading": {
+      "dark": "nord8",
+      "light": "nord10"
+    },
+    "markdownLink": {
+      "dark": "nord9",
+      "light": "nord9"
+    },
+    "markdownLinkText": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "markdownCode": {
+      "dark": "nord14",
+      "light": "nord14"
+    },
+    "markdownBlockQuote": {
+      "dark": "nord3",
+      "light": "nord3"
+    },
+    "markdownEmph": {
+      "dark": "nord12",
+      "light": "nord12"
+    },
+    "markdownStrong": {
+      "dark": "nord13",
+      "light": "nord13"
+    },
+    "markdownHorizontalRule": {
+      "dark": "nord3",
+      "light": "nord3"
+    },
+    "markdownListItem": {
+      "dark": "nord8",
+      "light": "nord10"
+    },
+    "markdownListEnumeration": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "markdownImage": {
+      "dark": "nord9",
+      "light": "nord9"
+    },
+    "markdownImageText": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "markdownCodeBlock": {
+      "dark": "nord4",
+      "light": "nord0"
+    },
+    "syntaxComment": {
+      "dark": "nord3",
+      "light": "nord3"
+    },
+    "syntaxKeyword": {
+      "dark": "nord9",
+      "light": "nord9"
+    },
+    "syntaxFunction": {
+      "dark": "nord8",
+      "light": "nord8"
+    },
+    "syntaxVariable": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "syntaxString": {
+      "dark": "nord14",
+      "light": "nord14"
+    },
+    "syntaxNumber": {
+      "dark": "nord15",
+      "light": "nord15"
+    },
+    "syntaxType": {
+      "dark": "nord7",
+      "light": "nord7"
+    },
+    "syntaxOperator": {
+      "dark": "nord9",
+      "light": "nord9"
+    },
+    "syntaxPunctuation": {
+      "dark": "nord4",
+      "light": "nord0"
+    }
+  }
+}
+```
+
+<AdPlaceholder />

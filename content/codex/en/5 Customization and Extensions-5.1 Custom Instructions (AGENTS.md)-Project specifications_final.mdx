@@ -1,0 +1,195 @@
+---
+title: "Project specifications"
+description: "Learn how to use the AGENTS.md file to define project-specific custom directives and work specifications for your Codex"
+tool: "codex"
+slug: "agents-md"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Custom directives and AGENTS.md
+
+Codex reads the `AGENTS.md` file before performing any work. By layering global guidance and project-specific overrides, you can establish consistent expectations for every task, no matter which repository you open.
+
+<AdPlaceholder />
+
+## Codex How to Discover Guidance
+
+Codex builds the command chain on startup (once per run; in TUI this usually means once per launched session). Discovery follows this priority order:
+
+1. **Global Scope:** In your Codex home directory (defaults to `~/.codex` unless you set `CODEX_HOME`), Codex reads `AGENTS.override.md` if it exists. Otherwise, the Codex reads `AGENTS.md`. Codex only uses the first non-empty file at this level.
+2. **Project scope:** Starting from the project root directory (usually the Git root directory), the Codex traverses down to your current working directory. If Codex cannot find the project root directory, it only checks the current directory. In each directory on the path, it checks for `AGENTS.override.md`, then `AGENTS.md`, then any alternative names in `project_doc_fallback_filenames`. Codex contains at most one file per directory.
+3. **Merge order:** Codex concatenates files from the root downward, concatenating them together with blank lines. Files closer to your current directory overwrite earlier instructions because they appear after the combined prompt word.Codex skips empty files and stops adding files when the combined size reaches the limit defined by `project_doc_max_bytes` (default is 32 KiB). See [项目指令发现](https://developers.openai.com/codex/config-advanced#project-instructions-discovery) for details on these knobs. Increase the limit when it's reached or split the directives into nested directories.
+
+## Create global guidance
+
+Create persistent defaults in your Codex home directory so that each repository inherits your work agreement.
+
+1. Make sure the directory exists:
+```bas
+    mkdir -p ~/.codex
+    
+```2
+. Create `~/.codex/AGENTS.md` with reusable preferences:
+```m
+d
+    # ~/.codex/AGENTS.md
+
+    ## 工作协议
+
+    - 修改 JavaScript 文件后始终运行 `npm test`。
+    - 安装依赖项时优先使用 `pnpm`。
+    - 在添加新的生产依赖项之前要求确认。
+    
+```3
+. Run Codex from anywhere to confirm it loads the file:
+```bas
+    codex --ask-for-approval never "Summarize the current instructions."
+    
+```Expected
+ result: Codex references projects in `~/.codex/AGENTS.md` before proposing work.
+
+Use `~/.codex/AGENTS.override.md` when you need a temporary global override without deleting the underlying file. Remove override to restore shared guidance.
+
+## Hierarchical project directives
+
+Repository-level files let Codex know the project specifications while still inheriting your global defaults.
+
+1. Add `AGENTS.md` in your repository root with basic settings:
+```m
+d
+    # AGENTS.md
+
+    ## 存储库期望
+
+    - 打开拉取请求之前运行 `npm run lint`。
+    - 更改行为时在 `docs/` 中记录公共实用程序。
+    
+```2
+. Add overrides in nested directories when specific teams require different rules. For example, create `AGENTS.override.md` in `services/payments/`:
+```m
+d
+    # services/payments/AGENTS.override.md
+
+    ## 支付服务规则
+
+    - 使用 `make test-payments` 而不是 `npm test`。
+    - 在不通知安全频道的情况下永远不要轮换 API 密钥。
+    
+```3
+. Start Codex from the payment directory:
+```bas
+    codex --cd services/payments --ask-for-approval never "List the instruction sources you loaded."
+    
+```Expected
+ results: Codex reports global files first, then repository root `AGENTS.md`, and finally pay coverage.
+
+Codex stops searching when it reaches your current directory, thus placing overrides as close to the specialization job as possible.
+
+<FileTree>
+  tree={[
+    {
+      name: "AGENTS.md",
+      comment: "Repository Expectations",
+      highlight: true,
+    },
+    {
+      name: "services/",
+      open: true,
+      children: [
+        {
+          name: "payments/",
+          open: true,
+          children: [
+            {
+              name: "AGENTS.md",
+              comment: "Ignored because override exists",
+            },
+            {
+              name: "AGENTS.override.md",
+              comment: "Payment Service Rules",
+              highlight: true,
+            },
+            { name: "README.md" },
+          ],
+        },
+        {
+          name: "search/",
+          children: [{ name: "AGENTS.md" }, { name: "…", placeholder: true }],
+        },
+      ],
+    },
+  ]}
+/>## Custom alternative file name
+
+If your repository already uses a different filename (e.g. `TEAM_GUIDE.md`), add it to the fallback list so that Codex will treat it as a directive file.
+
+1. Edit your Codex configuration:
+```tom
+    # ~/.codex/config.toml
+    project_doc_fallback_filenames = ["TEAM_GUIDE.md", ".agents.md"]
+    project_doc_max_bytes = 65536
+    
+```2
+. Restart Codex or run a new command to load the updated configuration.
+
+Codex now checks each directory in this order: `AGENTS.override.md`, `AGENTS.md`, `TEAM_GUIDE.md`, `.agents.md`. File names not in this list are ignored for directive discovery. A larger byte limit allows more combination guidance before truncation.
+
+With the fallback list in place, Codex treats fallback files as instructions:
+
+<FileTree>
+  tree={[
+    {
+      name: "TEAM_GUIDE.md",
+      comment: "Detect via standby list",
+      highlight: true,
+    },
+    {
+      name: ".agents.md",
+      comment: "Alternate files in the root directory",
+    },
+    {
+      name: "support/",
+      open: true,
+      children: [
+        {
+          name: "AGENTS.override.md",
+          comment: "Override alternate guidance",
+          highlight: true,
+        },
+        {
+          name: "playbooks/",
+          children: [{ name: "…", placeholder: true }],
+        },
+      ],
+    },
+  ]}
+/>
+
+Set the `CODEX_HOME` environment variable when you want a different profile, e.g. a project-specific automation user:
+```bas
+CODEX_HOME=$(pwd)/.codex codex exec "List active instruction sources"
+```Expected
+ results: The output lists files relative to the custom `.codex` directory.
+
+## Verify your settings
+
+- Run `codex --ask-for-approval never "Summarize the current instructions."` from the repository root. Codex should echo guidance from global and project files in order of priority.
+- Use `codex --cd subdir --ask-for-approval never "Show which instruction files are active."` to confirm that nested overrides replace broader rules.
+- Check the `~/.codex/log/codex-tui.log` (or the most recent `session-*.jsonl` file if session logging is enabled) if you need to audit which directive files are loaded by the Codex.
+- If the instructions look stale, restart the Codex in the target directory. Codex rebuilds the command chain every time it is run (and at the start of every TUI session), so there are no caches to clear manually.
+
+## Troubleshooting found problems- **Nothing loaded:** Confirm that you are in the expected repository and `codex status` reports your expected workspace root. Make sure the directive file contains content; Codex ignores empty files.
+- **Guidelines for errors:** Look higher in the directory tree `AGENTS.override.md` or under your Codex home directory. Rename or remove the overlay to fall back to a regular file.
+- **Codex ignores alternative names:** Verify that the names you listed in `project_doc_fallback_filenames` are not misspelled, then restart Codex for the updated configuration to take effect.
+- **Guidance Truncated:** Increase `project_doc_max_bytes` or split large files into nested directories to keep critical guidance intact.
+- **Profile obfuscation:** Run `echo $CODEX_HOME` before starting Codex. Non-default values ​​point to a different home directory than the one you edited.
+
+## Next step
+
+- Visit the official [AGENTS.md](https://agents.md) website for more information.
+- Check out [提示词 Codex](https://developers.openai.com/codex/prompting) for conversational patterns that work well with persistent coaching.
+
+<AdPlaceholder />

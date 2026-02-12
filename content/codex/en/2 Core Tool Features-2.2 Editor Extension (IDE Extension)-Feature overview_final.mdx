@@ -1,0 +1,146 @@
+---
+title: "Feature overview"
+description: "Understand the core functionality of the Codex IDE extension, including installation, setup, and integration with VS Code, Cursor, Windsurf"
+tool: "codex"
+slug: "ide-extension"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE extension
+
+Codex is OpenAI’s coding agent that can read, edit, and run code. It helps you build faster, fix bugs, and understand unfamiliar code. The Codex VS Code extension lets you use Codex side-by-side in your IDE or delegate tasks to the Codex Cloud.
+
+Codex is included in ChatGPT Plus, Pro, Business, Edu and Enterprise plans. Get to know [包含的内容](https://developers.openai.com/codex/pricing).
+
+*Image Description: Codex IDE extension overview video shows the interface layout of using Codex for code editing and dialogue in VS Code. *
+
+<AdPlaceholder />
+
+## Extended settings
+
+Codex IDE extensions are available for VS Code branches such as Cursor and Windsurf.
+
+You can get the Codex extension from [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt) or download it for your IDE:- [下载 Visual Studio Code](vscode:extension/openai.chatgpt)
+- [下载 Cursor](cursor:extension/openai.chatgpt)
+- [下载 Windsurf](windsurf:extension/openai.chatgpt)
+- [下载 Visual Studio Code Insiders](https://marketplace.visualstudio.com/items?itemName=openai.chatgpt)
+- [下载 JetBrains IDE](#jetbrains-ide-integration)
+
+The Codex VS Code extension is available on macOS and Linux. Windows support is experimental. For the best Windows experience, use Codex in a WSL workspace and follow our [Windows 设置指南](/codex/windows).
+
+Once installed, you'll see the extension alongside other extensions in the left sidebar. If using VS Code, restart the editor if you don't see the Codex immediately.
+
+If using a Cursor, the activity bar displays horizontally by default. Collapsed items may hide the Codex so you can pin it and rearrange the order of the extensions.
+
+*Image Description: Illustration of the location of the VS Code sidebar showing the Codex extension icon and the list of installed extensions. *
+
+## JetBrains IDE Integration
+
+If you want to use Codex with a JetBrains IDE like Rider, IntelliJ, PyCharm, or WebStorm, install the JetBrains IDE integration. It supports login using ChatGPT, API keys or JetBrains AI subscription.
+<Callout type="tip">
+JetBrains IDE integration docs
+</Callout>
+
+### Move the Codex to the right sidebar
+
+In VS Code, you can drag the Codex icon to the right side of the editor to move it to the right sidebar.
+
+In some IDEs (such as Cursor), you may need to temporarily change the activity bar orientation first:
+
+1. Open editor settings and search for `activity bar` (in workspace settings).
+2. Change the direction to `vertical`.
+3. Restart the editor.
+
+![codex-workbench-setting](https://cdn.openai.com/devhub/docs/codex-workbench-setting.webp)
+
+Now drag the Codex icon to the right sidebar (for example, next to the Cursor chat). Codex appears as another tab in the sidebar.
+
+After moving, reset the activity bar orientation to `horizontal` to restore default behavior.
+
+## Login
+
+After installing the extension, it will prompt you to log in using your ChatGPT account or API key. Your ChatGPT plan includes usage credits, so you don't need additional setup to use Codex. Learn more at [定价页面](https://developers.openai.com/codex/pricing).
+
+## Update extension
+
+The extension updates automatically, but you can also open the extension page in the editor to check for updates.
+
+## Set keyboard shortcuts
+
+Codex contains commands that you can bind as keyboard shortcuts in the IDE settings (for example, to toggle the Codex chat or add a project to the Codex context).To see all available commands and bind them as keyboard shortcuts, select the settings icon in Codex chat and then select **Keyboard shortcuts**.
+
+You can also refer to the [Codex IDE 扩展命令](https://developers.openai.com/codex/ide/commands) page.
+
+See [Codex IDE 扩展斜杠命令](https://developers.openai.com/codex/ide/slash-commands) for a list of supported slash commands.
+
+---
+
+## Using Codex IDE extension
+
+### Use editor context for prompts
+
+Use Codex in the editor to chat, edit, and preview changes. When Codex gets context from open files and selected code, you can write shorter prompt words and get faster, more relevant results.
+
+You can reference any file in the editor in the prompt by marking it like this:
+```
+Use @example.tsx as a reference to add a new page named "Resources" to the app that contains a list of resources defined in @resources.ts
+```
+### Switch model
+
+You can switch models using the selector below the input box.
+
+*Image Description: The model selector in the Codex IDE extension, showing a drop-down menu containing the available model options. *
+
+### Adjust inference work
+
+You can adjust the inference efforts to control how long Codex thinks before responding. Higher effort can help with complex tasks, but response takes longer. Higher efforts also use more tokens and may drain your rate limit faster (especially when using GPT-5-Codex).
+
+Use the same model selector shown above and select `low`, `medium`, or `high` for each model. Start with `medium` and only switch to `high` when more depth is needed.
+
+### Select approval mode
+
+By default, Codex runs in `Agent` mode. In this mode, Codex can automatically read files, edit and run commands in the working directory. Codex still needs your approval before working outside the working directory or accessing the network.
+
+Use the selector below the input box to switch to `Chat` when you just want to chat, or if you want to plan before making changes.
+
+*Image Description: Approval mode selector in the Codex IDE extension, showing three options: Chat, Agent, and Agent (Full Access). *
+
+Use `Agent (Full Access)` if you need Codex to read files, edit them, and run commands with network access without approval. Please use caution before doing this.
+
+### Delegate to the cloud
+
+You can offload larger jobs to Codex in the cloud, then track progress and review results without leaving the IDE.
+
+1. Set up [云环境](https://chatgpt.com/codex/settings/environments) for Codex.
+2. Select your environment and choose **Run in the cloud**.You can have the Codex run from `main` (useful for starting new ideas), or from your local changes (useful for completing tasks).
+
+*Image Description: The interface for launching cloud tasks from the IDE, showing environment selection and running options. *
+
+When you launch a cloud task from a local conversation, Codex remembers the conversation context so that it can continue where it left off.
+
+### Follow-up operations of cloud tasks
+
+Codex extension makes it easy to preview changes in the cloud. You can ask for subsequent runs in the cloud, but typically you'll want to apply changes locally for testing and completion. Codex also retains context to save you time when you continue the conversation locally.
+
+*Image Description: The interface for loading cloud tasks into the IDE, showing preview and application options. *
+
+You can also view cloud tasks in [Codex 云界面](https://chatgpt.com/codex).
+
+### Web search
+
+Codex comes with an official web search tool. For local tasks in the Codex IDE extension, Codex enables web search by default and serves results from the web search cache. The cache is an index of web results maintained by OpenAI, so cache mode returns pre-indexed results rather than fetching live pages. This reduces prompt injection exposure from arbitrary live content, but you should still treat web results as untrusted. If you configure your sandbox as [完全访问](https://developers.openai.com/codex/security), web searches default to live results. See [基本配置](https://developers.openai.com/codex/config-basic) to disable web search or switch to real-time results for the latest data.
+
+Whenever Codex looks for something, you'll see `web_search` items in the record or `codex exec --json` output.
+
+### Drag and drop the image into the prompt word
+
+You can drag and drop images into the prompt word editor to include them as context.Hold down Shift while dragging and dropping the image. VS Code prevents extensions from accepting drag and drop.
+
+### See also
+
+- [Codex IDE 扩展设置](https://developers.openai.com/codex/ide/settings)
+
+<AdPlaceholder />

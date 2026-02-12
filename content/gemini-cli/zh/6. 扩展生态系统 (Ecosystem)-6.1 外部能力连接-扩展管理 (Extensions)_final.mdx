@@ -1,0 +1,60 @@
+---
+title: "扩展管理"
+description: "了解如何安装、管理和创建 Gemini CLI 扩展，并了解扩展格式、配置和最佳实践。"
+tool: "gemini-cli"
+slug: "extensions-management"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Gemini CLI 扩展
+
+Gemini CLI扩展包提示、MCP服务器、自定义命令、挂钩、
+将子代理和代理技能转换为熟悉且用户友好的格式。与
+扩展，您可以扩展 Gemini CLI 的功能并共享这些功能
+与他人的能力。它们的设计易于安装并且
+可分享。
+
+要查看扩展示例，您可以浏览图库
+[Gemini CLI extensions](https://geminicli.com/extensions/browse/)。
+
+<AdPlaceholder />
+
+## 管理扩展
+
+您可以使用交互式验证已安装的扩展及其状态
+命令：
+```
+bas
+h
+/extensions list
+```
+或在非交互模式下：
+```
+bas
+h
+gemini extensions list
+```
+## 安装
+
+要安装真正的扩展，您可以使用 `extensions install` 命令和
+非交互模式下的 GitHub 存储库 URL。例如：
+```
+bas
+h
+gemini extensions install https://github.com/gemini-cli-extensions/workspace
+```
+## 后续步骤
+
+- [Writing extensions](/docs/extensions/writing-extensions)：了解如何创建您的第一个
+  扩展。
+- [Extensions reference](/docs/extensions/reference)：深入理解扩展格式，
+  命令和配置。
+- [Best practices](/docs/extensions/best-practices)：学习构建伟大的策略
+  扩展。
+- [Extensions releasing](/docs/extensions/releasing)：了解如何与以下人员共享您的扩展
+  世界。
+
+<AdPlaceholder />

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Coding Hub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+            },
+            colors: {
+              border: "hsl(var(--border))",
+              input: "hsl(var(--input))",
+              ring: "hsl(var(--ring))",
+              background: "hsl(var(--background))",
+              foreground: "hsl(var(--foreground))",
+              primary: {
+                DEFAULT: "hsl(var(--primary))",
+                foreground: "hsl(var(--primary-foreground))",
+              },
+              secondary: {
+                DEFAULT: "hsl(var(--secondary))",
+                foreground: "hsl(var(--secondary-foreground))",
+              },
+              destructive: {
+                DEFAULT: "hsl(var(--destructive))",
+                foreground: "hsl(var(--destructive-foreground))",
+              },
+              muted: {
+                DEFAULT: "hsl(var(--muted))",
+                foreground: "hsl(var(--muted-foreground))",
+              },
+              accent: {
+                DEFAULT: "hsl(var(--accent))",
+                foreground: "hsl(var(--accent-foreground))",
+              },
+              popover: {
+                DEFAULT: "hsl(var(--popover))",
+                foreground: "hsl(var(--popover-foreground))",
+              },
+              card: {
+                DEFAULT: "hsl(var(--card))",
+                foreground: "hsl(var(--card-foreground))",
+              },
+            },
+          },
+        },
+      }
+    </script>
+    <style>
+      :root {
+        --background: 150 32% 97%;
+        --foreground: 221 34% 13%;
+        --card: 154 40% 99%;
+        --card-foreground: 221 34% 13%;
+        --popover: 154 40% 99%;
+        --popover-foreground: 221 34% 13%;
+        --primary: 272 72% 44%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 152 43% 92%;
+        --secondary-foreground: 222 35% 16%;
+        --muted: 165 28% 93%;
+        --muted-foreground: 221 16% 38%;
+        --accent: 181 45% 90%;
+        --accent-foreground: 224 38% 16%;
+        --destructive: 0 72% 50%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 165 24% 82%;
+        --input: 165 24% 82%;
+        --ring: 272 72% 44%;
+        --glow-a: 272 88% 58%;
+        --glow-b: 148 78% 44%;
+        --radius: 0.5rem;
+      }
+      .dark {
+        --background: 228 36% 7%;
+        --foreground: 156 28% 92%;
+        --card: 228 30% 10%;
+        --card-foreground: 156 28% 92%;
+        --popover: 228 30% 10%;
+        --popover-foreground: 156 28% 92%;
+        --primary: 151 86% 60%;
+        --primary-foreground: 226 39% 12%;
+        --secondary: 268 34% 18%;
+        --secondary-foreground: 156 28% 92%;
+        --muted: 228 23% 14%;
+        --muted-foreground: 221 14% 67%;
+        --accent: 197 62% 16%;
+        --accent-foreground: 173 65% 84%;
+        --destructive: 0 70% 44%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 266 24% 24%;
+        --input: 266 24% 24%;
+        --ring: 151 86% 60%;
+        --glow-a: 278 95% 67%;
+        --glow-b: 152 94% 57%;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-image:
+          radial-gradient(circle at 10% 8%, hsl(var(--glow-a) / 0.14), transparent 40%),
+          radial-gradient(circle at 92% 2%, hsl(var(--glow-b) / 0.12), transparent 36%);
+        background-attachment: fixed;
+      }
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent; 
+      }
+      ::-webkit-scrollbar-thumb {
+        background: hsl(var(--muted-foreground) / 0.3); 
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: hsl(var(--muted-foreground) / 0.5); 
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "clsx": "https://esm.sh/clsx@^2.1.1",
+    "tailwind-merge": "https://esm.sh/tailwind-merge@^3.4.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background text-foreground antialiased selection:bg-emerald-200 selection:text-emerald-950 dark:selection:bg-fuchsia-900 dark:selection:text-emerald-100">
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>

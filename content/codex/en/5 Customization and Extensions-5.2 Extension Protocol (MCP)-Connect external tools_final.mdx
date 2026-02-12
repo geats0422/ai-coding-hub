@@ -1,0 +1,128 @@
+---
+title: "Connect external tools"
+description: "Learn how to extend the capabilities of Codex by connecting to external tools and services using the Model Context Protocol (MCP)"
+tool: "codex"
+slug: "mcp"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Model context protocol
+
+The Model Context Protocol (MCP) connects models to tools and contexts. Use it to provide Codex with access to third-party documentation, or let it interact with a browser or development tools like Figma.
+
+Codex supports MCP servers in both CLI and IDE extensions.
+
+<AdPlaceholder />
+
+## Supported MCP features
+
+- **STDIO Server**: Server running as a local process (started by command).
+  - environment variables
+- **Streamable HTTP Server**: The server for the address you visited.
+  - Bearer token authentication
+  - OAuth authentication (running `codex mcp login <server-name>` for an OAuth-enabled server)
+
+## Connect Codex to MCP server
+
+Codex stores MCP configuration in `config.toml`, along with other Codex configuration settings. The default is `~/.codex/config.toml`, but you can also scope the MCP server to projects with `.codex/config.toml` (trusted projects only).
+
+CLI and IDE extensions share this configuration. Once the MCP server is configured, you can switch between the two Codex clients without resetting it.
+
+To configure the MCP server, select an option:
+
+1. **Using the CLI:** Run `codex mcp` to add and manage servers.
+2. **Edit `config.toml`:** Directly update `~/.codex/config.toml` (or project scope `.codex/config.toml` in a trusted project).
+
+### Configure using CLI
+
+#### Add MCP server
+```bas
+codex mcp add <server-name> --env VAR1=VALUE1 --env VAR2=VALUE2 -- <stdio server-command>
+```
+For
+ example, to add Context7, a free MCP server for developer documentation, you would run the following command:
+```bas
+codex mcp add context7 -- npx -y @upstash/context7-mcp
+```
+#### Other CLI commands
+
+To view all available MCP commands, you can run `codex mcp --help`.
+
+#### Terminal UI (TUI)
+
+In `codex` TUI, use `/mcp` to view your active MCP servers.
+
+### Use config.toml configuration
+
+For finer control over MCP server options, edit `~/.codex/config.toml` (or project-scoped `.codex/config.toml`). In the IDE extension, select **MCP Settings** > **Open config.toml** from the gear menu.
+
+Configure each MCP server using the `[mcp_servers.<server-name>]` table in the configuration file.
+
+#### STDIO server
+
+- `command` (required): Command to start the server.
+- `args` (optional): Parameters passed to the server.
+- `env` (optional): Environment variables set for the server.
+- `env_vars` (optional): Allowed and forwarded environment variables.
+- `cwd` (optional): The working directory of the startup server.
+
+#### Streamable HTTP Server
+
+- `url` (required): Server address.
+- `bearer_token_env_var` (optional): Environment variable name of the bearer token to be sent in `Authorization`.
+- `http_headers` (optional): Mapping of header names to static values.
+- `env_http_headers` (optional): Mapping of header names to environment variable names (values ​​are pulled from the environment).
+
+#### Other configuration options
+
+- `startup_timeout_sec`（可选）：服务器启动超时（秒）。 Default: `10`.
+- `tool_timeout_sec` (optional): Timeout (in seconds) for the server to run tools. Default: `60`.
+- `enabled` (optional): Set to `false` to disable the server without deleting it.
+- `required` (optional): Set to `true` to cause startup to fail when enabling this server.
+- `enabled_tools` (optional): Tool allowed list.
+- `disabled_tools` (optional): Tool deny list (applied after `enabled_tools`).
+
+If your OAuth provider requires a static callback URI, set the top-level `mcp_oauth_callback_port` in `config.toml`. If not set, the Codex will bind to an ephemeral port.
+
+#### config.toml example
+```tom
+[mcp_servers.context7]
+command = "npx"
+args = ["-y", "@upstash/context7-mcp"]
+
+[mcp_servers.context7.env]
+MY_ENV_VAR = "MY_ENV_VALUE"
+```
+
+```tom
+[mcp_servers.figma]
+url = "https://mcp.figma.com/mcp"
+bearer_token_env_var = "FIGMA_OAUTH_TOKEN"
+http_headers = { "X-Figma-Region" = "us-east-1" }
+```
+
+```tom
+[mcp_servers.chrome_devtools]
+url = "http://localhost:3000/mcp"
+enabled_tools = ["open", "screenshot"]
+disabled_tools = ["screenshot"] # 在 enabled_tools 之后应用
+startup_timeout_sec = 20
+tool_timeout_sec = 45
+enabled = true
+```
+## Useful MCP server examples
+
+The list of MCP servers continues to grow. Here are some common ones:
+
+- [OpenAI Docs MCP](https://developers.openai.com/resources/docs-mcp): Search and read OpenAI developer documentation.
+- [Context7](https://github.com/upstash/context7): Connect to the latest developer documentation.
+- Figma [Local](https://developers.figma.com/docs/figma-mcp-server/local-server-installation/) and [Remote](https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/): Access your Figma designs.
+- [Playwright](https://www.npmjs.com/package/@playwright/mcp): Use Playwright to control and inspect your browser.
+- [Chrome Developer Tools](https://github.com/ChromeDevTools/chrome-devtools-mcp/): Control and inspect Chrome.
+- [Sentry](https://docs.sentry.io/product/sentry-mcp/#codex): Access Sentry log.
+- [GitHub](https://github.com/github/github-mcp-server): Manage GitHub beyond what `git` supports (e.g., pull requests and issues).
+
+<AdPlaceholder />

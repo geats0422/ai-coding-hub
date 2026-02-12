@@ -1,0 +1,116 @@
+---
+title: "常见问题解决"
+description: "了解 Codex 的常见问题和解决方案，包括文件显示、线程管理、工作树问题等故障排除指南"
+tool: "codex"
+slug: "troubleshooting"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 故障排除
+
+## 常见问题
+
+### Codex 未编辑的文件出现在侧边栏中
+
+如果您的项目位于 Git 存储库中，审查面板会自动根据您项目的 Git 状态显示更改，包括 Codex 未做的更改。
+
+在审查窗格中，您可以在暂存的更改和尚未暂存的更改之间切换，并与您的分支进行比较。
+
+如果您只想看到上一轮 Codex 更改，将差异窗格切换到"上一轮更改"视图。
+
+[详细了解如何使用审查窗格](https://developers.openai.com/codex/app/review)。
+
+### 从侧边栏移除项目
+
+要从侧边栏移除项目，将鼠标悬停在项目名称上，单击三个点并选择"删除"。要恢复，使用**添加新项目**按钮或 **Cmd**+**O** 重新添加项目。
+
+### 查找存档的线程
+
+存档的线程可以在[设置](codex://settings)中找到。当您取消存档线程时，它会重新出现在侧边栏的原始位置。
+
+### 侧边栏中只显示一些线程
+
+侧边栏允许根据项目状态过滤线程。如果您缺少线程，请单击**线程**标签旁边的过滤器图标以查看是否应用了任何过滤器。
+
+### 代码不在工作树上运行
+
+工作树创建在不同的目录中，只继承检查到 Git 中的文件。根据您管理项目依赖项和工具的方式，您可能需要使用[本地环境](https://developers.openai.com/codex/app/local-environments)在工作树上运行一些设置脚本。或者，您可以在常规本地项目中检出更改。查看[工作树文档](https://developers.openai.com/codex/app/worktrees)以了解更多。
+
+### 应用没有拾取队友共享的本地环境
+
+本地环境配置必须在项目根目录下的 `.codex` 文件夹中。如果您工作在具有多个项目的单体仓库中，请确保在包含 `.codex` 文件夹的目录中打开项目。
+
+### Codex 要求访问 Apple Music
+
+根据您的任务，Codex 可能需要浏览文件系统。macOS 上的某些目录（包括音乐、下载或桌面）需要用户的额外批准。如果 Codex 需要读取您的主目录，macOS 会提示您批准访问这些文件夹。
+
+### 自动化创建许多工作树
+
+频繁的自动化会随着时间的推移创建许多工作树。存档您不再需要的自动化运行，除非您打算保留它们的工作树。
+
+### 恢复选择错误目标后的提示词
+
+如果您意外地以错误的目标（**Local**、**Worktree** 或 **Cloud**）启动了线程，您可以取消当前运行并通过在编辑器中按向上箭头键恢复之前的提示词。
+
+### 功能在 Codex CLI 中工作但在 Codex 应用中不工作
+
+Codex 应用和 Codex CLI 使用相同的底层 Codex 代理和配置，但它们可能随时依赖不同版本的代理，某些实验性功能可能首先出现在 Codex CLI 中。
+
+要获取系统上 Codex CLI 的版本，运行：
+
+```bash
+codex --version
+```
+
+要获取与 Codex 应用捆绑的 Codex 版本，运行：
+
+```bash
+/Applications/Codex.app/Contents/Resources/codex --version
+```
+
+## 反馈和日志
+
+在消息编辑器中键入 **/** 以向团队提供反馈。如果您在现有对话中触发反馈，您可以选择共享现有会话以及您的反馈。提交反馈后，您会收到一个会话 ID，可以与团队共享。
+
+要报告问题：
+
+1. 在 Codex GitHub 仓库上查找[现有问题](https://github.com/openai/codex/issues)。
+2. [打开新的 GitHub 问题](https://github.com/openai/codex/issues/new?template=2-bug-report.yml&steps=Uploaded%20thread%3A%20019c0d37-d2b6-74c0-918f-0e64af9b6e14)
+
+更多日志可在以下位置找到：
+
+- 应用日志 (macOS): `~/Library/Logs/com.openai.codex/YYYY/MM/DD`
+- 会话记录: `$CODEX_HOME/sessions` (默认: `~/.codex/sessions`)
+- 存档的会话: `$CODEX_HOME/archived_sessions` (默认: `~/.codex/archived_sessions`)
+
+如果您分享日志，请先查看它们，确认它们不包含敏感信息。
+
+## 卡住状态和恢复模式
+
+如果线程看起来卡住：
+
+1. 检查 Codex 是否正在等待批准。
+2. 打开终端并运行基本命令如 `git status`。
+3. 使用更小、更聚焦的提示词启动新线程。
+
+如果您意外取消了工作树创建并丢失了提示词，在编辑器中按向上箭头键以恢复它。
+
+## 终端问题
+
+**终端看起来卡住**
+
+1. 关闭终端面板。
+2. 使用 **Cmd**+**J** 重新打开它。
+3. 重新运行基本命令如 `pwd` 或 `git status`。
+
+如果命令行为与预期不同，首先在终端中验证当前目录和分支。
+
+如果它继续卡住，请等待您活动的 Codex 线程完成并重启应用。
+
+**字体没有正确呈现**
+
+Codex 对审查面板、集成终端和应用程序内显示的任何其他代码使用相同的字体。您可以在[设置](codex://settings)窗格中配置字体为**代码字体**。
+
+<AdPlaceholder />

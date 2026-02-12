@@ -1,0 +1,165 @@
+---
+title: "Feature overview"
+description: "Learn about the core features of the Codex desktop app, including parallel project management, built-in Git tools, and work-tree support"
+tool: "codex"
+slug: "codex-app"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex application
+
+<AdPlaceholder />
+
+The Codex app is a desktop-focused experience for parallel processing of Codex threads, with built-in work-tree support, automation, and Git functionality.
+
+Codex is included in ChatGPT Plus, Pro, Business, Edu and Enterprise plans. Get to know [包含的内容](https://developers.openai.com/codex/pricing).
+
+*Image Description: Codex application window showing the interface layout of the project sidebar, active threads, and review panel. *
+
+## Getting Started
+
+The Codex app is currently available on macOS (Apple Silicon).
+
+<Callout type="step">
+1. Download and install the Codex app
+
+    The Codex app is currently only available on macOS.
+
+    
+<Callout type="download">
+    Download macOS version
+    </Callout>
+
+    
+<Callout type="note">
+    Sign up for Windows and Linux notifications
+    </Callout>
+
+2. Open Codex and log in
+
+    After downloading and installing the Codex app, open it and log in using your ChatGPT account or OpenAI API key.If you log in using the OpenAI API, some features (such as [云线程](https://developers.openai.com/codex/prompting#threads)) may not be available.
+
+3. Select project
+
+    Select the project folder where you want Codex to work.
+
+    If you've used the Codex app, CLI, or IDE extension before, you'll see past projects you've worked on.
+
+4. Send your first message
+
+    After selecting your project, make sure **Local** is checked to have Codex run on your machine, then send your first message to Codex.
+
+    You can ask Codex any questions about the project or your computer. Here are some examples:
+
+    - "Tell me about this project"
+    - "Build a classic Snake game in this repo."
+    - "Find and fix bugs in my codebase with minimal, high-confidence changes."
+
+    If you need more inspiration, check out [探索部分](https://developers.openai.com/codex/explore).
+</Callout>
+
+---
+
+## Using the Codex app
+
+### Cross-project multitasking
+
+Run tasks across projects using a Codex app window. Add a project for each code base and switch them as needed.
+
+If you've used [Codex CLI](https://developers.openai.com/codex/cli), the project is like starting a session in a specific directory.If you are working in a single repository with two or more applications or packages, split the different projects into separate app projects so that only the files for that project are included.
+
+### Built-in Git tools
+
+Codex apps provide common Git functionality within the app.
+
+The Differences panel displays Git diffs for changes in your local project or work-tree checkout. You can also add inline comments to the Codex and stage or rollback specific chunks or entire files.
+
+You can also submit, push, and create pull requests for local and work-tree tasks directly from the Codex app.
+
+For more advanced Git tasks, use [集成终端](#集成终端).
+
+### Working tree support
+
+When creating a new thread, select **Local** or **Worktree**. **Local** works directly in your project. **Worktree** Create a new [Git 工作树](https://git-scm.com/docs/git-worktree) so changes remain isolated from your regular project.
+
+Use Worktree when you want to try new ideas without touching your current work, or when you want Codex to run independent tasks in parallel in the same project.
+
+Automation runs in a dedicated background work tree of the Git repository, and directly in the working directory in non-version controlled projects.
+
+[详细了解如何在 Codex 应用中使用工作树。](https://developers.openai.com/codex/app/worktrees)
+
+### Integrated terminal
+
+Each thread contains a built-in terminal, scoped to the current project or work tree. Open it using the terminal icon or pressing **Cmd+J**.
+
+Use the terminal to verify changes, run scripts, and perform Git operations without leaving the app.
+
+Common tasks include:- `git status`
+- `git pull --rebase`
+- `pnpm test` or `npm test`
+- `pnpm run lint` or similar project command
+
+If you run tasks regularly, you can define an **action** in [本地环境](https://developers.openai.com/codex/app/local-environments) to add a shortcut button to the top of your Codex application window.
+
+<Callout type="note">
+**Cmd+K** Opens the command palette in the Codex application. It doesn't clear the terminal. To clear the terminal, use **Ctrl+L**.
+</Callout>
+
+### Voice dictation
+
+Use your voice prompts Codex. Hold **Ctrl+M** while the composer is visible and start speaking. Your speech will be transcribed. Edit the transcription's prompt words or send to let Codex start working.
+
+### Synchronize with IDE extensions
+
+If you have [Codex IDE 扩展](https://developers.openai.com/codex/ide) installed in your editor, your Codex app and IDE extension will automatically sync when they are in the same project.
+
+When they are synchronized, you will see an **IDE Context** option in the Codex application editor. When Automatic Context is enabled, the Codex app keeps track of the files you're viewing so you can refer to them indirectly (e.g., "What is this file about?"). You can also see threads running in IDE extensions in your Codex app and vice versa.
+
+If you're not sure whether an app contains context, close it and ask the same question again to compare the results.
+
+### Approvals and Sandbox
+
+Your approval and sandbox settings limit Codex operations.
+
+- Approval determines when Codex pauses for permission before running a command.
+- The sandbox controls which directories and network access the Codex can use.When you see prompts such as "Approve once" or "Approve in this session," you are granting a different scope of execution permissions to the tool. If you're not sure, approve the narrowest option and keep iterating.
+
+By default, Codex will work scoped to the current project. In most cases, this is the correct constraint.
+
+If your task requires working across multiple repositories or directories, prefer opening separate projects or using a work tree rather than requiring Codex to roam outside of the project root.
+
+For more information on how Codex handles sandboxing, check out [安全文档](https://developers.openai.com/codex/security).
+
+### MCP support
+
+Codex applications, CLI and IDE extensions share [模型上下文协议 (MCP)](https://developers.openai.com/codex/mcp) settings. If you have configured MCP servers in one of them, they will automatically be adopted by the other. To configure a new server, open the MCP section in the app settings and enable recommended servers or add a new server to your configuration.
+
+### Web search
+
+Codex comes with an official web search tool. For local tasks in the Codex IDE extension, Codex enables web search by default and serves results from the web search cache. If you configure the sandbox as [完全访问](https://developers.openai.com/codex/security), web searches default to live results. See [基本配置](https://developers.openai.com/codex/config-basic) to disable web search or switch to real-time results for the latest data.
+
+### Image input
+
+You can drag and drop images into the prompt word editor to include them as context. Hold **Shift** while dragging and dropping the image to add the image to the context.You can also ask Codex to view the images on your system. By giving Codex a screenshot of the application you're working on, Codex can verify that it's doing a good job.
+
+### Notification
+
+By default, the Codex app sends notifications when a task is completed or requires approval while the app is in the background.
+
+In the Codex app settings, you can choose to never send notifications, or to always send notifications even when the app is in focus.
+
+### Keep computer awake
+
+Since your task may take a while to complete, you can have the Codex app prevent your computer from sleeping by enabling the "Prevent sleep while running" switch in the app settings.
+
+## See also
+
+- [设置](https://developers.openai.com/codex/app/settings)
+- [自动化](https://developers.openai.com/codex/app/automations)
+- [本地环境](https://developers.openai.com/codex/app/local-environments)
+- [工作树](https://developers.openai.com/codex/app/worktrees)
+
+<AdPlaceholder />

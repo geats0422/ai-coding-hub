@@ -1,0 +1,551 @@
+---
+title: "Claude Code Memory Management Complete Guide: CLAUDE.md and Modular Rules System"
+description: "Learn how to manage memory in Claude Code, including enterprise policies, project memory, user preferences, and modular rules system to improve AI assistant's context understanding."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "claude-md-memory-management"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Memory Management Complete Guide: CLAUDE.md and Modular Rules System
+
+Effective memory management is key to fully unleashing Claude Code's potential. Through carefully designed memory system, you can make Claude remember project conventions, coding standards, and commonly used commands across sessions, significantly improving development efficiency and code quality.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning about memory management, make sure you have the following:
+
+- **Claude Code**: Installed and working Claude Code
+- **Markdown Basics**: Understand basic Markdown syntax
+- **Project Experience**: Experience working on team projects
+- **Editor**: Code editor with Markdown syntax highlighting
+
+## Step 1: Understand Memory Types
+
+### Step 1.1: Four Memory Locations
+
+Claude Code provides four memory locations forming a hierarchy:
+
+| Memory Type | Location | Purpose | Shared Scope |
+|--------------|---------|----------|---------------|
+| **Enterprise Policy** | System-level path | Organization instructions managed by IT | All users |
+| **Project Memory** | `./CLAUDE.md` or `./.claude/CLAUDE.md` | Team-shared instructions | Team members |
+| **Project Rules** | `./.claude/rules/*.md` | Modular topic rules | Team members |
+| **User Memory** | `~/.claude/CLAUDE.md` | Personal preference settings | You only |
+| **Local Memory** | `./CLAUDE.local.md` | Project-specific preferences | You only |
+
+<ProTip>
+Higher priority memory loads first, providing foundation for more specific memory.
+</ProTip>
+
+### Step 1.2: Enterprise Policy Location
+
+**macOS:**
+```
+/Library/Application Support/ClaudeCode/CLAUDE.md
+```
+
+**Linux:**
+```
+/etc/claude-code/CLAUDE.md
+```
+
+**Windows:**
+```
+C:\Program Files\ClaudeCode\CLAUDE.md
+```
+
+<Note>
+Enterprise policies are managed by IT departments, containing company coding standards, security policies, and compliance requirements.
+</Note>
+
+### Step 1.3: Project Memory Location
+
+Project memory can be stored in two locations:
+
+```
+./CLAUDE.md
+# or
+./.claude/CLAUDE.md
+```
+
+<ProTip>
+Both locations work the same, choose the one that fits your project structure.
+</ProTip>
+
+### Step 1.4: Local Memory Location
+
+Local memory is stored at:
+
+```
+./CLAUDE.local.md
+```
+
+<Note>
+This file is automatically added to .gitignore, making it ideal for private project preferences.
+</Note>
+
+## Step 2: Understand Loading Priority
+
+### Step 2.1: Priority Order
+
+Memory loads in the following priority order:
+
+1. **Enterprise Policy** (highest) - Cannot be overridden
+2. **Project Memory** - Team-shared instructions
+3. **Project Rules** - Modular rules
+4. **User Memory** - Personal preferences
+5. **Local Memory** (lowest) - Project-specific preferences
+
+### Step 2.2: Hierarchy Override
+
+When the same setting exists at multiple levels, higher priority settings override lower priority settings:
+
+```
+Enterprise Policy (company coding standards)
+    ↓ overrides
+Project Memory (team coding standards)
+    ↓ overrides
+User Memory (personal preferences)
+```
+
+<ProTip>
+Proper use of priority lets organizational policies and personal preferences coexist harmoniously.
+</ProTip>
+
+## Step 3: Create Project Memory
+
+### Step 3.1: Use /init Command
+
+Use the following command to create CLAUDE.md for your project:
+
+```bash
+/init
+```
+
+### Step 3.2: Manually Create
+
+Create `CLAUDE.md` in the project root:
+
+```markdown
+# Project Name
+
+## Project Overview
+Briefly describe the project's purpose and main functionality.
+
+## Coding Standards
+- Use 2-space indentation
+- All functions must include JSDoc comments
+- Variable naming uses camelCase
+
+## Common Commands
+```bash
+# Install dependencies
+npm install
+
+# Run tests
+npm test
+
+# Code check
+npm run lint
+```
+
+## Git Workflow
+1. Create feature branch from main
+2. Run tests before committing
+3. Create Pull Request for code review
+```
+
+<ProTip>
+Detailed CLAUDE.md can significantly reduce team members' learning curve.
+</ProTip>
+
+### Step 3.3: Recommended Memory Content
+
+**Information that should be included:**
+
+- Project architecture overview
+- Coding style and conventions
+- Common commands and scripts
+- Testing requirements
+- Important design patterns
+- API standards
+- Git workflow
+
+**Information that should NOT be included:**
+
+- Outdated information
+- Generic knowledge unrelated to the project
+- Sensitive credential information
+
+## Step 4: Use Modular Rules
+
+### Step 4.1: Create Rules Directory
+
+For larger projects, use `.claude/rules/` directory to organize rules:
+
+```
+your-project/
+├── .claude/
+│   ├── CLAUDE.md
+│   └── rules/
+│       ├── code-style.md
+│       ├── testing.md
+│       └── security.md
+```
+
+<ProTip>
+Modular rules make memory management for large projects clearer and more maintainable.
+</ProTip>
+
+### Step 4.2: Create Specific Rules Files
+
+**code-style.md:**
+```markdown
+# Code Style Standards
+
+## General Rules
+- Use ESLint for code checking
+- Follow project's existing code style
+
+## TypeScript
+- All functions must have type signatures
+- Use interface over type for object types
+- Disallow any
+
+## React Components
+- Use functional components
+- Use PascalCase for component file names
+- hooks use use prefix
+```
+
+**testing.md:**
+```markdown
+# Testing Standards
+
+## Testing Requirements
+- All new features must have unit tests
+- Test coverage不低于 80%
+- Use Jest as testing framework
+
+## Test Naming
+- Test files use .test.ts or .spec.ts suffix
+- Test descriptions use Chinese or English,保持一致
+```
+
+### Step 4.3: Use Path-Limited Rules
+
+Rules can use `paths` field to limit to specific files:
+
+```markdown
+---
+paths: src/api/**/*.ts
+---
+
+# API Development Rules
+
+- All API endpoints must include input validation
+- Use standard error response format
+- Include OpenAPI documentation comments
+```
+
+**Supported Glob patterns:**
+
+| Pattern | Matches Scope |
+|---------|---------------|
+| `**/*.ts` | All TypeScript files |
+| `src/**/*` | All files in src directory |
+| `*.md` | Markdown files in project root |
+| `src/components/*.tsx` | React components in specific directory |
+
+<ProTip>
+Path limitations let rules be more precise, avoiding unnecessary context interference.
+</ProTip>
+
+### Step 4.4: Multi-Pattern Matching
+
+Combine multiple patterns with curly braces:
+
+```markdown
+---
+paths: src/**/*.{ts,tsx}
+---
+
+# TypeScript/React Rules
+
+- Follow the conventions for both TypeScript and React components
+```
+
+Or use comma separation:
+
+```markdown
+---
+paths: {src,lib}/**/*.ts, tests/**/*.test.ts
+---
+
+# Test-Related Rules
+
+- Apply to both source code and test files
+```
+
+## Step 5: Use Import Feature
+
+### Step 5.1: Import Syntax
+
+CLAUDE.md can use `@path/to/import` syntax to import other files:
+
+```markdown
+See @README for project overview and @package.json for available npm commands.
+
+# Additional Instructions
+- Git workflow @docs/git-instructions.md
+```
+
+### Step 5.2: Import User Files
+
+Importing files from your home directory is a convenient way to provide personal instructions:
+
+```markdown
+# Personal Preferences
+@~/.claude/my-project-instructions.md
+```
+
+<Note>
+Imports are not evaluated within markdown code spans and code blocks to avoid conflicts with code examples.
+</Note>
+
+### Step 5.3: Recursive Imports
+
+Imported files can recursively import other files, up to 5 levels deep.
+
+<ProTip>
+Reasonable use of imports can keep the main file concise while fully utilizing existing documentation.
+</ProTip>
+
+## Step 6: Use /memory Command
+
+### Step 6.1: Open Memory Editor
+
+Use `/memory` command to open memory files in your system editor:
+
+```bash
+/memory
+```
+
+### Step 6.2: View Loaded Memory
+
+Run `/memory` to see which memory files are currently loaded:
+
+```bash
+/memory
+# Shows list of loaded memory
+```
+
+<ProTip>
+Regularly checking loaded memory helps diagnose context issues.
+</ProTip>
+
+## Step 7: Organization-Level Memory Management
+
+### Step 7.1: Set Up Enterprise Policies
+
+1. Create CLAUDE.md in system path
+2. Use configuration management system to distribute (MDM, group policy, Ansible, etc.)
+3. Ensure consistency across all developer machines
+
+### Step 7.2: Enterprise Policy Content
+
+```markdown
+# Company Coding Standards
+
+## Security Requirements
+- No hardcoded API keys
+- All user input must be validated
+- Use HTTPS for network requests
+
+## Code Quality
+- Critical paths must have test coverage
+- No unresolved TODO commits
+- Follow SOLID principles
+
+## Compliance Requirements
+- Sensitive data must be encrypted at rest
+- Comply with data privacy regulations
+```
+
+<ProTip>
+Enterprise policies should be unalterable baselines ensuring consistency across the entire organization.
+</ProTip>
+
+## Step 8: Use Symlinks
+
+### Step 8.1: Share Rules
+
+Use symlinks to share common rules across multiple projects:
+
+```bash
+# Symlink shared rules directory
+ln -s ~/shared-claude-rules .claude/rules/shared
+
+# Symlink individual rule file
+ln -s ~/company-standards/security.md .claude/rules/security.md
+```
+
+### Step 8.2: Considerations
+
+- Symlinks are resolved and their content loads normally
+- Circular symlinks are detected and handled properly
+- Ensure shared paths are accessible to all users
+
+<ProTip>
+Symlinks are a powerful way to reuse rules across projects.
+</ProTip>
+
+## Step 9: User-Level Rules
+
+### Step 9.1: Create User Rules
+
+Create rules in `~/.claude/rules/` that apply to all your projects:
+
+```
+~/.claude/rules/
+├── preferences.md    # Personal coding preferences
+└── workflows.md     # Common workflows
+```
+
+### Loading order:
+1. User-level rules (loaded first)
+2. Project rules
+3. Project memory
+
+<Note>
+Project rules have higher priority than user rules, ensuring team standards take precedence.
+</Note>
+
+## Pro Tips
+
+### Tip 1: Keep Memory Concise
+
+**Good example:**
+```markdown
+# Coding Standards
+- Use 2-space indentation
+- Functions must have JSDoc
+- Variables camelCase
+```
+
+**Bad example:**
+```markdown
+# Coding Standards
+This project's coding standards are important, and we hope everyone can follow.
+First, indentation should use 2 spaces, don't use tabs...
+```
+
+<ProTip>
+Concise, clear rules are easier for Claude to understand and follow.
+</ProTip>
+
+### Tip 2: Use Structured Format
+
+Organize memory in a clear hierarchical structure:
+
+```markdown
+# Project Standards
+
+## Coding Style
+### TypeScript
+- Rule 1
+- Rule 2
+
+### CSS
+- Rule 1
+- Rule 2
+
+## Git Workflow
+- Rule 1
+- Rule 2
+```
+
+### Tip 3: Regularly Review and Update
+
+As the project evolves, update memory:
+- Review memory content quarterly
+- Remove outdated rules
+- Add specifications for new features
+- Ensure alignment with current code practices
+
+### Tip 4: Make Good Use of Local Memory
+
+Use `CLAUDE.local.md` to store:
+- Personal preference test data
+- Sandbox environment configuration
+- Debugging settings not suitable for sharing
+
+```markdown
+# Local Preferences
+
+## Test Data
+- Use test database: localhost:27017/test_local
+- Test user: test@example.com
+
+## Debug Settings
+- Enable verbose logging
+- Use local API mocks
+```
+
+<ProTip>
+Local memory doesn't participate in version control, making it perfect for personal settings.
+</ProTip>
+
+## Common Troubleshooting
+
+### Problem 1: Memory Not Loading
+
+**Solutions:**
+1. Check if file path is correct
+2. Confirm filename spelling (CLAUDE.md not Claude.md)
+3. Run `/memory` to view loaded status
+4. Verify file format is valid Markdown
+
+### Problem 2: Rule Conflicts
+
+**Solutions:**
+1. Understand priority rules
+2. Enterprise policies cannot be overridden
+3. Project rules take precedence over user rules
+4. Use higher priority file to override
+
+### Problem 3: Imports Not Working
+
+**Solutions:**
+1. Check if import path is correct
+2. Confirm imported file exists
+3. Check recursive depth (maximum 5 levels)
+4. Verify imports are not in code blocks (imports don't work inside code blocks)
+
+### Problem 4: Path Rules Not Matching
+
+**Solutions:**
+1. Test Glob pattern with absolute path
+2. Confirm path separators are correct (use `/` for both Unix and Windows)
+3. Test if pattern matching works as expected
+
+## Conclusion
+
+Mastering Claude Code's memory management system is key to improving AI assistant efficiency. By learning from this guide, you have learned:
+
+- ✅ Four memory types and their priorities
+- ✅ Creating and maintaining CLAUDE.md
+- ✅ Using modular rules system
+- ✅ Importing and referencing other files
+- ✅ Organization-level memory management
+- ✅ Symlinks and user rules
+
+<ProTip>
+A well-designed memory system lets Claude better understand your project, reducing repetitive explanations and improving collaboration efficiency.
+</ProTip>
+
+<AdPlaceholder />

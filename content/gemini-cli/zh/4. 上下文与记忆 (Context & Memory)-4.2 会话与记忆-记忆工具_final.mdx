@@ -1,0 +1,61 @@
+---
+title: "记忆工具"
+description: "了解如何使用 save_memory 工具在 Gemini CLI 会话之间保存和调用重要信息。"
+tool: "gemini-cli"
+slug: "memory-tool"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 记忆工具(`save_memory`)
+
+本文档介绍Gemini CLI 的`save_memory` 工具。
+
+## 说明
+
+使用 `save_memory` 在 Gemini CLI 中保存和调用信息
+会议。使用`save_memory`，您可以指示 CLI 记住关键细节
+跨会议，提供个性化和定向帮助。
+
+<AdPlaceholder />
+
+### 参数
+
+`save_memory` 采用一个参数：
+
+- `fact`（字符串，必需）：具体事实或信息
+  记住。这应该是一个以自然语言书写的清晰、独立的声明
+  语言。
+
+## 如何将`save_memory` 与Gemini CLI 一起使用
+
+该工具将提供的`fact`附加到位于以下位置的特殊`Gemini.md`文件：
+用户的主目录 (`~/.Gemini/Gemini.md`)。这个文件可以配置
+有一个不同的名字。添加后，事实将存储在 `## Gemini Added Memories` 部分下。
+该文件在后续会话中作为上下文加载，允许 CLI
+调用已保存的信息。
+
+用法：
+```
+save_memory(fact="Your fact here.")
+```
+### `save_memory` 示例
+
+记住一个用户偏好：
+```
+save_memory(fact="My preferred programming language is Python.")
+```
+存储特定于项目的详细信息：
+```
+save_memory(fact="The project I'm currently working on is called 'gemini-cli'.")
+```
+## 重要提示
+
+- **一般用法：** 该工具应用于简洁、重要的事实。它
+  不适用于存储大量数据或对话历史记录。
+- **内存文件：** 内存文件是纯文本 Markdown 文件，因此您可以
+  如果需要，可以手动查看和编辑它。
+
+<AdPlaceholder />

@@ -1,0 +1,155 @@
+---
+title: ACP 支持
+tool: "opencode"
+slug: acp-support
+description: 在任何兼容 ACP 的编辑器中使用 OpenCode - OpenCode 支持 Agent Client Protocol (ACP)，允许你在兼容的编辑器和 IDE 中直接使用它。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 支持 Agent Client Protocol (ACP)，允许你在兼容的编辑器和 IDE 中直接使用它。
+
+<Callout type="tip">
+有关支持 ACP 的编辑器和工具列表，请查看 ACP 进度报告。
+</Callout>
+
+ACP 是一个开放协议，标准化了代码编辑器和 AI 编码智能体之间的通信。
+
+## 配置 (Configure)
+
+要通过 ACP 使用 OpenCode，请配置你的编辑器以运行 `opencode acp` 命令。
+
+该命令将 OpenCode 作为兼容 ACP 的子进程启动，该子进程通过 stdio 上的 JSON-RPC 与你的编辑器通信。
+
+以下是支持 ACP 的流行编辑器的示例。
+
+### Zed
+
+添加到你的 Zed 配置 (`~/.config/zed/settings.json`):
+
+```json
+{
+  "agent_servers": {
+    "OpenCode": {
+      "command": "opencode",
+      "args": ["acp"]
+    }
+  }
+}
+```
+
+要打开它，请使用命令面板中的 `agent: new thread` 操作。
+
+你也可以通过编辑 `keymap.json` 绑定键盘快捷键：
+
+```json
+[
+  {
+    "bindings": {
+      "cmd-alt-o": [
+        "agent::NewExternalAgentThread",
+        {
+          "agent": {
+            "custom": {
+              "name": "OpenCode",
+              "command": {
+                "command": "opencode",
+                "args": ["acp"]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+]
+```
+
+### JetBrains IDEs
+
+根据文档添加到你的 JetBrains IDE `acp.json`:
+
+```json
+{
+  "agent_servers": {
+    "OpenCode": {
+      "command": "/absolute/path/bin/opencode",
+      "args": ["acp"]
+    }
+  }
+}
+```
+
+要打开它，请在 AI Chat 智能体选择器中使用新的 'OpenCode' 智能体。
+
+### Avante.nvim
+
+添加到你的 Avante.nvim 配置：
+
+```lua
+{
+  acp_providers = {
+    ["opencode"] = {
+      command = "opencode",
+      args = { "acp" }
+    }
+  }
+}
+```
+
+如果你需要传递环境变量：
+
+```lua
+{
+  acp_providers = {
+    ["opencode"] = {
+      command = "opencode",
+      args = { "acp" },
+      env = {
+        OPENCODE_API_KEY = os.getenv("OPENCODE_API_KEY")
+      }
+    }
+  }
+}
+```
+
+### CodeCompanion.nvim
+
+要在 CodeCompanion.nvim 中将 OpenCode 用作 ACP 智能体，请将以下内容添加到你的 Neovim 配置中：
+
+```lua
+require("codecompanion").setup({
+  interactions = {
+    chat = {
+      adapter = {
+        name = "opencode",
+        model = "claude-sonnet-4",
+      },
+    },
+  },
+})
+```
+
+此配置将 CodeCompanion 设置为使用 OpenCode 作为聊天的 ACP 智能体。
+
+如果你需要传递环境变量 (如 `OPENCODE_API_KEY`)，请参阅 CodeCompanion.nvim 文档中的配置适配器：环境变量以获取完整详细信息。
+
+## 支持 (Support)
+
+OpenCode 通过 ACP 的工作方式与在终端中一样。支持所有功能：
+
+<Callout type="note">
+目前不支持某些内置斜杠命令，如 `/undo` 和 `/redo`。
+</Callout>
+
+- 内置工具 (文件操作、终端命令等)
+- 自定义工具和斜杠命令
+- 在你的 OpenCode 配置中配置的 MCP 服务器
+- 来自 `AGENTS.md` 的特定于项目的规则
+- 自定义格式化程序和 linter
+- 智能体和权限系统
+
+<AdPlaceholder />

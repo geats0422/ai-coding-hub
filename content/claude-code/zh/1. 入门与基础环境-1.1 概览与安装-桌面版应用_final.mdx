@@ -1,0 +1,269 @@
+---
+title: "Claude Code 桌面版应用完整指南：本地会话与 Git Worktrees 实战"
+description: "学习如何使用 Claude Code 桌面版进行本地会话管理，包括 Git worktrees、环境配置、.worktreeinclude 文件和远程会话启动功能。"
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "desktop-app"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code 桌面版应用完整指南：本地会话与 Git Worktrees 实战
+
+Claude Code 桌面应用为在本地机器上运行多个 Claude Code 会话提供了原生界面，并与网页版 Claude Code 无缝集成。本指南将帮助您掌握桌面版的核心功能，包括并行会话、Git worktrees 和环境自定义。
+
+<AdPlaceholder />
+
+## 前置条件
+
+在开始使用 Claude Code 桌面版之前，请确保您已准备好：
+
+- **操作系统**: macOS（Intel 和 Apple Silicon 通用版本）或 Windows（x64）
+- **桌面应用**: 已安装 Claude 桌面应用
+- **Claude Code 账户**: 已登录
+
+<Note>
+Windows ARM64 不支持本地会话。
+</Note>
+
+## 步骤 1：启动 Claude 桌面应用
+
+打开 Claude 桌面应用，您将看到一个选项菜单，用于创建和管理会话。
+
+<ProTip>
+首次启动时，应用可能会提示您登录 Claude Code 账户。
+</ProTip>
+
+## 步骤 2：创建本地会话
+
+### 步骤 2.1：打开新会话选项卡
+
+点击"New Session"按钮开始创建新的本地会话。
+
+### 步骤 2.2：选择项目
+
+选择您要工作的项目目录。桌面应用将导航到该目录。
+
+### 步骤 2.3：本地会话特点
+
+本地会话在 Git worktree 中运行，这意味着：
+- **独立工作目录**: 每个会话有其自己的文件系统副本
+- **无冲突**: 多个会话可以同时修改同一个项目而不会相互影响
+
+### 步骤 2.4：会话命名
+
+为会话指定一个描述性名称，便于识别。
+
+## 步骤 3：理解 Git Worktrees
+
+Git worktrees 允许 Claude Code 桌面版在同一存储库中并行运行多个会话。
+
+### 步骤 3.1：默认位置
+
+默认情况下，worktrees 存储在 `~/.claude-worktrees` 目录。
+
+### 步骤 3.2：查看现有 Worktrees
+
+桌面应用会显示当前所有 worktrees 及其状态。
+
+## 步骤 4：配置 .worktreeinclude 文件
+
+### 步骤 4.1：什么是 .worktreeinclude 文件
+
+`.worktreeinclude` 文件指定哪些被 Git 忽略的文件应该在 worktree 创建时自动复制到新工作目录中。
+
+<ProTip>
+这对于 `.env`、`.env.local` 等配置文件特别有用。
+</ProTip>
+
+### 步骤 4.2：创建 .worktreeinclude 文件
+
+在项目根目录创建 `.worktreeinclude` 文件，添加需要复制的文件模式：
+
+```markdown
+.env
+.env.local
+.env.*
+**/.claude/settings.local.json
+```
+
+### 步骤 4.3：自动复制行为
+
+当创建新的 worktree 时，Claude Code 会：
+- 读取项目根目录的 `.worktreeinclude`
+- 将匹配的文件复制到新 worktree
+- 确保 worktree 有完整的开发环境
+
+<ProTip>
+这确保每个本地会话都有所需的配置文件，无需手动复制。
+</ProTip>
+
+## 步骤 4.4：文件匹配规则
+
+`.worktreeinclude` 使用 Gitignore 风格的文件模式：
+- `*` 匹配任意字符
+- `**/*.local` 匹配多级目录
+- 支持路径如 `config/production.env`
+
+## 步骤 5：环境变量配置
+
+### 步骤 5.1：桌面应用的环境变量
+
+桌面应用会自动从您的 shell 配置中提取 `$PATH` 环境变量。
+
+<ProTip>
+这意味着本地会话可以访问 `yarn`、`npm`、`node` 等命令，无需额外配置。
+</ProTip>
+
+### 步骤 5.2：项目特定变量
+
+为特定项目自定义环境变量：
+1. 在桌面应用中选择"本地"环境
+2. 点击设置按钮
+3. 添加环境变量键值对
+
+<Note>
+这些变量仅应用于当前会话和项目。
+</Note>
+
+## 步骤 6：启动远程会话
+
+### 步骤 6.1：切换到远程环境
+
+在创建新会话时，选择"远程"环境而非"本地"环境。
+
+### 步骤 6.2：远程会话特点
+
+远程会话在 Anthropic 的安全云基础设施上运行，提供：
+- 更高的计算资源
+- 云端执行
+- 无需本地安装
+
+<ProTip>
+远程会话适用于需要大量计算的任务或无法在本地运行的情况。
+</ProTip>
+
+## 常见用例场景
+
+### 用例 1：并行开发
+
+在同一个项目中同时运行多个本地会话，每个负责不同的功能开发。
+
+<ProTip>
+每个 worktree 都是项目状态的完全独立副本，可以安全地并行工作。
+</ProTip>
+
+### 用例 2：隔离测试
+
+使用本地会话测试新功能，而不会影响主项目。
+
+### 用例 3：配置文件管理
+
+使用 `.worktreeinclude` 确保每个开发环境都有正确的配置。
+
+<ProTip>
+集中管理 `.worktreeinclude` 文件，所有项目环境将自动保持同步。
+</ProTip>
+
+## 步骤 7：会话管理
+
+### 步骤 7.1：查看所有会话
+
+桌面应用的会话选项卡显示所有活动会话。
+
+### 步骤 7.2：会话操作
+
+- **切换会话**: 在不同会话之间快速切换
+- **终止会话**: 停止不活跃的会话
+
+### 步骤 7.3：会话持久化
+
+本地会话会在退出时保存状态，下次启动时恢复。
+
+<ProTip>
+这允许您在多个会话之间无缝工作，每个会话都保持其上下文。
+</ProTip>
+
+### 步骤 7.4：删除会话
+
+不再需要的会话可以被删除以释放资源。
+
+## 专业提示
+
+### 提示 1：合理使用 Worktrees
+
+<ProTip>
+Git worktrees 是强大的工具，但每个 worktree 都会占用磁盘空间。定期清理不再使用的 worktrees 以释放存储空间。
+</ProTip>
+
+### 提示 2：环境变量隔离
+
+不同项目可能需要不同的环境配置。使用会话级别的环境变量避免配置冲突。
+
+< 提示 3：会话命名约定
+
+为会话使用描述性名称，如 "feature-login"、"bugfix-api" 等，便于快速识别。
+
+### 提示 4：远程与本地选择
+
+- **本地会话**: 快速迭代、需要本地工具、个人项目
+- **远程会话**: 大型任务、需要更多资源、云环境
+
+### 提示 5：定期备份重要数据
+
+虽然本地会话会持久化，但定期备份重要配置和脚本总是好的实践。
+
+## 常见问题排查
+
+### 问题 1：Worktree 创建失败
+
+<ProTip>
+检查 `.gitignore` 中的文件是否被正确忽略。
+</ProTip>
+
+<Problem>
+如果 worktree 创建失败，检查：
+- Git 仓库是否已初始化
+- 用户是否有足够的磁盘权限
+</Problem>
+
+### 问题 2：环境变量未生效
+
+<Problem>
+检查：
+- 环境变量是否在正确的 shell 配置中
+- 桌面应用是否正确读取环境变量
+</Problem>
+
+<Solution>
+尝试重新创建会话或重启桌面应用。
+</Solution>
+
+### 问题 3：远程会话无法启动
+
+<Problem>
+检查：
+- 网络连接是否正常
+- Claude Code 账户是否有效
+- 云服务是否可用
+</Problem>
+
+### 问题 4：.worktreeinclude 文件不工作
+
+<ProTip>
+确保：
+1. 文件位于项目根目录
+2. 使用正确的 Gitignore 格式
+3. 文件使用 Unix 行结束符（LF）
+</ProTip>
+
+## 结论
+
+Claude Code 桌面版应用通过 Git worktrees 提供了强大的并行开发能力，让您可以：
+- 在同一项目中同时处理多个功能
+- 为每个开发环境独立配置
+- 在本地和远程环境之间灵活切换
+
+掌握这些功能将极大提升您的开发效率，特别是在处理大型项目或团队协作时。
+
+<AdPlaceholder />

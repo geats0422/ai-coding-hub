@@ -1,0 +1,134 @@
+---
+title: "Complete Guide to Claude Code Output Styles: Customizing AI Response Methods"
+description: "Learn how to customize Claude Code's output styles, including built-in style introduction, custom style creation, and comparison with CLAUDE.md, subagents, skills, and other features."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "output-style-customization"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Complete Guide to Claude Code Output Styles
+
+Output styles are a powerful mechanism for customizing how Claude Code responds, enabling you to apply Claude Code to various scenarios beyond software engineering. Whether it's teaching tutoring, data analysis, or documentation writing, by selecting different output styles, Claude can interact in the way that best suits your needs. Understanding and mastering the use of output styles will help you achieve the best AI-assisted experience in various work scenarios.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+This guide is aimed at developers who want to customize Claude Code's response methods. It's recommended that you already have the following conditions:
+
+- Familiarity with basic Claude Code usage
+- Understanding of YAML frontmatter basic syntax
+- Basic understanding of system prompt concepts
+
+## Built-in Output Styles
+
+Claude Code provides three built-in output styles, each optimized for different usage scenarios.
+
+### Default Style
+
+The default output style is Claude Code's standard system prompt configuration, specifically optimized for efficient software engineering tasks. This style emphasizes concise responses, fast execution, and practical problem-solving, making it the best choice for daily development work.
+
+### Explanatory Style
+
+The Explanatory style actively provides educational "Insights" while helping you complete software engineering tasks. This style is particularly suitable for developers who want to understand code implementation choices and codebase patterns. If you want to deeply understand "why it's designed this way" rather than just "how to do it," this style will be ideal.
+
+### Learning Style
+
+The Learning style adopts a collaborative learn-by-doing approach. Claude not only shares Insights while coding but also asks you to actively contribute small, strategic code snippets. In this mode, Claude will add `TODO(human)` markers in your code, indicating parts you need to implement yourself, truly achieving teaching and learning together.
+
+<AdPlaceholder />
+
+## How Output Styles Work
+
+### System Prompt Modification Mechanism
+
+Output styles achieve their effects by directly modifying Claude Code's system prompt. Understanding this mechanism helps you better understand and use custom output styles.
+
+All output styles perform the following operations. First, they exclude general instructions for efficient output, such as requirements for concise responses. Second, custom output styles exclude coding-related instructions by default unless you set `keep-coding-instructions` to true. Third, all output styles append their own custom instruction content to the end of the system prompt. Fourth, reminders are triggered periodically throughout the conversation to ensure Claude follows the output style's special instructions.
+
+### Changing Output Styles
+
+There are two ways to switch output styles. Use the `/output-style` command to access an interactive menu for selection, which can also be called from the `/config` menu. Or use the `/output-style [style]` command for quick switching, such as `/output-style explanatory` to directly switch to Explanatory style.
+
+These changes are saved in the project-level `.claude/settings.local.json` file, and you can also directly edit the `outputStyle` field in settings files at different levels for configuration.
+
+<AdPlaceholder />
+
+## Creating Custom Output Styles
+
+### Basic Structure
+
+Custom output styles are Markdown files containing frontmatter and body content. Frontmatter defines metadata, and the body contains instructions to be added to the system prompt:
+
+```markdown
+---
+name: My Custom Style
+description:
+  A brief description of what this style does
+---
+
+# Custom Style Instructions
+
+You are an interactive CLI tool that helps users with software engineering
+tasks. [Your custom instructions here...]
+
+## Specific Behaviors
+
+[Define how the assistant should behave in this style...]
+```
+
+### Storage Location
+
+You can save custom output styles at two levels. User-level styles are stored in the `~/.claude/output-styles/` directory and are visible to all projects. Project-level styles are stored in the `.claude/output-styles/` directory and apply only to the current project.
+
+### Frontmatter Configuration
+
+Output styles support the following frontmatter fields:
+
+| Field | Purpose | Default |
+|-------|---------|----------|
+| `name` | Output style name | Inherited from filename |
+| `description` | Style description, only displayed in UI | None |
+| `keep-coding-instructions` | Whether to keep coding-related prompts | false |
+
+The `keep-coding-instructions` field is particularly useful if you want to retain Claude Code's core coding capabilities in a custom style. You can set it to true.
+
+<AdPlaceholder />
+
+## Comparison with Similar Features
+
+### Output Styles vs CLAUDE.md
+
+This is an important distinction. Output styles completely replace the parts of Claude Code's default system prompt related to specific purposes. Both CLAUDE.md and `--append-system-prompt` don't edit the default system prompt. CLAUDE.md appends content as a user message after the system prompt, and `--append-system-prompt` appends content to the end of the system prompt. Simply put, output styles are "replacement," while CLAUDE.md and `--append-system-prompt` are "append."
+
+### Output Styles vs Subagents
+
+Output styles directly affect the main agent loop, only modifying the system prompt. Subagents are used to handle specific tasks and can include additional configuration, such as which model to use, available tool sets, and context information about when to invoke the agent. Subagents are more suitable for complex tasks requiring specialized handling, while output styles are more suitable for global behavior adjustments.
+
+### Output Styles vs Skills
+
+Output styles modify Claude's response methods, including format, tone, and structure, and remain active once selected. Skills are task-specific prompts that can be invoked using `/skill-name` or automatically loaded when Claude determines they're relevant. Use output styles to achieve consistent formatting preferences, and use skills to implement reusable workflows and task automation.
+
+<AdPlaceholder />
+
+## Real-world Application Scenarios
+
+### Teaching and Tutoring Scenario
+
+Combined with the Learning style and custom teaching prompts, Claude can be an excellent programming mentor. It provides explanations at key knowledge points and leaves room for you to think and implement yourself, cultivating independent problem-solving abilities.
+
+### Documentation Writing Scenario
+
+Create an output style focused on clear expression, allowing Claude to generate documentation in a more detailed and structured way, suitable for technical documentation writing, tutorial creation, and other work.
+
+### Code Review Scenario
+
+Customize output style to make Claude provide more detailed and constructive feedback during code reviews, including design decision analysis, performance considerations, and security recommendations.
+
+## Summary
+
+Output styles provide flexible customization capabilities for Claude Code, enabling the same tool to adapt to different work scenarios. Starting from selecting built-in styles, understanding how they work, and then attempting to create custom styles will help you maximize Claude Code's value. Remember, output styles are global behavior adjustments, skills are task-level automation, and using them together works best.
+
+<AdPlaceholder />

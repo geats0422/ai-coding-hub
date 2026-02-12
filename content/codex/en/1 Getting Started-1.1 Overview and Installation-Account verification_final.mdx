@@ -1,0 +1,147 @@
+---
+title: "Account verification"
+description: "Learn about Codex's authentication methods, including ChatGPT login and API Key authentication, as well as security best practices"
+tool: "codex"
+slug: "authentication"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+#Account authentication
+
+## OpenAI Certification
+
+Codex supports two login methods when using OpenAI models:
+
+- Sign in with ChatGPT to gain subscription access
+- Pay-as-you-go access using API keys
+
+Codex Cloud requires a ChatGPT login. The Codex CLI and IDE extension support both login methods.
+
+<AdPlaceholder />
+
+### Login using ChatGPT
+
+When you log in using ChatGPT from the Codex app, CLI, or IDE extension, Codex opens a browser window for you to complete the login process. Once the login is complete, the browser returns the access token to the CLI or IDE extension.
+
+### Login using API key
+
+You can also use an API key to log in to the Codex app, CLI, or IDE extension. Get your API key from [OpenAI 仪表板](https://platform.openai.com/api-keys).
+
+OpenAI bills API key usage through your OpenAI Platform account at standard API rates. See [API 定价页面](https://openai.com/api/pricing/).
+
+## Securing your Codex Cloud account
+
+Codex Cloud interacts directly with your code base, so it requires stronger security than many other ChatGPT features. Please enable multi-factor authentication (MFA).
+
+If you use a social login provider (Google, Microsoft, Apple), you don't need to enable MFA on your ChatGPT account, but you can set it up through your social login provider.
+
+For setup instructions, see:- [Google](https://support.google.com/accounts/answer/185839)
+- [Microsoft](https://support.microsoft.com/en-us/topic/what-is-multifactor-authentication-e5e39437-121c-be60-d123-eda06bddf661)
+- [Apple](https://support.apple.com/en-us/102660)
+
+If you access ChatGPT through single sign-on (SSO), your organization's SSO administrator should force-enable MFA for all users.
+
+If you log in with an email and password, you must set up MFA on your account before accessing Codex Cloud.
+
+If your account supports multiple sign-in methods, one of which is email and password, you must set up MFA before accessing Codex, even if you sign in using another method.
+
+## Login cache
+
+When you use ChatGPT or API keys to log in to a Codex app, CLI, or IDE extension, Codex caches your login details and reuses them the next time you launch the CLI or extension. The CLI and extension share the same cached login details. If you log out either way, you will need to log in again the next time you launch the CLI or extension.
+
+Codex caches login details locally in a `~/.codex/auth.json` file, or in your operating system-specific credential store.
+
+## Credential storage
+
+Use `cli_auth_credentials_store` to control where the Codex CLI stores cached credentials:
+```tom
+# file | keyring | auto
+cli_auth_credentials_store = "keyring"
+```-
+ `file` stores credentials in `auth.json` under `CODEX_HOME` (default is `~/.codex`).
+- `keyring` Store the credentials in your operating system's credential store.
+- `auto` Use the operating system credential store when it is available, otherwise fall back to `auth.json`.
+
+If you use file-based storage, think of `~/.codex/auth.json` as a password: it contains the access token. Do not submit it, paste it into a ticket, or share it in chat.
+
+## Force login method or workspace
+
+In a hosted environment, administrators may restrict how users can authenticate:
+```tom
+# 只允许 ChatGPT 登录或只允许 API 密钥登录。
+forced_login_method = "chatgpt" # 或 "api"
+
+# 使用 ChatGPT 登录时，将用户限制在特定工作区。
+forced_chatgpt_workspace_id = "00000000-0000-0000-0000-000000000000"
+```If
+ the active credentials do not match the configured limits, Codex logs the user out and exits.
+
+These settings are typically applied via managed configuration rather than per-user settings. See [托管配置](https://developers.openai.com/codex/security#managed-configuration).
+
+## Headless device login
+
+If you use the Codex CLI to log in to ChatGPT, the browser-based login UI may not work in some cases:
+
+- You are running the CLI in a remote or headless environment.
+- Your local network configuration blocks the localhost callback that Codex uses to return an OAuth token to the CLI after you log in.
+
+In these cases, device code authentication (beta) is preferred. In the interactive login UI, select **Log in using device code**, or run `codex login --device-auth` directly. If device code authentication does not work in your environment, use one of the following fallback methods.
+
+### Preferred: Device Code Authentication (Beta)
+
+1. Enable device code login in your ChatGPT security settings (personal account) or ChatGPT workspace permissions (workspace administrator).
+2. In the terminal running Codex, select one of the following options:
+   - In the interactive login UI, select **Log in using device code**.
+   - Run `codex login --device-auth` directly.
+3. Open the link in your browser, log in, and enter the one-time code.
+
+If device code login is not enabled on the server, Codex falls back to the standard browser-based login flow.
+
+### Fallback: Authenticate locally and copy your auth cache
+
+If you can complete the login process on a machine with a browser, you can copy the cached credentials to the headless machine.1. On a machine that can use the browser-based login process, run `codex login`.
+2. Verify that the login cache exists at `~/.codex/auth.json`.
+3. Copy `~/.codex/auth.json` to `~/.codex/auth.json` on the headless machine.
+
+Think of `~/.codex/auth.json` as a password: it contains the access token. Do not submit it, paste it into a ticket, or share it in chat.
+
+This method may not work if your operating system stores credentials in a credential store other than `~/.codex/auth.json`. See [凭据存储](#credential-storage) to learn how to configure file-based storage.
+
+Copy to remote machine via SSH:
+```shel
+ssh user@remote 'mkdir -p ~/.codex'
+scp ~/.codex/auth.json user@remote:~/.codex/auth.json
+```Or
+ use a one-line command that avoids `scp`:
+```shel
+ssh user@remote 'mkdir -p ~/.codex && cat > ~/.codex/auth.json' < ~/.codex/auth.json
+```Copy
+ to Docker container:
+```shel
+# 将 MY_CONTAINER 替换为容器的名称或 ID。
+CONTAINER_HOME=$(docker exec MY_CONTAINER printenv HOME)
+docker exec MY_CONTAINER mkdir -p "$CONTAINER_HOME/.codex"
+docker cp ~/.codex/auth.json MY_CONTAINER:"$CONTAINER_HOME/.codex/auth.json"
+```
+### Fallback: Forward localhost callbacks over SSH
+
+If you can forward ports between your local machine and the remote host, you can use the standard browser-based process by tunneling Codex's local callback server (default `localhost:1455`).
+
+1. From your local machine, start port forwarding:
+```shel
+ssh -L 1455:localhost:1455 user@remote
+```2
+. In that SSH session, run `codex login` and follow the address printed on your local machine.
+
+## Alternative model provider
+
+When you define [自定义模型提供商](https://developers.openai.com/codex/config-advanced#custom-model-providers) in your configuration file, you can choose one of the following authentication methods:
+
+- **OpenAI Authentication**: Set up `requires_openai_auth = true` to use OpenAI authentication. You can then log in using ChatGPT or API key. This is useful when you access OpenAI models through an LLM proxy server. Codex ignores `env_key` when `requires_openai_auth = true`.
+- **Environment Variable Authentication**: Set up `env_key = "<ENV_VARIABLE_NAME>"` to use a provider-specific API key from a local environment variable named `<ENV_VARIABLE_NAME>`.
+- **No Authentication**: If you do not set `requires_openai_auth` (or set it to `false`) and do not set `env_key`, Codex assumes that the provider does not require authentication. This is useful for local models.
+
+<AdPlaceholder />

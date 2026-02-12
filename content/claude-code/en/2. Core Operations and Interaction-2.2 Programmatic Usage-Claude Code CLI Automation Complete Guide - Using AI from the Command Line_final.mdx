@@ -1,0 +1,421 @@
+---
+title: "Claude Code CLI Automation Complete Guide: Using AI from the Command Line"
+description: "Learn how to use Claude Code's CLI mode for automated development. Includes structured output, tool auto-approval, session continuation, and script integration."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "cli-automation"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code CLI Automation Complete Guide: Using AI from the Command Line
+
+Claude Code can not only be used in interactive mode but also supports programmatic invocation via the command line. CLI mode allows you to integrate Claude's powerful capabilities into scripts, CI/CD workflows, and automation workflows, significantly boosting development efficiency.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning CLI automation, make sure you have the following:
+
+- **Claude Code**: Installed and working Claude Code
+- **Command Line Environment**: Terminal supporting Bash or PowerShell
+- **Basic Scripting Knowledge**: Understand basic shell script writing
+- **Pipes and Redirection**: Understand basic Linux/Unix concepts
+
+## Step 1: Understand CLI Mode Basics
+
+### Step 1.1: CLI Mode Introduction
+
+CLI mode, formerly called "headless mode", is triggered via the `-p` (or `--print`) flag. In this mode, Claude Code executes tasks non-interactively and returns results.
+
+**Basic syntax:**
+```bash
+claude -p "Your task description" [options]
+```
+
+**Simple example:**
+```bash
+claude -p "What does auth module do?"
+```
+
+<Note>
+In CLI mode, user-invoked skills (like `/commit`) and built-in commands are not available. You need to directly describe the task you want to complete.
+</Note>
+
+### Step 1.2: Available CLI Options
+
+All CLI options work with `-p` mode, common options include:
+
+| Option | Description | Example |
+|---------|-------------|---------|
+| `--continue` | Continue conversation | `--continue` |
+| `--allowedTools` | Auto-approve tools | `--allowedTools "Read,Edit,Bash"` |
+| `--output-format` | Output format | `--output-format json` |
+| `--resume` | Resume specific session | `--resume session_id` |
+
+## Step 2: Get Structured Output
+
+### Step 2.1: Output Format Options
+
+Use `--output-format` to control how the response is returned:
+
+| Format | Description | Use Case |
+|---------|-------------|----------|
+| `text` | Plain text output (default) | Simple tasks, direct viewing |
+| `json` | Structured JSON | Script processing, data extraction |
+| `stream-json` | Streaming JSON | Real-time processing, long task monitoring |
+
+**JSON format example:**
+```bash
+claude -p "Summarize this project" --output-format json
+```
+
+<ProTip>
+JSON output includes result, session ID, and metadata, making it easy for programmatic processing.
+</ProTip>
+
+### Step 2.2: Use JSON Schema
+
+To get output conforming to a specific schema, use `--output-format json` combined with `--json-schema`:
+
+```bash
+claude -p "Extract main function names from auth.py" \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}'
+```
+
+**Response structure:**
+```json
+{
+  "result": "Text result...",
+  "session_id": "session ID",
+  "structured_output": {...}
+}
+```
+
+### Step 2.3: Use jq to Parse Response
+
+Use [jq](https://jqlang.github.io/jq/) tool to parse JSON responses:
+
+```bash
+# Extract text result
+claude -p "Summarize this project" --output-format json | jq -r '.result'
+
+# Extract structured output
+claude -p "Extract function names from auth.py" \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"functions":{"type":"array","items":{"type":"string"}}},"required":["functions"]}' \
+  | jq '.structured_output'
+```
+
+## Step 3: Stream Responses
+
+### Step 3.1: Enable Streaming Output
+
+Use `--output-format stream-json` combined with `--verbose` and `--include-partial-messages` to receive in real-time as tokens are generated:
+
+```bash
+claude -p "Explain recursion" --output-format stream-json --verbose --include-partial-messages
+```
+
+### Step 3.2: Filter and Display Streaming Text
+
+The following example shows only text deltas, filtering other events:
+
+```bash
+claude -p "Write a poem" --output-format stream-json --verbose --include-partial-messages | \
+  jq -rj 'select(.type == "stream_event" and .event.delta.type? == "text_delta") | .event.delta.text'
+```
+
+**jq parameter explanation:**
+- `-r` - Output raw strings (no quotes)
+- `-j` - Join without newlines, continuous streaming
+
+<ProTip>
+Streaming output is perfect for displaying progress or processing long text tasks without waiting for complete responses.
+</ProTip>
+
+## Step 4: Auto-Approve Tools
+
+### Step 4.1: Use `--allowedTools` Flag
+
+Use `--allowedTools` to let Claude use certain tools without asking for permission each time:
+
+```bash
+claude -p "Run test suite and fix any failures" \
+  --allowedTools "Bash,Read,Edit"
+```
+
+### Step 4.2: Fine-Grained Tool Control
+
+Use permission rule syntax for more granular control:
+
+```bash
+claude -p "Look at my staged changes and create an appropriate commit" \
+  --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
+```
+
+<Note>
+The trailing ` *` enables prefix matching, so `Bash(git diff *)` allows any command starting with `git diff`. The space before `*` is important.
+</Note>
+
+### Step 4.3: Common Automation Scenarios
+
+**Run tests and fix:**
+```bash
+claude -p "Run test suite and fix any failures" \
+  --allowedTools "Bash,Read,Edit"
+```
+
+**Code review and generate report:**
+```bash
+claude -p "Review changes and generate a report" \
+  --allowedTools "Bash(git diff *),Bash(git status *),Read"
+```
+
+<ProTip>
+Reasonable use of auto-approval can significantly improve automation efficiency, but be aware of security risks.
+</ProTip>
+
+## Step 5: Create Automated Commits
+
+### Step 5.1: Git Commit Workflow
+
+The following example reviews staged changes and creates a commit with an appropriate message:
+
+```bash
+claude -p "Look at my staged changes and create an appropriate commit" \
+  --allowedTools "Bash(git diff *),Bash(git log *),Bash(git status *),Bash(git commit *)"
+```
+
+### Step 5.2: Combine with GitHub CLI
+
+Use with GitHub CLI:
+
+```bash
+gh pr diff "$1" | claude -p \
+  --append-system-prompt "You are a security engineer. Review for vulnerabilities." \
+  --output-format json
+```
+
+## Step 6: Customize System Prompts
+
+### Step 6.1: Append System Prompt
+
+Use `--append-system-prompt` to add instructions while maintaining default behavior:
+
+```bash
+gh pr diff "$1" | claude -p \
+  --append-system-prompt "You are a security engineer. Review for vulnerabilities." \
+  --output-format json
+```
+
+### Step 6.2: Replace Prompt Completely
+
+Use `--system-prompt` to completely replace default prompt (use cautiously):
+
+```bash
+claude -p "Execute specific task" \
+  --system-prompt "You are a professional code review assistant..."
+```
+
+<ProTip>
+Appending prompts is safer than completely replacing as it preserves Claude Code's core functionality.
+</ProTip>
+
+## Step 7: Continue and Resume Conversations
+
+### Step 7.1: Continue Most Recent Conversation
+
+Use `--continue` to continue the most recent conversation:
+
+```bash
+# First request
+claude -p "Review this codebase for performance issues"
+
+# Continue conversation
+claude -p "Now focus on database queries" --continue
+claude -p "Generate a summary of all issues found" --continue
+```
+
+### Step 7.2: Resume Specific Session
+
+If you're running multiple conversations, you need to capture the session ID to resume a specific conversation:
+
+```bash
+# Capture session ID
+session_id=$(claude -p "Start a review" --output-format json | jq -r '.session_id')
+
+# Resume specific conversation
+claude -p "Continue that review" --resume "$session_id"
+```
+
+### Step 7.3: Handle Complex Multi-Step Tasks
+
+```bash
+# Step 1: Analyze codebase
+session_id=$(claude -p "Analyze this project's architecture" --output-format json | jq -r '.session_id')
+
+# Step 2: Deep dive into specific module
+claude -p "Now deep dive into authentication module" --resume "$session_id"
+
+# Step 3: Generate report
+claude -p "Generate complete analysis report" --resume "$session_id" > report.md
+```
+
+<ProTip>
+Session IDs are powerful tools for long tasks, making multi-step analysis organized.
+</ProTip>
+
+## Step 8: Integrate into CI/CD
+
+### Step 8.1: Basic CI Integration
+
+Use in CI scripts:
+
+```bash
+#!/bin/bash
+# CI script example
+
+# Run tests
+claude -p "Run test suite and output results" \
+  --allowedTools "Bash,Read,Edit" \
+  --output-format json | tee test_results.json
+```
+
+### Step 8.2: Automate Code Reviews
+
+```bash
+#!/bin/bash
+# Pre-commit review script
+
+claude -p "Review staged changes for any issues" \
+  --allowedTools "Bash(git diff *),Bash(git status *)" \
+  --output-format json > review_result.json
+
+# Check results
+if jq -e '.result | contains("critical")' review_result.json; then
+  echo "Found critical issues, please check"
+  exit 1
+fi
+```
+
+### Step 8.3: Automate Documentation Updates
+
+```bash
+#!/bin/bash
+# Update documentation script
+
+claude -p "Update README.md with new feature descriptions" \
+  --allowedTools "Read,Edit" \
+  --output-format json
+```
+
+## Pro Tips
+
+### Tip 1: Make Good Use of Structured Output
+
+When processing Claude's responses in scripts:
+
+```bash
+# Get session ID for subsequent operations
+session_id=$(claude -p "Start analysis" --output-format json | jq -r '.session_id')
+
+# Get result for logging
+result=$(claude -p "Generate summary" --output-format json | jq -r '.result')
+echo "$result" >> log.txt
+```
+
+<ProTip>
+Storing results in variables makes them easy for subsequent processing and logging.
+</ProTip>
+
+### Tip 2: Combine Multiple Tools
+
+For complex tasks, combine using:
+
+```bash
+# Complete code review workflow
+claude -p "Review code and fix discovered issues" \
+  --allowedTools "Bash(git diff *),Bash(git status *),Read,Edit" \
+  --output-format json \
+  --continue
+```
+
+### Tip 3: Error Handling
+
+Handle potential errors in scripts:
+
+```bash
+#!/bin/bash
+
+result=$(claude -p "Execute task" --output-format json 2>&1)
+exit_code=$?
+
+if [ $exit_code -ne 0 ]; then
+  echo "Claude execution failed: $result"
+  exit 1
+fi
+
+echo "Success: $result"
+```
+
+### Tip 4: Performance Optimization
+
+For frequent calls:
+
+- Reuse sessions (use `--continue` or `--resume`)
+- Reduce unnecessary tool approvals
+- Use streaming output for long responses
+
+<ProTip>
+When calling CLI in a loop, reusing sessions can significantly reduce latency and token consumption.
+</ProTip>
+
+## Common Troubleshooting
+
+### Problem 1: Tools Not Approved
+
+**Solutions:**
+1. Check `--allowedTools` syntax is correct
+2. Confirm tool names are correct
+3. Verify permission rule syntax
+
+### Problem 2: JSON Parsing Fails
+
+**Solutions:**
+1. Check if JSON output is complete
+2. Use `jq -r` to process raw strings
+3. Verify jq syntax
+
+### Problem 3: Session Cannot Continue
+
+**Solutions:**
+1. Confirm session ID is correct
+2. Check if session has expired
+3. Verify if in same project directory
+
+### Problem 4: Output Format Mismatch
+
+**Solutions:**
+1. Confirm `--output-format` parameter is correct
+2. Check if JSON Schema is valid
+3. Verify response matches expected format
+
+## Conclusion
+
+CLI mode makes Claude Code a powerful automation tool. By learning from this guide, you have mastered:
+
+- ✅ Basic usage of CLI mode
+- ✅ Structured output and JSON Schema
+- ✅ Streaming response techniques
+- ✅ Tool auto-approval mechanism
+- ✅ Conversation continuation and resume features
+- ✅ CI/CD integration methods
+
+<ProTip>
+Integrating CLI mode into your workflows can automate daily development tasks, significantly improving efficiency.
+</ProTip>
+
+<AdPlaceholder />

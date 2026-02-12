@@ -1,0 +1,333 @@
+---
+title: "Claude Code 技能完全指南：创建自定义命令与扩展功能"
+description: "学习如何在 Claude Code 中创建、管理和共享技能，包括自定义斜杠命令、动态上下文注入、子代理执行等高级功能。"
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "custom-skills"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code 技能完全指南
+
+技能是扩展 Claude Code 能力的核心机制。通过创建包含详细说明的 `SKILL.md` 文件，您可以教给 Claude 新的技能，让它在特定场景下自动调用或通过斜杠命令手动触发。技能基于开放标准设计，不仅可以在本地使用，还能与团队成员共享或打包成插件分发。掌握技能系统将大幅提升您与 Claude 协作的效率。
+
+<AdPlaceholder />
+
+## 前置条件
+
+在开始创建技能之前，请确保满足以下条件：
+
+- 已安装并配置好 Claude Code
+- 具备基本的命令行操作经验
+- 了解 YAML 格式的基本语法
+- 建议熟悉 Markdown 写作
+
+## 技能入门：创建您的第一个技能
+
+### 创建技能目录
+
+每个技能都存储在独立的目录中。首先为您的技能创建一个目录，将其放在个人技能文件夹下使其在所有项目中可用：
+
+```bash
+mkdir -p ~/.claude/skills/explain-code
+```
+
+个人技能存放在 `~/.claude/skills/<skill-name>/` 目录下，适用于您的所有项目。如果您想限制技能仅在特定项目中使用，可以将其放在项目的 `.claude/skills/<skill-name>/` 目录下。
+
+### 编写技能说明文件
+
+每个技能都需要一个 `SKILL.md` 文件，包含两部分内容：顶部的 YAML 前置元数据告诉 Claude 何时以及如何使用该技能，下面的 Markdown 内容包含具体的执行指南：
+
+```yaml
+---
+name: explain-code
+description: Explains code with visual diagrams and analogies. Use when explaining how code works, teaching about a codebase, or when the user asks "how does this work?"
+---
+
+When explaining code, always include:
+
+1. **Start with an analogy**: Compare the code to something from everyday life
+2. **Draw a diagram**: Use ASCII art to show the flow, structure, or relationships
+3. **Walk through the code**: Explain step-by-step what happens
+4. **Highlight a gotcha**: What's a common mistake or misconception?
+
+Keep explanations conversational. For complex concepts, use multiple analogies.
+```
+
+`name` 字段会自动变成斜杠命令（`/explain-code`），`description` 帮助 Claude 决定何时自动加载该技能。一个好的描述应该包含技能的功能描述和触发场景的关键词。
+
+### 测试技能效果
+
+技能创建后有两种使用方式。**自动触发**：当您的请求与描述匹配时，Claude 会自动调用技能，比如询问"这段代码是怎么工作的？"**手动调用**：使用斜杠命令直接调用，如 `/explain-code src/auth/login.ts`。两种方式都会让 Claude 在解释中包含类比和 ASCII 图表。
+
+<AdPlaceholder />
+
+## 技能存放位置与作用域
+
+技能的位置决定了它的可见范围和使用权限，理解这些差异对于有效管理技能至关重要。
+
+### 作用域对比
+
+| 位置 | 路径 | 适用场景 |
+|------|------|----------|
+| 企业级 | 托管设置配置 | 组织内所有用户共享 |
+| 个人级 | `~/.claude/skills/<skill-name>/SKILL.md` | 您个人的所有项目 |
+| 项目级 | `.claude/skills/<skill-name>/SKILL.md` | 仅当前项目 |
+| 插件级 | `<plugin>/skills/<skill-name>/SKILL.md` | 启用插件的项目 |
+
+项目级技能会覆盖同名个人技能，让您能为特定项目定制行为。如果您之前使用过 `.claude/commands/` 目录下的文件，它们仍然有效，但技能具有更高优先级。
+
+### 嵌套目录自动发现
+
+Claude Code 支持从嵌套目录中自动发现技能。当您在子目录中工作时，比如 `packages/frontend/`，Claude 会同时检查 `packages/frontend/.claude/skills/` 中的技能。这对于单体仓库特别有用，每个包都可以定义自己的技能集。
+
+### 技能目录结构
+
+复杂的技能可以包含多个支持文件：
+
+```
+my-skill/
+├── SKILL.md           # 主要说明（必需）
+├── template.md        # Claude 填写的模板
+├── examples/
+│   └── sample.md      # 示例输出
+└── scripts/
+    └── validate.sh    # 可执行脚本
+```
+
+`SKILL.md` 是必需的入口点，其他文件都是可选的。从主文件中引用这些支持文件，Claude 会在需要时加载它们。这种结构让主文件保持简洁，同时提供详细的参考资料。
+
+<AdPlaceholder />
+
+## 技能配置详解
+
+### 技能内容类型
+
+思考技能的使用方式有助于决定包含什么内容。**参考内容**添加 Claude 应该应用于当前工作的知识，如编码约定、模式、风格指南等，这些内容内联运行与对话上下文一起使用：
+
+```yaml
+---
+name: api-conventions
+description: API design patterns for this codebase
+---
+
+When writing API endpoints:
+- Use RESTful naming conventions
+- Return consistent error formats
+- Include request validation
+```
+
+**任务内容**提供特定操作的分步说明，如部署流程、提交规范、代码生成模板等。这类技能通常需要使用 `/skill-name` 手动调用，可以添加 `disable-model-invocation: true` 防止 Claude 自动触发：
+
+```yaml
+---
+name: deploy
+description: Deploy the application to production
+context: fork
+disable-model-invocation: true
+---
+
+Deploy the application:
+1. Run the test suite
+2. Build the application
+3. Push to the deployment target
+```
+
+### 前置元数据完整参考
+
+`SKILL.md` 顶部的 YAML 前置元数据控制技能行为，以下是所有可用字段：
+
+| 字段 | 必需 | 描述 |
+|------|------|------|
+| `name` | 否 | 技能显示名称，仅小写字母、数字和连字符 |
+| `description` | 推荐 | 技能用途和触发条件，帮助 Claude 决定何时使用 |
+| `argument-hint` | 否 | 参数自动完成时显示的提示 |
+| `disable-model-invocation` | 否 | 设为 true 防止自动调用 |
+| `user-invocable` | 否 | 设为 false 从菜单隐藏 |
+| `allowed-tools` | 否 | 技能激活时无需权限的工具列表 |
+| `model` | 否 | 指定使用的模型 |
+| `context` | 否 | 设为 `fork` 在子代理中运行 |
+| `agent` | 否 | 指定子代理类型 |
+| `hooks` | 否 | 限定于技能生命周期的钩子 |
+
+### 动态变量替换
+
+技能内容支持使用变量实现动态效果。`$ARGUMENTS` 替换为调用时传递的参数，`${CLAUDE_SESSION_ID}` 提供当前会话 ID 用于日志记录或关联输出：
+
+```yaml
+---
+name: session-logger
+description: Log activity for this session
+---
+
+Log the following to logs/${CLAUDE_SESSION_ID}.log:
+
+$ARGUMENTS
+```
+
+当运行 `/session-logger Started deployment` 时，Claude 会收到带有实际会话 ID 的日志指令。
+
+<AdPlaceholder />
+
+## 调用控制与权限管理
+
+### 控制谁可以调用技能
+
+默认情况下，您和 Claude 都可以调用技能。两个前置元数据字段提供了精细的控制能力。
+
+`disable-model-invocation: true` 限制只有您可以调用技能，适用于有副作用或需要精确控制执行时机的工作流，如部署、提交或发送消息等操作。您肯定不希望 Claude 因为代码看起来准备好了就自动触发部署：
+
+```yaml
+---
+name: deploy
+description: Deploy the application to production
+disable-model-invocation: true
+---
+
+Deploy $ARGUMENTS to production:
+1. Run the test suite
+2. Build the application
+3. Push to the deployment target
+```
+
+`user-invocable: false` 让技能仅对 Claude 可见，适用于不应作为命令执行的背景知识。例如遗留系统上下文解释，Claude 应该知道这些信息，但用户不应该手动调用 `/legacy-system-context`。
+
+### 调用行为对比
+
+| 配置 | 用户可调用 | Claude 可调用 | 上下文加载时机 |
+|------|----------|--------------|--------------|
+| 默认 | 是 | 是 | 描述始终在上下文，调用时加载完整内容 |
+| `disable-model-invocation: true` | 是 | 否 | 仅调用时加载完整内容 |
+| `user-invocable: false` | 否 | 是 | 描述始终在上下文 |
+
+### 限制工具访问
+
+使用 `allowed-tools` 字段可以限制技能激活时 Claude 可用的工具，创建只读模式或安全沙箱：
+
+```yaml
+---
+name: safe-reader
+description: Read files without making changes
+allowed-tools: Read, Grep, Glob
+---
+```
+
+这个配置让技能只能浏览文件而无法修改它们，适合用于代码审查或安全分析场景。
+
+<AdPlaceholder />
+
+## 动态上下文注入
+
+### 实时命令执行
+
+技能支持使用 `` !`command` `` 语法在发送给 Claude 之前执行 shell 命令，命令输出会替换占位符，让 Claude 接收实际数据而不是命令文本。这种预处理发生在 Claude 看到任何内容之前：
+
+```yaml
+---
+name: pr-summary
+description: Summarize changes in a pull request
+context: fork
+agent: Explore
+allowed-tools: Bash(gh:*)
+---
+
+## Pull request context
+- PR diff: !`gh pr diff`
+- PR comments: !`gh pr view --comments`
+- Changed files: !`gh pr diff --name-only`
+
+## Your task
+Summarize this pull request...
+```
+
+当技能运行时，每个 `` !`command` `` 占位符立即执行，输出被插入到提示中的对应位置。Claude 收到的是包含实际 PR 数据的完整提示，可以生成准确的有意义的总结。
+
+### 传递参数给技能
+
+您和 Claude 都可以在调用技能时传递参数，通过 `$ARGUMENTS` 占位符获取。技能内容不包含 `$ARGUMENTS` 时，Claude Code 会自动将 `ARGUMENTS: <value>` 追加到内容末尾：
+
+```yaml
+---
+name: fix-issue
+description: Fix a GitHub issue
+disable-model-invocation: true
+---
+
+Fix GitHub issue $ARGUMENTS following our coding standards.
+```
+
+运行 `/fix-issue 123` 时，Claude 收到"按照我们的编码标准修复 GitHub 问题 123..."的指令。
+
+<AdPlaceholder />
+
+## 子代理执行模式
+
+### 在隔离上下文中运行技能
+
+当您希望技能在隔离环境中运行时，在前置元数据中添加 `context: fork`。技能内容成为驱动子代理的提示，它将无法访问您的主对话历史。这种模式适合需要深度专注的任务：
+
+```yaml
+---
+name: deep-research
+description: Research a topic thoroughly
+context: fork
+agent: Explore
+---
+
+Research $ARGUMENTS thoroughly:
+1. Find relevant files using Glob and Grep
+2. Read and analyze the code
+3. Summarize findings with specific file references
+```
+
+执行过程如下：创建新的隔离上下文，子代理接收技能内容作为提示，`agent` 字段确定执行环境配置，最后结果被总结返回到主对话。
+
+### 技能与子代理的协同
+
+技能和子代理可以双向协同工作。带有 `context: fork` 的技能使用代理类型的系统提示和 SKILL.md 内容作为任务；带有 `skills` 字段的子代理使用 markdown 正文作为系统提示，Claude 的委派消息作为任务，同时加载预置技能和 CLAUDE.md。
+
+<AdPlaceholder />
+
+## 高级功能与故障排除
+
+### 技能访问权限控制
+
+默认情况下 Claude 可以调用任何未设置 `disable-model-invocation: true` 的技能。通过 `/permissions` 可以全局禁用所有技能，或使用权限规则允许或拒绝特定技能：
+
+```
+# 仅允许特定技能
+Skill(commit)
+Skill(review-pr:*)
+
+# 拒绝特定技能
+Skill(deploy:*)
+```
+
+权限语法支持精确匹配和前缀匹配，让您能够精细控制 Claude 可以使用哪些技能。
+
+### 常见问题排查
+
+**技能未触发**：检查描述是否包含用户自然会说出的关键词；使用 `/skills` 命令查看可用技能列表；尝试更接近描述的表述方式；最后直接使用 `/skill-name` 调用。
+
+**技能触发过于频繁**：使描述更加具体；如果只想手动调用，添加 `disable-model-invocation: true`。
+
+**Claude 看不到所有技能**：技能描述被加载到上下文中，太多技能可能超出字符限制（默认 15000 字符）；使用 `/context` 检查是否有技能被排除；可通过设置 `SLASH_COMMAND_TOOL_CHAR_BUDGET` 环境变量增加限制。
+
+<AdPlaceholder />
+
+## 共享与分发技能
+
+技能可以根据受众在不同范围内分发。**项目技能**：将 `.claude/skills/` 提交到版本控制与团队共享。**插件**：创建包含 `skills/` 目录的插件进行打包分发。**托管部署**：通过组织设置部署企业范围内可用的技能。
+
+### 生成视觉输出
+
+技能可以捆绑脚本生成视觉输出，如交互式 HTML 页面用于数据探索或报告。创建可视化脚本让 Claude 能够在浏览器中打开丰富的视觉界面，这种模式适用于代码库结构图、依赖关系图、测试覆盖率报告等多种场景。
+
+<AdPlaceholder />
+
+## 总结
+
+Claude Code 技能系统提供了强大的扩展能力，从简单的参考知识到复杂的自动化任务都能覆盖。关键在于理解技能的作用域配置、调用控制机制和与其他功能（钩子、子代理）的协同方式。建议从简单的参考技能开始，逐步探索动态上下文注入和子代理执行等高级功能，最后考虑将常用技能打包成分享给团队或社区的插件。
+
+<AdPlaceholder />

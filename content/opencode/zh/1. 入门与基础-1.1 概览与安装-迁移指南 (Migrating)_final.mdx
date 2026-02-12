@@ -1,0 +1,75 @@
+---
+title: 迁移到 1.0
+tool: "opencode"
+slug: migrating-to-1-0
+description: OpenCode 1.0 的新功能 - 使用 OpenTUI 框架对 TUI 的完全重写。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 1.0 是 TUI 的完全重写。
+
+我们从 go+bubbletea 的 TUI 迁移到 in-house 框架（OpenTUI），该框架存在性能和能力问题，该框架是用 zig+solidjs 编写的。
+
+新的 TUI 的工作方式与旧版本相同，因为它连接到同一个 opencode 服务器。
+
+<AdPlaceholder />
+
+## 升级
+
+如果你当前使用的是以前的版本，你不应该被自动升级到 1.0。但是某些旧版本的 OpenCode 总是获取最新版本。
+
+要手动升级，请运行
+
+```bash
+opencode upgrade 1.0.0
+```
+
+要降级回 0.x，请运行
+
+```bash
+opencode upgrade 0.15.31
+```
+
+<AdPlaceholder />
+
+## UX 更改
+
+会话历史更加压缩，仅显示编辑和 bash 工具的完整详细信息。
+
+我们添加了一个命令栏，几乎所有操作都通过它进行。按 `ctrl+p` 在任何上下文中调出它，查看你可以做的所有事情。
+
+添加了一个会话侧边栏（可以切换），其中包含有用的信息。
+
+我们移除了一些我们不确定是否有人实际使用的功能。如果缺少某些重要功能，请打开一个问题，我们将快速添加回来。
+
+<AdPlaceholder />
+
+## 破坏性更改
+
+### 快捷键重命名
+
+- `messages_revert` → `messages_undo`
+- `switch_agent` → `agent_cycle`
+- `switch_agent_reverse` → `agent_cycle_reverse`
+- `switch_mode` → `agent_cycle`
+- `switch_mode_reverse` → `agent_cycle_reverse`
+
+### 快捷键已移除
+
+- `messages_layout_toggle`
+- `messages_next`
+- `messages_previous`
+- `file_diff_toggle`
+- `file_search`
+- `file_close`
+- `file_list`
+- `app_help`
+- `project_init`
+- `tool_details`
+- `thinking_blocks`
+
+<AdPlaceholder />

@@ -1,0 +1,79 @@
+---
+title: "Plug-in core functions"
+description: "Dive into the core functionality of the Codex IDE extension, including prompt words, model switching, inference work tuning, and cloud delegation"
+tool: "codex"
+slug: "ide-features"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE extended functions
+
+The Codex IDE extension gives you direct access to Codex in VS Code, Cursor, Windsurf, and other VS Code-compatible editors. It uses the same agent as the Codex CLI and shares the same configuration.
+
+<AdPlaceholder />
+
+## Prompt word Codex
+
+Use Codex in the editor to chat, edit, and preview changes. When Codex gets context from open files and selected code, you can write shorter prompt words and get faster, more relevant results.
+
+You can reference any file in the editor in the prompt by marking it like this:
+```
+Use @example.tsx as a reference to add a new page named "Resources" to the app that contains a list of resources defined in @resources.ts
+```
+## Switch model
+
+You can switch models using selectors.
+
+*Image Description: The model switcher in the Codex IDE extension, showing the list of available models and the currently selected model. *
+
+## Adjust inference work
+
+You can adjust the inference efforts to control how long Codex thinks before responding. Higher effort can help with complex tasks, but response takes longer. Higher efforts also use more tokens and may drain your rate limit faster (especially when using GPT-5-Codex).
+
+Use the same model selector shown above and select `low`, `medium`, or `high` for each model. Start with `medium` and only switch to `high` when more depth is needed.
+
+## Select approval mode
+
+By default, Codex runs in `Agent` mode. In this mode, Codex can automatically read files, edit and run commands in the working directory. Codex still needs your approval before working outside the working directory or accessing the network.
+
+Use the selector below the input box to switch to `Chat` when you just want to chat, or if you want to plan before making changes.
+
+*Image Description: Approval mode selector in the Codex IDE extension, showing Agent, Chat, and Agent (Full Access) mode options. *
+
+Use `Agent (Full Access)` if you need Codex to read files, edit them, and run commands with network access without approval. Please use caution before doing this.
+
+## Cloud Delegation
+
+You can offload larger jobs to Codex in the cloud, then track progress and review results without leaving the IDE.
+
+1. Set up [云环境](https://chatgpt.com/codex/settings/environments) for Codex.
+2. Select your environment and choose **Run in the cloud**.You can have the Codex run from `main` (useful for starting new ideas), or from your local changes (useful for completing tasks).
+
+*Image Description: The interface for launching cloud tasks from the IDE, showing environment selection and run buttons. *
+
+When you launch a cloud task from a local conversation, Codex remembers the conversation context so that it can continue where it left off.
+
+## Follow-up operations of cloud tasks
+
+Codex extension makes it easy to preview changes in the cloud. You can ask for subsequent runs in the cloud, but typically you'll want to apply changes locally for testing and completion. Codex also retains context to save you time when you continue the conversation locally.
+
+*Image Description: Interface for loading cloud tasks into the IDE, showing preview, apply, and continue conversation options. *
+
+You can also view cloud tasks in [Codex 云界面](https://chatgpt.com/codex).
+
+## Web search
+
+Codex comes with an official web search tool. For local tasks in the Codex IDE extension, Codex enables web search by default and serves results from the web search cache. The cache is an index of web results maintained by OpenAI, so cache mode returns pre-indexed results rather than fetching live pages. This reduces prompt injection exposure from arbitrary live content, but you should still treat web results as untrusted. If you configure your sandbox as [完全访问](https://developers.openai.com/codex/security), web searches default to live results. See [基本配置](https://developers.openai.com/codex/config-basic) to disable web search or switch to real-time results for the latest data.
+
+Whenever Codex looks for something, you'll see `web_search` items in the record or `codex exec --json` output.
+
+## Drag and drop the image into the prompt wordYou can drag and drop images into the prompt word editor to include them as context. Hold down Shift while dragging and dropping the image. VS Code prevents extensions from accepting drag and drop.
+
+## See also
+
+- [Codex IDE 扩展设置](https://developers.openai.com/codex/ide/settings)
+
+<AdPlaceholder />

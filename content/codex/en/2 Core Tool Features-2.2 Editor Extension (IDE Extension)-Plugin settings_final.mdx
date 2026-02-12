@@ -1,0 +1,36 @@
+---
+title: "Plugin settings"
+description: "Learn how to configure settings for the Codex IDE extension, including common settings and configuration options"
+tool: "codex"
+slug: "ide-settings"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex IDE extension settings
+
+Use these settings to customize the Codex IDE extension.
+
+<AdPlaceholder />
+
+## Change settings
+
+To change the settings, follow these steps:
+
+1. Open the editor settings.
+2. Search for `Codex` or set the name.
+3. Update the value.
+
+The Codex IDE extension uses the Codex CLI. Some behaviors, such as default models, approvals, and sandbox settings, are configured in the shared `~/.codex/config.toml` file, not in the editor settings. See [基本配置](https://developers.openai.com/codex/config-basic).
+
+## Set reference| Settings | Description |
+| ---- | ---- |
+| `chatgpt.cliExecutable` | Development only: Path to the Codex CLI executable. You do not need to set this option unless you are actively developing the Codex CLI. If you set this option manually, some parts of the extension may not work as expected. |
+| `chatgpt.commentCodeLensEnabled` | Display CodeLens above to-do notes so you can complete them using Codex. |
+| `chatgpt.localeOverride` | The preferred language for the Codex UI. Leave blank for automatic detection. |
+| `chatgpt.openOnStartup` | Focus the Codex sidebar when the extension completes startup. |
+| `chatgpt.runCodexInWindowsSubsystemForLinux` | Windows only: Run Codex in Windows Subsystem for Linux (WSL) when it is available. Recommended for improved sandbox security and better performance. Codex proxy mode on Windows currently requires WSL. Changing this setting will reload VS Code to apply the changes. |
+
+<AdPlaceholder />

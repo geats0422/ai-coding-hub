@@ -1,0 +1,52 @@
+---
+title: "选型"
+description: "了解 Codex 支持的模型，包括推荐的 GPT-5.3-Codex 和其他替代方案以及如何配置它们"
+tool: "codex"
+slug: "codex-models"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+#Codex模型
+
+## 推荐型号
+
+*图片说明：Codex应用程序显示型号选择界面，显示了gpt-5.3-Codex、gpt-5.2-codex和gpt-5.1-Codex-mini这三个型号的卡片布局。每张卡包含功能级别（五颗星）、速度级别（四颗星）、支持的平台图标和描述信息。 *
+
+对于Codex 中的大多数编码任务，从`gpt-5.3-Codex` 开始。它适用于经过 ChatGPT 身份验证的 Codex 会话，包括 Codex 应用程序、CLI、IDE 扩展和 Codex 云。对此模型的 API 访问即将推出。
+
+<AdPlaceholder />
+
+## 替代模型*图像描述：Codex 应用程序显示型号卡的可折叠列表，包括 gpt-5.2-Codex、gpt-5.1-Codex-max、gpt-5.2、gpt-5.1、gpt-5.1-Codex、gpt-5-Codex、gpt-5-Codex-mini 和 gpt-5。每张卡片都可以展开以显示详细的功能列表。 *
+
+Codex 在列出的型号中效果最好。
+
+您还可以将 Codex 指向支持 [聊天补全](https://platform.OpenAI.com/docs/api-reference/chat) 或 [响应 API](https://platform.OpenAI.com/docs/api-reference/responses) 的任何模型和提供程序，以适合您的特定用例。
+
+<Callout type="warning">
+对聊天完成 API 的支持已被弃用，并将在 Codex 的未来版本中删除。
+</Callout>
+
+## 配置模型### 配置您的默认本地模型Codex CLI 和 IDE 扩展使用相同的 `config.toml` [配置文件](https://developers.OpenAI.com/Codex/config-basic)。要指定模型，请在配置文件中添加 `model` 条目。如果您不指定型号，Codex 应用程序、CLI 或 IDE 扩展将默认为推荐的型号。
+```
+tom
+l
+model = "gpt-5.2"
+```
+### 暂时选择不同的本地模型
+
+在Codex CLI 中，您可以在活动线程中使用`/model` 命令来更改模型。在IDE扩展中，您可以使用输入框下方的模型选择器来选择模型。
+
+要使用特定模型启动新的Codex CLI线程或为`Codex exec`指定模型，您可以使用`--model`/`-m`标志：
+```
+bas
+h
+codex -m gpt-5.3-codex
+```
+### 选择云任务的模型
+
+目前，您无法更改Codex云任务的默认模型。
+
+<AdPlaceholder />

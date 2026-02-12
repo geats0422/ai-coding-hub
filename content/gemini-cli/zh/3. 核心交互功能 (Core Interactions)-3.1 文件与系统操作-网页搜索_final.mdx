@@ -1,0 +1,53 @@
+---
+title: "网络搜索"
+description: "了解如何使用 google_web_search 工具在 Gemini CLI 中执行网络搜索并获取实时信息。"
+tool: "gemini-cli"
+slug: "web-search-tool"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 网络搜索工具 (`google_web_search`)
+
+本文档介绍`google_web_search` 工具。
+
+## 说明
+
+使用 `google_web_search` 通过 Google 搜索执行网络搜索
+Gemini API。 `google_web_search` 工具返回网络结果摘要
+来源。
+
+<AdPlaceholder />
+
+### 参数
+
+`google_web_search` 采用一个参数：
+
+- `query`（字符串，必需）：搜索查询。
+
+## 如何将`google_web_search` 与Gemini CLI 一起使用
+
+`google_web_search` 工具向 Gemini API 发送查询，然后
+执行网络搜索。 `google_web_search` 将返回生成的响应
+基于搜索结果，包括引文和来源。
+
+用法：
+```
+google_web_search(query="Your query goes here.")
+```
+## `google_web_search` 示例
+
+获取有关某个主题的信息：
+```
+google_web_search(query="latest advancements in AI-powered code generation")
+```
+## 重要提示
+
+- **返回的响应：** `google_web_search` 工具返回一个已处理的
+  摘要，而不是搜索结果的原始列表。
+- **引用：** 响应包括对用于生成的来源的引用
+  总结。
+
+<AdPlaceholder />

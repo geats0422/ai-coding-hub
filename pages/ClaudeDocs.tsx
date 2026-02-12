@@ -1,0 +1,328 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { ChevronRight } from 'lucide-react';
+import AdPlaceholder from '../components/AdPlaceholder';
+import { MdxCodeBlock } from '../components/MdxCodeBlock';
+import { useLanguage } from '../context/LanguageContext';
+
+type Frontmatter = {
+  title?: string;
+  description?: string;
+  slug?: string;
+};
+
+type MdxModule = {
+  default: React.ComponentType<{
+    components?: Record<string, React.ComponentType<{ children?: React.ReactNode }>>;
+  }>;
+  frontmatter?: Frontmatter;
+};
+
+type ClaudeDocItem = {
+  fileName: string;
+  title: string;
+  description: string;
+  slug: string;
+  categoryOrder: number;
+  category: string;
+  subOrder: string;
+  subCategory: string;
+  Content: MdxModule['default'];
+};
+
+type ParsedDocFileMeta = {
+  categoryOrder: number;
+  category: string;
+  subOrder: string;
+  subCategory: string;
+  title: string;
+};
+
+type SidebarSubGroup = {
+  subOrder: string;
+  subCategory: string;
+  docs: ClaudeDocItem[];
+};
+
+type SidebarCategoryGroup = {
+  categoryOrder: number;
+  category: string;
+  subGroups: SidebarSubGroup[];
+};
+
+const mdxModulesEn = import.meta.glob('../content/claude-code/en/*.mdx', {
+  eager: true,
+}) as Record<string, MdxModule>;
+
+const mdxModulesZh = import.meta.glob('../content/claude-code/zh/*.mdx', {
+  eager: true,
+}) as Record<string, MdxModule>;
+
+const toSafeSlug = (value: string) =>
+  value
+    .toLowerCase()
+    .replace(/_final\.mdx$/i, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'doc';
+
+const getFileName = (path: string) => path.split('/').pop() ?? path;
+
+const parseDocFileMeta = (fileName: string): ParsedDocFileMeta | null => {
+  const match = fileName.match(
+    /^\s*(\d+)\.\s*(.+?)\s*-\s*(\d+\.\d+)\s*(.+?)\s*-\s*(.+?)_final\.mdx$/i
+  );
+
+  if (!match) {
+    return null;
+  }
+
+  return {
+    categoryOrder: Number(match[1]),
+    category: match[2].trim(),
+    subOrder: match[3].trim(),
+    subCategory: match[4].trim(),
+    title: match[5].trim(),
+  };
+};
+
+const messageClassByType: Record<string, string> = {
+  Note: 'bg-blue-500/10 border-blue-500/30 text-blue-900 dark:text-blue-200',
+  ProTip: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-900 dark:text-emerald-200',
+  Warning: 'bg-amber-500/10 border-amber-500/30 text-amber-900 dark:text-amber-200',
+  Problem: 'bg-rose-500/10 border-rose-500/30 text-rose-900 dark:text-rose-200',
+  Solution: 'bg-violet-500/10 border-violet-500/30 text-violet-900 dark:text-violet-200',
+};
+
+const MessageBox: React.FC<{ type: keyof typeof messageClassByType; children?: React.ReactNode }> = ({ type, children }) => (
+  <div className={`my-4 rounded-lg border px-4 py-3 ${messageClassByType[type]}`}>
+    {children}
+  </div>
+);
+
+const mdxComponents: Record<string, React.ComponentType<{ children?: React.ReactNode }>> = {
+  AdPlaceholder,
+  pre: MdxCodeBlock,
+  Note: ({ children }) => <MessageBox type="Note">{children}</MessageBox>,
+  ProTip: ({ children }) => <MessageBox type="ProTip">{children}</MessageBox>,
+  Warning: ({ children }) => <MessageBox type="Warning">{children}</MessageBox>,
+  Problem: ({ children }) => <MessageBox type="Problem">{children}</MessageBox>,
+  Solution: ({ children }) => <MessageBox type="Solution">{children}</MessageBox>,
+};
+
+export const ClaudeDocs: React.FC = () => {
+  const { language } = useLanguage();
+  const uncategorizedLabel = language === 'zh' ? '未分类' : 'Uncategorized';
+  const docsLabel = language === 'zh' ? 'Claude Code 文档' : 'Claude Code Docs';
+  const emptyStateLabel =
+    language === 'zh'
+      ? '未找到可加载的文档文件，请检查 `content/claude-code/zh` 或 `content/claude-code/en` 下的 `.mdx` 文件。'
+      : 'No loadable docs found. Please check `.mdx` files under `content/claude-code/zh` or `content/claude-code/en`.';
+
+  const selectedModules = useMemo<Record<string, MdxModule>>(() => {
+    const preferred = language === 'zh' ? mdxModulesZh : mdxModulesEn;
+
+    if (Object.keys(preferred).length > 0) {
+      return preferred;
+    }
+
+    return language === 'zh' ? mdxModulesEn : mdxModulesZh;
+  }, [language]);
+
+  const docs = useMemo<ClaudeDocItem[]>(() => {
+    return (Object.entries(selectedModules) as Array<[string, MdxModule]>)
+      .map(([path, mod]) => {
+        const fileName = getFileName(path);
+        const frontmatter = mod.frontmatter ?? {};
+        const parsedMeta = parseDocFileMeta(fileName);
+        const title = parsedMeta?.title || frontmatter.title?.trim() || fileName;
+        const description = frontmatter.description?.trim() || '';
+        const slug = frontmatter.slug?.trim() || toSafeSlug(fileName);
+
+        return {
+          fileName,
+          title,
+          description,
+          slug,
+          categoryOrder: parsedMeta?.categoryOrder ?? Number.MAX_SAFE_INTEGER,
+          category: parsedMeta?.category ?? uncategorizedLabel,
+          subOrder: parsedMeta?.subOrder ?? '0',
+          subCategory: parsedMeta?.subCategory ?? uncategorizedLabel,
+          Content: mod.default,
+        };
+      })
+      .sort((a, b) => {
+        if (a.categoryOrder !== b.categoryOrder) {
+          return a.categoryOrder - b.categoryOrder;
+        }
+
+        const subOrderCompare = a.subOrder.localeCompare(b.subOrder, 'zh-Hans-CN', {
+          numeric: true,
+          sensitivity: 'base',
+        });
+
+        if (subOrderCompare !== 0) {
+          return subOrderCompare;
+        }
+
+        return a.fileName.localeCompare(b.fileName, 'zh-Hans-CN', {
+          numeric: true,
+          sensitivity: 'base',
+        });
+      });
+  }, [selectedModules, uncategorizedLabel]);
+
+  const sidebarGroups = useMemo<SidebarCategoryGroup[]>(() => {
+    const categoryMap = new Map<
+      string,
+      {
+        categoryOrder: number;
+        category: string;
+        subMap: Map<string, SidebarSubGroup>;
+      }
+    >();
+
+    docs.forEach((doc) => {
+      const categoryKey = `${doc.categoryOrder}-${doc.category}`;
+      const existingCategory = categoryMap.get(categoryKey);
+
+      if (!existingCategory) {
+        categoryMap.set(categoryKey, {
+          categoryOrder: doc.categoryOrder,
+          category: doc.category,
+          subMap: new Map<string, SidebarSubGroup>(),
+        });
+      }
+
+      const currentCategory = categoryMap.get(categoryKey);
+
+      if (!currentCategory) {
+        return;
+      }
+
+      const subKey = `${doc.subOrder}-${doc.subCategory}`;
+      const existingSub = currentCategory.subMap.get(subKey);
+
+      if (!existingSub) {
+        currentCategory.subMap.set(subKey, {
+          subOrder: doc.subOrder,
+          subCategory: doc.subCategory,
+          docs: [],
+        });
+      }
+
+      currentCategory.subMap.get(subKey)?.docs.push(doc);
+    });
+
+    return Array.from(categoryMap.values())
+      .sort((a, b) => a.categoryOrder - b.categoryOrder)
+      .map((category) => ({
+        categoryOrder: category.categoryOrder,
+        category: category.category,
+        subGroups: Array.from(category.subMap.values())
+          .sort((a, b) =>
+            a.subOrder.localeCompare(b.subOrder, 'zh-Hans-CN', {
+              numeric: true,
+              sensitivity: 'base',
+            })
+          )
+          .map((subGroup) => ({
+            ...subGroup,
+            docs: [...subGroup.docs],
+          })),
+      }));
+  }, [docs]);
+
+  const [activeSlug, setActiveSlug] = useState<string>('');
+
+  useEffect(() => {
+    if (docs.length === 0) {
+      return;
+    }
+
+    if (!activeSlug || !docs.some((item) => item.slug === activeSlug)) {
+      setActiveSlug(docs[0].slug);
+    }
+  }, [activeSlug, docs]);
+
+  const activeDoc = docs.find((item) => item.slug === activeSlug) ?? docs[0];
+
+  if (docs.length === 0) {
+    return (
+      <main className="flex-1 px-6 py-10">
+        <h1 className="text-2xl font-bold mb-2">Claude Code</h1>
+        <p className="text-muted-foreground">{emptyStateLabel}</p>
+      </main>
+    );
+  }
+
+  const ActiveContent = activeDoc.Content;
+
+  return (
+    <div className="flex-1 w-full max-w-[1600px] mx-auto flex items-start">
+      <aside className="hidden lg:block w-80 sticky top-16 h-[calc(100vh-4rem)] border-r border-border overflow-y-auto">
+        <div className="p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-3">{docsLabel}</h3>
+          <ul className="space-y-4">
+            {sidebarGroups.map((categoryGroup) => (
+              <li key={`${categoryGroup.categoryOrder}-${categoryGroup.category}`}>
+                <p className="px-3 text-sm font-semibold text-foreground">
+                  {`${categoryGroup.categoryOrder} ${categoryGroup.category}`}
+                </p>
+                <ul className="mt-2 space-y-3">
+                  {categoryGroup.subGroups.map((subGroup) => (
+                    <li key={`${categoryGroup.categoryOrder}-${subGroup.subOrder}-${subGroup.subCategory}`}>
+                      <p className="px-3 text-xs font-medium text-muted-foreground">
+                        {`${subGroup.subOrder} ${subGroup.subCategory}`}
+                      </p>
+                      <ul className="mt-1 space-y-1">
+                        {subGroup.docs.map((doc) => {
+                          const isActive = doc.slug === activeDoc.slug;
+
+                          return (
+                            <li key={doc.fileName}>
+                              <button
+                                onClick={() => setActiveSlug(doc.slug)}
+                                className={`w-full text-left px-5 py-2 rounded-md text-sm transition-colors ${
+                                  isActive
+                                    ? 'bg-primary/10 text-primary border border-primary/20'
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                                }`}
+                              >
+                                {doc.title}
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </aside>
+
+      <main className="flex-1 min-w-0 px-4 sm:px-6 lg:px-12 py-10">
+        <nav className="flex items-center text-sm text-muted-foreground mb-6 overflow-x-auto whitespace-nowrap">
+          <Link to="/" className="hover:text-primary transition-colors">
+            Home
+          </Link>
+          <ChevronRight className="w-4 h-4 mx-2" />
+          <span className="text-foreground font-medium">Claude Code</span>
+        </nav>
+
+        <p className="text-sm text-muted-foreground mb-1">{`${activeDoc.categoryOrder} ${activeDoc.category}`}</p>
+        <p className="text-base text-foreground/80 mb-3">{`${activeDoc.subOrder} ${activeDoc.subCategory}`}</p>
+        <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground mb-3">{activeDoc.title}</h1>
+        {activeDoc.description ? (
+          <p className="text-muted-foreground mb-8 max-w-3xl">{activeDoc.description}</p>
+        ) : null}
+
+        <article className="prose prose-slate dark:prose-invert max-w-none">
+          <ActiveContent components={mdxComponents} />
+        </article>
+      </main>
+    </div>
+  );
+};

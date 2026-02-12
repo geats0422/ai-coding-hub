@@ -1,0 +1,112 @@
+---
+title: "技能组合"
+description: "了解如何一起使用 Codex 技能来扩展代理能力，包括创建、管理和使用技能"
+tool: "codex"
+slug: "skills"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 代理技能
+
+<AdPlaceholder />
+
+使用特工技能扩展 Codex 的特定任务能力。技能包说明、资源和可选脚本，以便Codex 能够可靠地遵循工作流程。您可以跨团队或与社区分享技能。基于[开放代理技能标准](https://agentskills.io)的技能。
+
+Codex CLI、IDE 扩展和 Codex 应用程序中提供了技能。
+
+技能使用 **渐进式披露** 来有效管理上下文：Codex 以每个技能的元数据（`name`、`description`、文件路径和来自 `agents/OpenAI.yaml` 的可选元数据）开始。仅当Codex决定使用该技能时，才会加载完整的`SKILL.md`命令。技能是包含 `SKILL.md` 文件以及可选脚本和引用的目录。 `SKILL.md` 文件必须包含`name` 和`description`。
+<AdPlaceholder />
+
+## Codex 如何使用技能
+
+Codex可以通过两种方式激活技能：1. **显式调用：**将技能直接包含在提示词中。在 CLI/IDE 中，运行 `/skills` 或输入 `$` 以提及该技能。
+2. **隐式调用：** 当你的任务与技能`description`匹配时，Codex可以选择该技能。
+
+由于隐式匹配依赖于`description`，因此请编写具有明确范围和边界的描述。
+
+## 创造技能
+
+首先使用内置创建器：
+```
+$skill-creator
+```
+创建者会询问该技能的作用、何时触发以及是否应该保留纯命令或包含脚本。纯指令是默认值。
+
+您还可以通过创建包含 `SKILL.md` 文件的文件夹来手动创建技能：
+```
+m
+d
+---
+name: skill-name
+description: 准确解释此技能何时应该和不应该触发。
+---
+
+Codex 遵循的技能指令。
+```
+Codex
+自动检测技能变化。如果没有出现更新，请重新启动Codex。
+
+## 保存位置Codex 从存储库、用户、管理员和系统位置读取技能。对于存储库，Codex 扫描当前工作目录中的每个目录以查找`.agents/skills`，直至存储库根目录。如果两个技能共享相同的`name`，则Codex不会合并它们；两者都可以出现在技能选择器中。|技能范围|地点 |推荐用途 |
+| -------- | ---- | -------- |
+| `REPO` | `$CWD/.agents/skills` <br /> 当前工作目录： Codex 启动的位置 |如果您处于存储库或代码环境中，团队可以检查与工作文件夹关联的技能。例如，仅与微服务或模块相关的技能。 |
+| `REPO` | `$CWD/../.agents/skills` <br /> 当您在 Git 存储库中启动 Codex 时，CWD 上方的文件夹 |如果您位于包含嵌套文件夹的存储库中，您的组织可以检查父文件夹中的共享区域以获取与共享区域相关的技能。 |
+| `REPO` | `$REPO_ROOT/.agents/skills` <br /> The top-most root folder when you launch Codex within a Git repository |如果您位于包含嵌套文件夹的存储库中，您的组织可以检查与使用该存储库的每个人相关的技能。这些可作为 root 技能使用，并且可由存储库中的任何子文件夹使用。 |
+| `USER` | `$HOME/.agents/skills` <br /> Check into the user's personal folder for any skills |用于策划适用于用户但适用于用户可能在其中工作的任何存储库的技能。
+| `ADMIN` | `/etc/Codex/skills` <br /> 检查机器或容器上共享系统位置的任何技能 |用于 SDK 脚本、自动化以及检查计算机上每个用户可用的默认管理员技能。 |
+| `SYSTEM` |捆绑在 Codex by OpenAI |与广泛受众相关的技能，例如技能创建者和规划技能。启动Codex时，所有人都可以使用。 |Codex 支持符号链接技能文件夹，并在扫描这些位置时遵循符号链接目标。
+
+## 安装技能要安装内置技能以外的技能，请使用`$skill-installer`：
+```
+bas
+h
+$skill-installer install the linear skill from the .experimental folder
+```
+您还可以提示安装程序从其他存储库下载技能。 Codex会自动检测新安装的技能；如果没有出现，请重新启动Codex。
+
+## 启用或禁用技能
+
+使用`[[skills.config]]`条目禁用`~/.Codex/config.toml`中的技能而不删除它：
+```
+tom
+l
+[[skills.config]]
+path = "/path/to/skill/SKILL.md"
+enabled = false
+```
+更改`~/.Codex/config.toml`后重新启动Codex。
+
+## 可选的 UI 和依赖元数据
+
+要在[Codex 应用](https://developers.OpenAI.com/Codex/app)中配置技能的外观或声明MCP依赖项，请添加`agents/OpenAI.yaml`：
+```
+yam
+l
+interface:
+  display_name: "可选的用户界面名称"
+  short_description: "可选的用户界面描述"
+  icon_small: "./assets/small-logo.svg"
+  icon_large: "./assets/large-logo.png"
+  brand_color: "#3B82F6"
+  default_prompt: "使用技能的周围提示词（可选）"
+
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "openaiDeveloperDocs"
+      description: "OpenAI Docs MCP 服务器"
+      transport: "streamable_http"
+      url: "https://developers.openai.com/mcp"
+```
+## 最佳实践
+
+- 将每项技能集中在一项工作上。
+- 优先使用指令而不是脚本，除非需要确定性行为或外部工具。
+- 编写具有清晰输入和输出的命令式步骤。
+- 根据技能描述测试提示词，以确认正确的触发行为。
+
+有关更多示例，请参阅[github.com/OpenAI/skills](https://github.com/OpenAI/skills) 和[代理技能规范](https://agentskills.io/specification)。
+
+<AdPlaceholder />

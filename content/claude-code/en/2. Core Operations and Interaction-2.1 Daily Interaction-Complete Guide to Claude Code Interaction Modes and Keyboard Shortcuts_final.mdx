@@ -1,0 +1,494 @@
+---
+title: "Complete Guide to Claude Code Interaction Modes and Keyboard Shortcuts"
+description: "Master all Claude Code keyboard shortcuts, interaction modes, and built-in commands. Includes comprehensive reference for general controls, text editing, Vim mode, and background tasks."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "interaction-modes-shortcuts"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Complete Guide to Claude Code Interaction Modes and Keyboard Shortcuts
+
+Mastering Claude Code's keyboard shortcuts and interaction modes can significantly improve your development efficiency. This guide provides a complete shortcut reference, including general controls, text editing, Vim mode, and background task management.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning shortcuts and interaction modes, make sure you meet the following conditions:
+
+- **Claude Code**: An installed and running version of Claude Code
+- **Terminal application**: A supported terminal (iTerm2, VS Code, Windows Terminal, etc.)
+- **Basic command line knowledge**: Familiarity with basic terminal operations
+- **Keyboard shortcut awareness**: Understanding common keyboard operation concepts
+
+## Step 1: Master General Control Shortcuts
+
+### Step 1.1: Understand Context Dependency of Shortcuts
+
+Keyboard shortcuts may vary by platform and terminal. Press `?` to see the list of shortcuts available in your specific environment.
+
+<Note>
+macOS users should note: Option/Alt key shortcuts (`Alt+B`, `Alt+F`, `Alt+Y`, `Alt+M`, `Alt+P`) require configuring Option as the Meta key in your terminal.
+</Note>
+
+### Step 1.2: Configure macOS Meta Key
+
+**For iTerm2:**
+1. Open Preferences → Profiles → Keys
+2. Set Left/Right Option key to "Esc+"
+
+**For Terminal.app:**
+1. Open Preferences → Profiles → Keyboard
+2. Check "Use Option as Meta key"
+
+**For VS Code:**
+1. Open Preferences → Profiles → Keys
+2. Set Left/Right Option key to "Esc+"
+
+<ProTip>
+With the Meta key properly configured, you can perform word navigation and text editing operations more efficiently.
+</ProTip>
+
+### Step 1.3: Learn Core Control Shortcuts
+
+**Session Control:**
+| Shortcut | Description | Context |
+|----------|-------------|---------|
+| `Ctrl+C` | Cancel current input or generation | Standard interrupt operation |
+| `Ctrl+D` | Exit Claude Code session | EOF signal |
+| `Ctrl+L` | Clear terminal screen | Preserve conversation history |
+| `Esc + Esc` | Rewind code/conversation | Restore to previous state |
+
+**Output and Navigation:**
+| Shortcut | Description | Context |
+|----------|-------------|---------|
+| `Ctrl+O` | Toggle verbose output | Show detailed tool usage and execution |
+| `Ctrl+R` | Reverse search command history | Interactive search of previous commands |
+| `Ctrl+G` | Open in default text editor | Edit your prompt or customize response |
+
+**Permission and Mode Switching:**
+| Shortcut | Description | Context |
+|----------|-------------|---------|
+| `Shift+Tab` or `Alt+M` | Toggle permission mode | Switch between Auto-approve mode, Plan Mode, and normal mode |
+| `Option+P` or `Alt+P` | Toggle model | Switch models without clearing the prompt |
+| `Option+T` or `Alt+T` | Toggle extended thinking | Enable or disable extended thinking mode |
+
+<AdPlaceholder />
+
+## Step 2: Master Text Editing Shortcuts
+
+### Step 2.1: Cut and Paste Operations
+
+**In-line Editing:**
+| Shortcut | Description | Effect |
+|----------|-------------|--------|
+| `Ctrl+K` | Delete to end of line | Store deleted text for pasting |
+| `Ctrl+U` | Delete entire line | Store deleted text for pasting |
+| `Ctrl+Y` | Paste deleted text | Paste text deleted with `Ctrl+K` or `Ctrl+U` |
+
+**Paste History Cycle:**
+| Shortcut | Description | Effect |
+|----------|-------------|--------|
+| `Alt+Y` (after `Ctrl+Y`) | Cycle paste history | After pasting, cycle through previously deleted text |
+
+<ProTip>
+Mastering cut and paste history can greatly improve efficiency for repetitive editing.
+</ProTip>
+
+### Step 2.2: Word Navigation
+
+**Word-level cursor movement:**
+| Shortcut | Description | Platform Requirements |
+|----------|-------------|---------------------|
+| `Alt+B` | Move cursor back one word | macOS requires Option set as Meta |
+| `Alt+F` | Move cursor forward one word | macOS requires Option set as Meta |
+
+### Step 2.3: Arrow Keys and History Navigation
+
+- **Up/Down arrows**: Navigate command history, recalling previous inputs
+- **Left/Right arrows**: Cycle through dialog tabs
+
+## Step 3: Configure Theme and Display Options
+
+### Step 3.1: Code Syntax Highlighting Toggle
+
+| Shortcut | Description | Effect |
+|----------|-------------|--------|
+| `Ctrl+T` | Toggle syntax highlighting for code blocks | Only works within `/theme` selector menu |
+
+<Note>
+Syntax highlighting is only available in Claude Code's native builds.
+</Note>
+
+### Step 3.2: Image Paste Functionality
+
+| Shortcut | Description | Effect |
+|----------|-------------|--------|
+| `Ctrl+V` or `Cmd+V` (iTerm2) or `Alt+V` (Windows) | Paste image from clipboard | Paste image or path to image file |
+
+<ProTip>
+Image paste functionality is particularly useful for scenarios that require referencing design mockups or screenshots.
+</ProTip>
+
+## Step 4: Master Multi-line Input Methods
+
+### Step 4.1: Newline Input Methods
+
+| Method | Shortcut | Supported Terminals |
+|--------|----------|---------------------|
+| Quick escape | `\` + `Enter` | All terminals |
+| macOS default | `Option+Enter` | macOS |
+| Shift+Enter | `Shift+Enter` | iTerm2, WezTerm, Ghostty, Kitty |
+| Control sequence | `Ctrl+J` | All terminals |
+| Paste mode | Direct paste | For code blocks, logs |
+
+### Step 4.2: Configure Shift+Enter
+
+Shift+Enter works out of the box in these terminals:
+- iTerm2
+- WezTerm
+- Ghostty
+- Kitty
+
+For other terminals (VS Code, Alacritty, Zed, Warp), run the following command:
+
+```bash
+/terminal-setup
+```
+
+This command automatically installs the necessary key bindings.
+
+## Step 5: Use Built-in Commands
+
+### Step 5.1: Common Built-in Commands Quick Reference
+
+| Command | Purpose |
+|---------|---------|
+| `/clear` | Clear conversation history |
+| `/compact [instructions]` | Compact conversation with optional focus instructions |
+| `/config` | Open settings interface (configuration tab) |
+| `/context` | Visualize current context usage as colored grid |
+| `/cost` | Display token usage statistics |
+| `/doctor` | Check Claude Code installation health |
+| `/exit` | Exit REPL |
+| `/export [filename]` | Export current conversation to file or clipboard |
+| `/help` | Get usage help |
+| `/init` | Initialize project with `CLAUDE.md` guide |
+| `/mcp` | Manage MCP server connections and OAuth authentication |
+| `/memory` | Edit `CLAUDE.md` memory file |
+| `/model` | Select or change AI model |
+| `/permissions` | View or update permissions |
+| `/plan` | Enter Plan Mode directly from prompt |
+| `/rename <name>` | Rename current session |
+| `/resume [session]` | Resume conversation by ID or name |
+| `/rewind` | Rewind conversation and/or code |
+| `/stats` | Visualize daily usage, session history, streaks, and model preferences |
+| `/status` | Display version, model, account, and connectivity |
+| `/statusline` | Set Claude Code's status line UI |
+| `/tasks` | List and manage background tasks |
+| `/teleport` | Resume remote session from claude.ai (subscribers only) |
+| `/theme` | Change color theme |
+| `/todos` | List current TODO items |
+| `/usage` | Display plan usage limits and rate limit status |
+
+<ProTip>
+Press `/` to see the full command list. Press `/` followed by a letter to filter.
+</ProTip>
+
+### Step 5.2: Create Custom Commands
+
+To create your own commands, refer to the Skills documentation. Built-in commands provide shortcuts for common operations, while custom commands can meet specific workflow needs.
+
+## Step 6: Use Vim Editor Mode
+
+### Step 6.1: Enable Vim Mode
+
+Use the following command to enable Vim-style editing:
+
+```bash
+/vim
+```
+
+Or configure permanently via `/config`.
+
+### Step 6.2: Mode Switching
+
+| Command | Action | From Mode |
+|---------|--------|-----------|
+| `Esc` | Enter NORMAL mode | INSERT |
+| `i` | Insert before cursor | NORMAL |
+| `I` | Insert at beginning of line | NORMAL |
+| `a` | Insert after cursor | NORMAL |
+| `A` | Insert at end of line | NORMAL |
+| `o` | Open line below | NORMAL |
+| `O` | Open line above | NORMAL |
+
+### Step 6.3: NORMAL Mode Navigation
+
+**Basic Movement:**
+| Command | Effect |
+|---------|--------|
+| `h`/`j`/`k`/`l` | Move left/down/up/right |
+| `w` | Beginning of next word |
+| `e` | End of word |
+| `b` | Beginning of previous word |
+
+**Position Movement:**
+| Command | Effect |
+|---------|--------|
+| `0` | Beginning of line |
+| `$` | End of line |
+| `^` | First non-whitespace character |
+| `gg` | Start of input |
+| `G` | End of input |
+
+**Character Finding:**
+| Command | Effect |
+|---------|--------|
+| `f{char}` | Jump to next occurrence of character |
+| `F{char}` | Jump to previous occurrence of character |
+| `t{char}` | Jump to just before next occurrence of character |
+| `T{char}` | Jump to just after previous occurrence of character |
+| `;` | Repeat last f/F/t/T action |
+| `,` | Reverse repeat last f/F/t/T action |
+
+### Step 6.4: NORMAL Mode Editing
+
+**Delete Operations:**
+| Command | Effect |
+|---------|--------|
+| `x` | Delete character |
+| `dd` | Delete entire line |
+| `D` | Delete to end of line |
+| `dw`/`de`/`db` | Delete word/to end/backward |
+
+**Change Operations:**
+| Command | Effect |
+|---------|--------|
+| `cc` | Change entire line |
+| `C` | Change to end of line |
+| `cw`/`ce`/`cb` | Change word/to end/backward |
+
+**Copy and Paste:**
+| Command | Effect |
+|---------|--------|
+| `yy`/`Y` | Copy (yank) line |
+| `yw`/`ye`/`yb` | Copy word/to end/backward |
+| `p` | Paste after cursor |
+| `P` | Paste before cursor |
+
+**Other Operations:**
+| Command | Effect |
+|---------|--------|
+| `>>` | Increase indent |
+| `<<` | Decrease indent |
+| `J` | Join lines |
+| `.` | Repeat last change |
+
+### Step 6.5: Text Objects
+
+Text objects are used with operators like `d`, `c`, and `y`:
+
+| Command | Effect |
+|---------|--------|
+| `iw`/`aw` | Inside/around word |
+| `iW`/`aW` | Inside/around WORD (space-delimited) |
+| `i"`/`a"` | Inside/around double quotes |
+| `i'`/`a'` | Inside/around single quotes |
+| `i(`/`a(` | Inside/around parentheses |
+| `i[`/`a[` | Inside/around square brackets |
+| `i{`/`a{` | Inside/around curly braces |
+
+<ProTip>
+Vim mode can significantly improve editing efficiency for users familiar with Vim.
+</ProTip>
+
+## Step 7: Use Command History
+
+### Step 7.1: Understand History Storage
+
+Claude Code maintains command history for the current session:
+- History is stored by working directory
+- Use `/clear` command to clear history
+- Use up/down arrows to navigate history
+- History expansion (`!`) is disabled by default
+
+### Step 7.2: Use Ctrl+R Reverse Search
+
+**Search Steps:**
+
+1. **Start search**: Press `Ctrl+R` to activate reverse history search
+2. **Type query**: Enter text to search in previous commands
+3. **Navigate matches**: Press `Ctrl+R` again to cycle through older matches
+4. **Accept match**:
+   - Press `Tab` or `Esc` to accept current match and continue editing
+   - Press `Enter` to accept and execute command immediately
+5. **Cancel search**:
+   - Press `Ctrl+C` to cancel and restore original input
+   - Press `Backspace` on empty search to cancel
+
+## Step 8: Use Background Tasks
+
+### Step 8.1: Understand Background Execution Mechanism
+
+Claude Code supports running bash commands in the background, allowing you to continue working while long-running processes execute.
+
+**Background execution methods:**
+- Prompt Claude Code to run a command in the background
+- Press `Ctrl+B` to move a regular Bash tool call to the background
+
+<Note>
+Tmux users must press Ctrl+B twice because tmux uses it as a prefix key.
+</Note>
+
+### Step 8.2: Background Task Features
+
+**Key Features:**
+- Output is buffered and Claude can retrieve it using the TaskOutput tool
+- Background tasks have unique IDs for tracking and output retrieval
+- Background tasks are automatically cleaned up when Claude Code exits
+
+**Common commands suitable for background execution:**
+- Build tools (webpack, vite, make)
+- Package managers (npm, yarn, pnpm)
+- Test runners (jest, pytest)
+- Development servers
+- Long-running processes (docker, terraform)
+
+<ProTip>
+Using background tasks allows you to continue other development work while waiting for compilation or testing.
+</ProTip>
+
+### Step 8.3: Use Bash Mode
+
+Run bash commands directly by prefixing with `!`:
+
+```bash
+! npm test
+! git status
+! ls -la
+```
+
+**Bash Mode Features:**
+- Adds the command and its output to the conversation context
+- Shows real-time progress and output
+- Supports background execution for long-running commands
+- Doesn't require Claude to interpret or approve commands
+- Supports history-based autocomplete
+
+## Step 9: Use Task Lists
+
+### Step 9.1: Understand Task List Functionality
+
+When working on complex multi-step tasks, Claude creates task lists to track progress.
+
+**Task List Operations:**
+- Press `Ctrl+T` to toggle task list view (displays up to 10 tasks at a time)
+- Ask Claude directly to show all tasks: "show me all tasks"
+- Ask Claude directly to clear all tasks: "clear all tasks"
+- Tasks persist through context compression
+
+### Step 9.2: Share Task Lists Across Sessions
+
+To share task lists, set `CLAUDE_CODE_TASK_LIST_ID`:
+
+```bash
+CLAUDE_CODE_TASK_LIST_ID=my-project claude
+```
+
+## Pro Tips
+
+### Tip 1: Make Good Use of Shortcuts for Efficiency
+
+- Prioritize memorizing common `Ctrl` series shortcuts
+- Choose appropriate shortcut combinations based on your terminal configuration
+- Use `?` to view shortcuts available in the current environment
+
+### Tip 2: Gradual Strategy for Mastering Vim Mode
+
+If you're unfamiliar with Vim:
+1. Start with mode switching (`i` and `Esc`)
+2. Master basic movement (`h`/`j`/`k`/`l`)
+3. Learn common delete and change commands
+4. Finally master text objects and advanced operations
+
+<ProTip>
+Don't try to master all Vim commands at once; gradually accumulate them through actual use.
+</ProTip>
+
+### Tip 3: Efficient Use of Background Tasks
+
+- Identify command types suitable for background execution
+- Use `Ctrl+B` to quickly move long tasks to the background
+- Regularly check background task output
+
+### Tip 4: Leverage Command History
+
+- Use `Ctrl+R` to quickly find previous commands
+- Make good use of history search to reduce repetitive input
+- Maintain meaningful command history for easy searching
+
+### Tip 5: Customize Your Interaction Style
+
+- Configure Vim mode according to your habits
+- Set up terminal shortcuts that work for you
+- Create custom commands to meet specific needs
+
+## Common Troubleshooting
+
+### Issue 1: Shortcuts Not Working
+
+**Solutions:**
+1. Press `?` to check shortcuts available in the current environment
+2. Confirm the terminal supports the shortcut
+3. Check for shortcut conflicts
+4. Restart the terminal application
+
+### Issue 2: Vim Mode Commands Not Working
+
+**Solutions:**
+1. Confirm Vim mode is enabled (run `/vim`)
+2. Check if you're in the correct mode
+3. Verify command syntax is correct
+
+### Issue 3: Background Tasks Cannot Start
+
+**Solutions:**
+1. Check environment variable `CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`
+2. Confirm command syntax is correct
+3. Verify background tasks are supported by the system
+
+### Issue 4: Command History Not Displaying
+
+**Solutions:**
+1. Check if `/clear` was used to clear history
+2. Confirm the working directory is correct
+3. Restart Claude Code session
+
+### Issue 5: Permission Mode Switching Ineffective
+
+**Solutions:**
+1. Confirm the shortcut is correct (`Shift+Tab` or `Alt+M`)
+2. Check if permission configuration allows mode switching
+3. Refer to permissions documentation for correct configuration
+
+## Conclusion
+
+Mastering Claude Code's interaction modes and shortcuts is key to improving development efficiency. Through this guide, you have learned:
+
+- ✅ How to use general control shortcuts
+- ✅ Text editing shortcut techniques
+- ✅ Various methods for multi-line input
+- ✅ Complete reference to built-in commands
+- ✅ Configuration and usage of Vim editor mode
+- ✅ Search and navigation of command history
+- ✅ Running and managing background tasks
+- ✅ Using task lists
+
+<ProTip>
+Continuously using these shortcuts and features, you'll find your development efficiency significantly improved.
+</ProTip>
+
+<AdPlaceholder />

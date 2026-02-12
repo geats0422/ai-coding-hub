@@ -1,0 +1,215 @@
+---
+title: "Claude Code 钩子完全指南：自动化工作流程的终极玩法"
+description: "学习如何通过注册 shell 命令来自定义和扩展 Claude Code 的行为，实现自动化格式化、通知和代码质量检查等强大功能。"
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "hooks-getting-started"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code 钩子完全指南
+
+Claude Code 钩子是您自定义开发工作流程的利器。通过注册特定的 shell 命令，您可以在 Claude Code 生命周期的各个关键节点自动执行自定义操作，确保重要任务总是按预期执行，而不是完全依赖 LLM 的判断。这种机制将您的最佳实践从口头建议转化为可执行的代码，大幅提升开发效率和代码质量的一致性。
+
+<AdPlaceholder />
+
+## 前置条件
+
+在开始使用钩子之前，请确保满足以下条件：
+
+- 已安装 Claude Code 并完成基础配置
+- 对命令行操作有一定了解
+- 建议安装 `jq` 工具用于处理 JSON 数据（许多钩子示例会用到）
+
+## 钩子事件类型一览
+
+Claude Code 提供了丰富的事件钩子，覆盖了从工具调用到会话管理的完整生命周期。理解这些事件类型是设计高效钩子的基础，每个事件都有其特定的用途和触发时机。
+
+### 核心事件详解
+
+**PreToolUse** 事件在工具调用之前触发，这是最常用的钩子类型之一。您可以使用它来验证命令、修改参数或直接阻止某些操作执行。例如，您可以设置一个钩子来检查所有 Bash 命令是否包含潜在的危险操作，如删除文件或修改系统配置。这种预防性的检查机制能够有效避免误操作导致的严重后果。
+
+**PostToolUse** 事件在工具完成执行后触发，非常适合用于自动化后续处理任务。常见的用例包括在文件编辑后自动运行代码格式化工具、在命令执行后记录日志、或者对生成的结果进行质量检查。这种后置钩子让您的开发流程更加自动化和规范化。
+
+**Notification** 事件允许您自定义 Claude Code 发送通知的方式。您可以集成桌面通知系统、发送电子邮件或在团队协作工具中创建提醒，确保您永远不会错过重要的交互时刻。对于需要频繁切换上下文工作的开发者来说，这个功能特别有价值。
+
+## 快速上手：创建第一个日志钩子
+
+让我们通过一个实际例子来学习钩子的使用方法。在这个示例中，我们将创建一个钩子来记录 Claude Code 运行的所有 Bash 命令，这对于审计、合规性检查和调试都非常有用。
+
+### 步骤 1：打开钩子配置
+
+运行 `/hooks` 斜杠命令，这会打开钩子管理界面。在事件列表中选择 `PreToolUse` 钩子事件，因为我们要记录所有工具调用前的命令信息。PreToolUse 钩子的独特之处在于它可以阻止工具执行并向 Claude 提供反馈，这为实现复杂的工作流程控制提供了可能。
+
+### 步骤 2：配置匹配器
+
+为了只记录 Bash 命令，我们添加一个匹配器。在匹配器输入框中输入 `Bash`，这样钩子只会对 Bash 工具调用生效。匹配器支持精确匹配和正则表达式，如果您想匹配多种工具类型，可以使用 `|` 分隔，例如 `Bash|Edit|Write`。如果您希望钩子对所有工具生效，只需输入 `*` 即可。
+
+### 步骤 3：编写钩子命令
+
+现在添加具体的钩子命令。我们将使用 `jq` 工具来格式化输出并写入日志文件：
+
+```bash
+jq -r '"\(.tool_input.command) - \(.tool_input.description // "No description")"' >> ~/.claude/bash-command-log.txt
+```
+
+这条命令会提取命令内容和一个描述（如果有的话），然后追加到日志文件中。日志文件存储在您的主目录下，意味着这个钩子会记录所有项目中的 Bash 命令执行历史。
+
+### 步骤 4：保存配置
+
+选择 `User settings` 作为存储位置，这样钩子会应用于您的所有项目，而不仅仅是当前项目。保存后，按 `Esc` 返回主界面，您的第一个钩子就已经生效了。配置会保存到 `~/.claude/settings.json` 文件中。
+
+### 步骤 5：验证钩子工作
+
+运行 `/hooks` 命令查看已注册的钩子配置，确认一切正确：
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '\"\\(.tool_input.command) - \\(.tool_input.description // \"No description\")\"' >> ~/.claude/bash-command-log.txt"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### 步骤 6：测试效果
+
+让 Claude 运行一个简单命令，比如列出目录内容，然后检查日志文件：
+
+```bash
+cat ~/.claude/bash-command-log.txt
+```
+
+您应该能看到类似这样的输出，说明钩子正常工作：
+
+```
+ls - Lists files and directories
+```
+
+<AdPlaceholder />
+
+## 实用钩子示例集锦
+
+### 代码自动格式化钩子
+
+在每次文件编辑后自动格式化代码是保持代码风格一致性的最佳实践。这个钩子会在 Write 或 Edit 工具执行后自动运行，对 TypeScript 文件执行 Prettier 格式化：
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read file_path; if echo \"$file_path\" | grep -q '\\.ts$'; then npx prettier --write \"$file_path\"; fi; }"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+这个配置首先提取被修改的文件路径，然后检查是否为 TypeScript 文件（以 `.ts` 结尾），如果是则自动运行 Prettier 格式化。您可以根据需要扩展条件判断，支持 `.go`、`.py` 等多种语言的自动格式化。
+
+### Markdown 自动修复钩子
+
+保持文档格式一致性也很重要。以下钩子会自动修复 Markdown 文件中缺失的语言标签和多余的空行：
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/markdown_formatter.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+配套的 Python 脚本需要保存在 `.claude/hooks/markdown_formatter.py`，它会自动检测代码块的语言、修复格式问题，并仅处理 Markdown 文件。这个脚本能够智能识别 JSON、Python、JavaScript、Bash、SQL 等常见语言的代码特征，为没有标注语言的代码块添加正确的语言标签。
+
+### 桌面通知钩子
+
+当 Claude 需要您输入时，桌面通知可以确保您及时响应。这个钩子会在收到权限请求或空闲提示时发送系统通知：
+
+```json
+{
+  "hooks": {
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "notify-send 'Claude Code' 'Awaiting your input'"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+使用 `notify-send` 命令（Linux）或类似的桌面通知工具，可以让您即使在切换到其他窗口时也能及时知道 Claude 何时需要您的关注。
+
+### 敏感文件保护钩子
+
+防止意外修改关键文件是开发环境安全的重要环节。以下钩子会阻止对 `.env`、`.git/` 等敏感路径的编辑操作：
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"import json, sys; data=json.load(sys.stdin); path=data.get('tool_input',{}).get('file_path',''); sys.exit(2 if any(p in path for p in ['.env', 'package-lock.json', '.git/']) else 0)\""
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+退出代码 2 表示阻止操作并显示错误信息。当检测到目标路径包含受保护的模式时，钩子会阻止 Edit 或 Write 工具执行，并告诉 Claude 该操作被拒绝。
+
+<AdPlaceholder />
+
+## Pro Tips
+
+**从简单钩子开始**：初次使用钩子时，建议从日志记录或通知这类非阻塞性钩子开始。这样既能熟悉钩子的工作方式，又不会因为配置错误而影响正常开发流程。
+
+**使用版本控制管理钩子配置**：将项目级别的钩子配置（`.claude/settings.json`）纳入版本控制，可以确保团队成员共享相同的工作流程规范，提升协作效率。
+
+**充分利用正则表达式匹配器**：匹配器支持完整的正则表达式语法，您可以创建非常精细的过滤规则。例如，使用 `^(Edit|Write)$` 来精确匹配工具名称，或者使用 `.*\.ts$` 来匹配所有 TypeScript 文件。
+
+**为复杂逻辑使用独立脚本**：当钩子逻辑变得复杂时，将代码放入独立的脚本文件中管理。这样不仅更易维护，还可以利用 IDE 的完整功能进行代码编写和调试。
+
+## 总结
+
+Claude Code 钩子系统为开发者提供了强大的流程自动化能力。从简单的命令日志记录，到复杂的代码质量检查，再到敏感文件的保护机制，钩子都能帮助您建立更加规范和高效的开发环境。关键在于根据实际需求选择合适的事件类型，并确保钩子逻辑简洁可靠。建议从本文中的示例开始，逐步构建适合您团队的自动化工作流程。
+
+<AdPlaceholder />

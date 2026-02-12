@@ -1,0 +1,141 @@
+---
+title: "精细化规则控制"
+description: "了解如何使用规则系统精细化控制 Codex 可在沙箱外运行的命令，包括创建、测试和规则语言语法"
+tool: "codex"
+slug: "rules"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 规则
+
+使用规则控制 Codex 可以在沙箱外运行的命令。
+
+规则是实验性的，可能会更改。
+
+<AdPlaceholder />
+
+## 创建规则文件
+
+1. 在 `./codex/rules/` 下创建 `.rules` 文件（例如 `~/.codex/rules/default.rules`）。
+2. 添加规则。此示例在允许提示前允许 `gh pr view` 在沙箱外运行。
+
+    ```python
+    # 在沙箱外运行带有前缀 `gh pr view` 的命令之前提示。
+    prefix_rule(
+        # 要匹配的前缀。
+        pattern = ["gh", "pr", "view"],
+
+        # 当 Codex 请求运行匹配的命令时采取的操作。
+        decision = "prompt",
+
+        # 此规则存在的原因（可选的理由）。
+        justification = "批准时允许查看 PR",
+
+        # `match` 和 `not_match` 是可选的"内联单元测试"，您可以在其中提供应该（或不应该）匹配此规则的命令示例。
+        match = [
+            "gh pr view 7888",
+            "gh pr view --repo openai/codex",
+            "gh pr view 7888 --json title,body,comments",
+        ],
+        not_match = [
+            # 不匹配，因为 `pattern` 必须是精确前缀。
+            "gh pr --repo openai/codex view 7888",
+        ],
+    )
+    ```
+
+3. 重启 Codex。
+
+Codex 在启动时扫描每个[团队配置](https://developers.openai.com/codex/enterprise/admin-setup#team-config)位置下的 `rules/`。当您在 TUI 中将命令添加到允许列表时，Codex 会写入用户层的 `~/.codex/rules/default.rules`，以便未来的运行可以跳过提示。
+
+启用智能批准（默认）时，Codex 可能会在升级请求期间为您建议 `prefix_rule`。在接受之前仔细检查建议的前缀。
+
+管理员还可以从 [`requirements.toml`](https://developers.openai.com/codex/security#admin-enforced-requirements-requirementstoml) 强制执行限制性 `prefix_rule` 条目。
+
+## 理解规则字段
+
+`prefix_rule()` 支持以下字段：
+
+- `pattern` **（必需）**：定义要匹配的命令前缀的非空列表。每个元素是：
+  - 文字字符串（例如 `"pr"`）。
+  - 文字联合（例如 `["view", "list"]`）以匹配该参数位置上的替代方案。
+- `decision` **（默认为 `"allow"`)**：当规则匹配时采取的操作。当多个规则匹配时，Codex 应用最严格的决定（`forbidden` > `prompt` > `allow`）。
+  - `allow`：在沙箱外运行命令而不提示。
+  - `prompt`：在每次匹配调用之前提示。
+  - `forbidden`：阻止请求而不提示。
+- `justification` **（可选）**：规则的非空、可读原因。Codex 可能会在批准提示或拒绝消息中显示它。当您使用 `forbidden` 时，在理由中包含推荐的替代方案（例如 `"Use \`rg\` instead of \`grep\`."`）。
+- `match` 和 `not_match` **（默认为 `[]`**）：Codex 加载规则时验证的示例。使用这些在规则生效之前捕获错误。
+
+当 Codex 考虑运行命令时，它会将命令的参数列表与 `pattern` 进行比较。在内部，Codex 将命令视为参数列表（就像 `execvp(3)` 接收的那样）。
+
+## Shell 包装器和复合命令
+
+某些工具将多个 shell 命令包装到单个调用中，例如：
+
+```text
+["bash", "-lc", "git add . && rm -rf /"]
+```
+
+因为这种命令可以在一个字符串中隐藏多个操作，Codex 特别对待 `bash -lc`、`bash -c` 及其 `zsh` / `sh` 等效项。
+
+### Codex 何时可以安全拆分脚本
+
+如果 shell 脚本是仅由以下内容组成的线性命令链：
+
+- 普通单词（无变量扩展，无 `VAR=...`、`$FOO`、`*` 等）
+- 由安全操作符连接（`&&`、`||`、`;` 或 `|`）
+
+那么 Codex（使用 tree-sitter）解析它并将其拆分为单个命令，然后再应用您的规则。
+
+上面的脚本被视为两个单独的命令：
+
+- `["git", "add", "."]`
+- `["rm", "-rf", "/"]`
+
+然后 Codex 根据您的规则评估每个命令，最严格的结果获胜。
+
+即使您允许 `pattern=["git", "add"]`，Codex 也不会自动允许 `git add . && rm -rf /`，因为 `rm -rf /` 部分被单独评估，并阻止整个调用被自动允许。
+
+这防止了危险命令与安全命令一起被走私。
+
+### Codex 何时不拆分脚本
+
+如果脚本使用更高级的 shell 功能，例如：
+
+- 重定向（`>`、`>>`、`<`）
+- 替换（`$(...)`、`...`）
+- 环境变量（`FOO=bar`）
+- 通配符模式（`*`、`?`）
+- 控制流（`if`、`for`、`&&` 带赋值等）
+
+那么 Codex 不会尝试解释或拆分它。
+
+在这些情况下，整个调用被视为：
+
+```text
+["bash", "-lc", "<full script>")
+```
+
+并且您的规则应用于该**单个**调用。
+
+通过此处理，您在安全时获得每个命令评估的安全性，以及在不安全时的保守行为。
+
+## 测试规则文件
+
+使用 `codex execpolicy check` 测试您的规则如何应用于命令：
+
+```shell
+codex execpolicy check --pretty \
+  --rules ~/.codex/rules/default.rules \
+  -- gh pr view 7888 --json title,body,comments
+```
+
+该命令发出 JSON，显示最严格决定和任何匹配的规则，包括匹配规则中的任何 `justification` 值。使用多个 `--rules` 标志组合文件，并添加 `--pretty` 以格式化输出。
+
+## 理解规则语言
+
+`.rules` 文件格式使用 `Starlark`（请参阅[语言规范](https://github.com/bazelbuild/starlark/blob/master/spec.md)）。其语法像 Python，但设计为安全运行：规则引擎可以运行它而不会产生副作用（例如，触摸文件系统）。
+
+<AdPlaceholder />

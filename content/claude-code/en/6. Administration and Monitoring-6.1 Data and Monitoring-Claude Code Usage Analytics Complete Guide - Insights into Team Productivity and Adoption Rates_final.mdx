@@ -1,0 +1,190 @@
+---
+title: "Claude Code Usage Analytics Complete Guide: Insights into Team Productivity and Adoption Rates"
+description: "Learn how to access and use Claude Code analytics dashboard to understand team usage patterns, track productivity metrics, and optimize AI-assisted development workflows."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "usage-analytics"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Usage Analytics Complete Guide
+
+Claude Code provides a powerful analytics dashboard that helps organizations understand developer usage patterns, track productivity metrics, and optimize entire team AI-assisted development adoption strategies. Through visualized data and detailed insights, managers can make data-driven decisions to improve development processes, optimize tool promotion effectiveness, and enhance overall team productivity.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Accessing the analytics functionality requires the following:
+
+- **Claude Console account**: Organization using Claude API for Claude Code
+- **Appropriate permissions**: At least `Owner`, `Admin`, or `Developer` role
+- **OAuth or API key authentication**: Properly configured
+
+## Accessing Analytics Dashboard
+
+### Navigation
+
+Navigate to the analytics dashboard:
+**URL**: [https://console.anthropic.com/claude-code](https://console.anthropic.com/claude-code)
+
+This is the central management console for all Claude Code deployment-related features.
+
+### Permission Requirements
+
+The following roles can access analytics functionality:
+
+| Role | Capabilities |
+|------|--------------|
+| **Owner** | Full management permissions |
+| **Admin** | Organization-level management permissions |
+| **Bill Admin** | View spending-related data |
+| **Developer** | View and analyze usage data |
+
+<Note>
+Users with `User`, `Claude Code User`, or `Member Admin` roles cannot access analytics features. If you need access, contact your organization administrator.
+</Note>
+
+## Key Metrics Dashboard
+
+### Lines of Code Accepted
+
+This metric displays the total number of lines of code that Claude Code has written and users have accepted in a session.
+
+**What it tracks**:
+- Code suggestions that users accepted (via Edit or Write tools)
+- Excludes rejected suggestions
+- Updates after code modifications
+
+**Calculation rules**:
+- Only counts accepted suggestions
+- Does not track subsequent deletion operations
+- Provides a direct measure of AI-generated code output
+
+**Use cases**:
+- **Evaluate AI output quality**: High acceptance rates indicate Claude is providing useful suggestions
+- **Measure productivity**: Track code generation efficiency over time
+- **Compare across users**: Identify power users who effectively leverage Claude Code
+
+### Suggestion Acceptance Rate
+
+Shows the percentage of code edit tool acceptances across these tool types:
+
+**Covered tools**:
+- **Edit**: Modifying existing code
+- **Write**: Creating new files
+- **NotebookEdit**: Notebook editing operations
+
+**Calculation**:
+- Acceptances ÷ Total Suggestions × 100
+- Different rates by tool type
+
+**Interpretation**:
+- High acceptance rate (80%+) = Excellent AI quality, effective prompt engineering
+- Medium rate (50-80%) = Good quality, reasonable clarity needed
+- Low rate (&lt;50%) = May indicate need better prompt engineering
+
+### Activity Metrics
+
+**Active Users**: Distinct users who have used Claude Code in the given date range (displayed in left Y-axis)
+- **Active Sessions**: Number of working sessions created (displayed in right Y-axis)
+
+**Use cases**:
+- **Adoption tracking**: Monitor active users to identify emerging users or declining usage
+- **Participation trends**: Spikes or dips in user engagement indicate training needs or feature improvements
+
+### Spend Metrics
+
+**Total Spend**: Total dollar amount spent for the given date range (displayed in right Y-axis)
+
+**Monthly Average**: Average spending per active user for the current month
+
+**Code Output ROI**:
+- Combine lines of code with total spend to calculate cost per line
+- Helps evaluate efficiency of AI-assisted development
+
+### Monthly Code Output
+
+**Monthly Code Lines**: Total lines of code accepted by each active user in the current month
+
+**Use cases**:
+- **Productivity benchmarking**: Compare output across months to measure progress
+- **Team efficiency**: Identify high performers vs. those needing support
+
+## Team Insights
+
+### Member Overview
+
+**All Members**: Total number of unique users who have authenticated with Claude Code
+
+**Member breakdown**:
+- **API key users**: Identified by API key identifier
+- **OAuth users**: Identified by email address
+- Team members: Users within organization
+
+This helps administrators understand adoption across different authentication methods and manage licenses effectively.
+
+### Monthly Metrics
+
+**This Month's Spend**: Current month's total Claude Code spending
+
+**This Month's Code Output**: Lines of code accepted per user in current month
+
+Combined analysis provides:
+- Cost efficiency metrics (cost per line of code)
+- Usage patterns by team member
+- Productivity trends over time
+
+### Effective Usage Analysis
+
+Monitor adoption trends and identify opportunities:
+- **Active users**: Who is consistently using Claude Code
+- **High accepters**: Users getting the most value from suggestions
+- **Power users**: Those generating significant code output
+- **Team members with low adoption**: May need additional training or documentation
+
+## Best Practices
+
+### Regular Dashboard Review
+
+**Schedule monthly reviews**: Analyze metrics and discuss trends with team leadership
+- **Identify patterns**: Successful workflows to share with others
+- **Address bottlenecks**: Users or tools with consistently low acceptance rates
+- **Optimize costs**: Identify expensive models or overuse
+
+### Share Insights
+
+**Weekly/monthly highlights**: Send team summary emails covering:
+- Top performers and their metrics
+- Usage anomalies or issues
+- New features or tools introduced
+
+### Proactive Outreach
+
+- **Onboarding support**: Help new users get started quickly with effective practices
+- **Skill sharing**: Promote knowledge of power users and successful workflows
+- **Documentation**: Provide clear guides on maximizing Claude Code value
+
+## Integration with Other Features
+
+### Combine with Telemetry
+
+For comprehensive monitoring, use Claude Code's OpenTelemetry export alongside analytics:
+- **Telemetry**: Real-time performance metrics and event tracking
+- **Analytics**: Usage patterns and cost optimization insights
+- **Correlation**: Link frontend errors with API failures for faster debugging
+
+### Identity and Access Management
+
+Proper role configuration ensures appropriate users have access to analytics, protecting sensitive information while enabling effective organizational decision-making.
+
+## Conclusion
+
+Claude Code analytics dashboard provides powerful data-driven decision capabilities for organizations. By tracking key metrics like code output, suggestion acceptance, active users, and spending patterns, managers can:
+- ✅ Understand team-wide adoption and engagement
+- ✅ Identify productivity trends and optimize resource allocation
+- ✅ Make data-driven decisions about tool promotion and training
+- ✅ Monitor return on investment in AI-assisted development
+
+Regular review and sharing of insights will help the team continuously improve their workflows and maximize the value derived from Claude Code integration.

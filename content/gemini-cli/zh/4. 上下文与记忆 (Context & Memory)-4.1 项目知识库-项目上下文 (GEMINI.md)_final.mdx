@@ -1,0 +1,119 @@
+---
+title: "项目背景（Gemini.md）"
+description: "了解有关使用 Gemini.md 文件为项目提供上下文的更多信息，包括上下文层次结构、模块化导入和自定义配置方法。"
+tool: "gemini-cli"
+slug: "project-context-gemini-md"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 提供 Gemini.md 文件的上下文
+
+上下文文件使用默认名称`Gemini.md`，是一个强大的功能
+为 Gemini 模型提供教学背景。您可以使用这些文件
+提供特定于项目的说明、定义角色或提供编码风格
+使人工智能的响应更加准确并根据您的需求量身定制的指南。
+
+您可以在一个提示中定义一次，而不是在每个提示中重复说明。
+上下文文件。
+
+<AdPlaceholder />
+
+## 理解上下文层次结构
+
+CLI 使用分层系统来获取上下文。它加载各种上下文
+来自多个位置的文件，连接所有找到的文件的内容，以及
+每次提示时都会将它们发送到模型。 CLI 加载以下文件
+订单：1. **全局上下文文件：**
+    - **位置：** `~/.Gemini/Gemini.md`（在您的用户主目录中）。
+    - **范围：** 为您的所有项目提供默认说明。
+
+2. **项目根和祖先上下文文件：**
+    - **位置：** CLI 在当前目录中搜索 `Gemini.md` 文件
+      工作目录，然后是每个父目录，直到项目根目录
+      （由 `.git` 文件夹标识）。
+    - **范围：** 提供与整个项目相关的上下文。3. **子目录上下文文件：**
+    - **位置：** CLI 还会扫描子目录中的 `Gemini.md` 文件
+      在您当前的工作目录下。它尊重`.gitignore`中的规则
+      和`.geminiignore`。
+    - **范围：** 让您为特定的内容编写高度具体的说明
+      组件或模块。
+
+CLI 页脚显示加载的上下文文件的数量，这为您提供了
+活跃教学环境的快速视觉提示。
+
+### 示例 `Gemini.md` 文件
+
+以下是您可以在位于根目录的 `Gemini.md` 文件中包含的内容的示例
+一个 TypeScript 项目：
+```
+markdow
+n
+# Project: My TypeScript Library
+
+## General Instructions
+
+- When you generate new TypeScript code, follow the existing coding style.
+- Ensure all new functions and classes have JSDoc comments.
+- Prefer functional programming paradigms where appropriate.
+
+## Coding Style
+
+- Use 2 spaces for indentation.
+- Prefix interface names with `I` (for example, `IUserService`).
+- Always use strict equality (`===` and `!==`).
+```
+## 使用 `/memory` 命令管理上下文
+
+您可以使用 `/memory` 命令与加载的上下文文件进行交互。
+
+- **`/memory show`**：显示当前的完整串联内容
+  分层记忆。这可以让您检查确切的教学上下文
+  被提供给模型。
+- **`/memory refresh`**：强制重新扫描并重新加载所有`Gemini.md` 文件
+  从所有配置的位置。
+- **`/memory add <text>`**：将您的文本附加到您的全局
+  `~/.Gemini/Gemini.md` 文件。这使您可以即时添加持久记忆。
+
+## 通过导入模块化上下文您可以将大型 `Gemini.md` 文件分解为更小、更易于管理的文件
+通过使用 `@file.md` 语法从其他文件导入内容来构建组件。
+此功能支持相对路径和绝对路径。
+
+**带有导入的`Gemini.md`示例：**
+```
+markdow
+n
+# Main GEMINI.md file
+
+This is the main content.
+
+@./components/instructions.md
+
+More content here.
+
+@../shared/style-guide.md
+```
+欲了解更多详情，请参阅[Memory Import Processor](/docs/core/memport)
+文档。
+
+## 自定义上下文文件名
+
+虽然 `Gemini.md` 是默认文件名，但您可以在您的
+`settings.json` 文件。要指定不同的名称或名称列表，请使用
+`context.fileName` 财产。
+
+**示例`settings.json`：**
+```
+jso
+n
+{
+  "context": {
+    "fileName": ["AGENTS.md", "CONTEXT.md", "GEMINI.md"]
+  }
+}
+```
+<AdPlaceholder />
+
+<AdPlaceholder />

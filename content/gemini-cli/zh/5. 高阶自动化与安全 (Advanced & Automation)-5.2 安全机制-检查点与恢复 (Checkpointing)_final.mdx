@@ -1,0 +1,101 @@
+---
+title: "检查点和恢复（检查点）"
+description: "了解 Gemini CLI 的检查点功能，并了解如何在文件修改之前自动保存快照并使用 /restore 命令恢复它们。"
+tool: "gemini-cli"
+slug: "checkpointing"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 检查点
+
+Gemini CLI 包括检查点功能，可自动保存
+在进行任何文件修改之前项目状态的快照
+人工智能驱动的工具。这使您可以安全地试验和应用代码
+更改，知道您可以立即恢复到工具使用之前的状态
+跑。
+
+<AdPlaceholder />
+
+## 它是如何工作的
+
+当您批准修改文件系统的工具（例如 `write_file` 或
+`replace`)，CLI 会自动创建一个“检查点”。这个检查站
+包括：1. **Git 快照：** 在特殊的影子 Git 存储库中进行提交
+    位于您的主目录 (`~/.Gemini/history/<project_hash>`) 中。这个
+    快照捕获了项目文件当时的完整状态。
+    它**不会**干扰您自己项目的 Git 存储库。
+2. **对话历史记录：** 您与代理的整个对话
+    到此为止都已保存。
+3. **工具调用：**即将执行的具体工具调用是
+    也存储了。
+
+如果您想撤消更改或只是返回，可以使用`/restore`
+命令。恢复检查点将：- 将项目中的所有文件恢复到快照中捕获的状态。
+- 恢复 CLI 中的对话历史记录。
+- 重新提出原始工具调用，允许您再次运行它、修改它，或者
+  简单地忽略它。
+
+所有检查点数据，包括 Git 快照和对话历史记录，都是
+存储在本地计算机上。 Git快照存储在影子中
+存储库，而对话历史记录和工具调用则保存在 JSON 中
+文件位于项目的临时目录中，通常位于
+`~/.Gemini/tmp/<project_hash>/checkpoints`。
+
+## 启用该功能
+
+默认情况下禁用检查点功能。要启用它，您需要编辑
+你的`settings.json` 文件。
+<Callout type="note">
+注意：`--checkpointing` 命令行标志已在版本中删除
+0.11.0。现在只能通过 `settings.json` 启用检查点
+配置文件。
+</Callout>
+
+将以下密钥添加到您的`settings.json`：
+```
+jso
+n
+{
+  "general": {
+    "checkpointing": {
+      "enabled": true
+    }
+  }
+}
+```
+## 使用`/restore`命令
+
+启用后，将自动创建检查点。要管理它们，您可以使用
+`/restore`命令。
+
+### 列出可用的检查点
+
+要查看当前项目的所有已保存检查点的列表，只需运行：
+```
+/restore
+```
+CLI
+ 将显示可用检查点文件的列表。这些文件名是
+通常由时间戳、被修改文件的名称和
+将要运行的工具的名称（例如，
+`2025-06-22T10-00-00_000Z-my-file.txt-write_file`）。
+
+### 恢复特定检查点
+
+要将项目恢复到特定检查点，请使用以下位置的检查点文件
+清单：
+```
+/restore <checkpoint_file>
+```
+例如：
+```
+/restore 2025-06-22T10-00-00_000Z-my-file.txt-write_file
+```
+运行命令后，您的文件和对话将立即
+恢复到创建检查点时的状态，并且
+原来的工具提示将重新出现。
+
+<AdPlaceholder />

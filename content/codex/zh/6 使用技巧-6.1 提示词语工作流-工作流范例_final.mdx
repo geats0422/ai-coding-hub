@@ -1,0 +1,342 @@
+---
+title: "工作流程示例"
+description: "了解Codex的各种工作流程模式，包括代码库解释、错误修复、测试编写、原型设计、代码审查等实际应用场景"
+tool: "codex"
+slug: "workflows"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 工作流程
+
+当您将 Codex 视为具有明确背景和明确“完成”定义的队友时，Codex 效果最佳。本页面提供Codex IDE 扩展、Codex CLI 和Codex Cloud 的端到端工作流程示例。
+
+如果您是Codex的新手，请先阅读[提示词](https://developers.OpenAI.com/Codex/prompting)，然后再回到这里查看具体食谱。
+
+<AdPlaceholder />
+
+## 如何阅读这些示例
+
+每个工作流程包括：
+
+- **何时使用**以及哪种 Codex 界面最好（IDE、CLI 或云）。
+- **步骤**以及示例用户提示。
+- **上下文注释**：Codex 自动看到的内容与您应该附加的内容。
+- **验证**：如何检查输出。
+
+<Callout type="note">
+IDE 扩展会自动使用您打开的文件作为上下文。在 CLI 中，您通常需要显式提及路径（或使用 `/mention` 和 `@` 路径自动完成附加文件）。
+</Callout>
+
+---
+
+## 解释代码库
+
+当您加入、继承服务或尝试推理协议、数据模型或请求流时，请使用此功能。
+
+### IDE 扩展工作流程（本地探索速度最快）
+
+
+
+1. 打开最相关的文件。
+2. 选择您关心的代码（可选但推荐）。
+3. 提示Codex：```
+    Explain how the request flows through the selected code.
+
+    Include:
+    - a short summary of the responsibilities of each module involved
+    - what data is validated and where
+    - one or two "gotchas" to watch for when changing this
+    ```
+
+验证：
+
+- 索要可快速验证的图表或清单：```
+    Summarize the request flow as a numbered list of steps. Then list the files involved.
+    ```### CLI 工作流程（当您想要记录 + shell 命令时很好）
+
+
+
+1. 启动交互式会话：```bash
+    codex
+    ```2. 附加文件（可选）并提示：```
+    I need to understand the protocol used by this service. Read @foo.ts @schema.ts and explain the schema and request/response flow. Focus on required vs optional fields and backward compatibility rules.
+    ```
+
+上下文注释：
+
+- 您可以使用`@`在编辑器中插入文件路径，或`/mention`附加特定文件。
+
+---
+
+## 修复错误
+
+当您的失败行为可以在本地重现时，请使用此功能。
+
+### CLI 工作流程（带有复制和验证的紧密循环）
+
+
+
+1、在仓库根目录启动Codex：```bash
+    codex
+    ```2. 向Codex提供重现步骤以及您怀疑的文件：```
+    Bug: Clicking "Save" on the settings screen sometimes shows "Saved" but doesn't persist the change.
+
+    Repro:
+    1) Start the app: npm run dev
+    2) Go to /settings
+    3) Toggle "Enable alerts"
+    4) Click Save
+    5) Refresh the page: the toggle resets
+
+    Constraints:
+    - Do not change the API shape.
+    - Keep the fix minimal and add a regression test if feasible.
+
+    Start by reproducing the bug locally, then propose a patch and run checks.
+    ```
+
+上下文注释：
+
+- 由您提供：复制步骤和约束（这些比高级描述更重要）。
+- 由Codex提供：命令输出、发现的调用点以及它触发的任何堆栈跟踪。
+
+验证：
+
+- 修复后应使用重现步骤重新运行Codex。
+- 如果您有标准检查管道，请要求其运行：```
+    After the fix, run lint + the smallest relevant test suite. Report the commands and results.
+    ```### IDE 扩展工作流程
+
+
+
+1. 打开您认为发生错误的文件及其最近的调用者。
+2. 提示Codex：```
+    Find the bug causing "Saved" to show without persisting changes. After proposing the fix, tell me how to verify it in the UI.
+    ```
+
+---
+
+## 编写测试
+
+当您想要非常具体地指定要测试的范围时，请使用此功能。
+
+### IDE 扩展工作流程（基于选择）
+
+
+
+1. 打开包含该函数的文件。
+2. 选择定义函数的行。从命令面板中选择“添加到 Codex 线程”，将这些行添加到上下文中。
+3. 提示Codex：```
+    Write a unit test for this function. Follow conventions used in other tests.
+    ```
+
+上下文注释：
+
+- 由“添加到Codex线程”命令提供：选定的行（这是“行号”范围），加上打开的文件。
+
+### CLI工作流程（提示词中描述的路径+行范围）
+
+
+
+1.启动Codex：```bash
+    codex
+    ```2.使用函数名称提示：```
+    Add a test for the invert_list function in @transform.ts. Cover the happy path plus edge cases.
+    ```
+
+---
+
+## 基于截图原型
+
+当您有设计模型、屏幕截图或 UI 参考并且想要快速工作原型时，请使用此功能。
+
+### CLI工作流程（图像+提示词）
+
+
+
+1. 将屏幕截图保存在本地（例如`./specs/ui.png`）。
+2.运行Codex：```bash
+    codex
+    ```3. 将图像文件拖入终端，将其附加到提示词上。
+
+4.继续添加约束和结构：```
+    Create a new dashboard based on this image.
+
+    Constraints:
+    - Use react, vite, and tailwind. Write the code in typescript.
+    - Match spacing, typography, and layout as closely as possible.
+
+    Deliverables:
+    - A new route/page that renders the UI
+    - Any small components needed
+    - README.md with instructions to run it locally
+    ```
+
+上下文注释：
+
+- 图像提供了视觉要求，但您仍然需要在文本中指定实现约束（框架、路由、组件样式）。
+- 为了获得最佳结果，请在文本中包含任何不明显的行为（悬停状态、验证规则、键盘交互）。
+
+验证：
+
+- 要求Codex运行开发服务器（如果允许）并告诉您在哪里查看原型：```
+    Start the dev server and tell me the local URL/route to view the prototype.
+    ```### IDE 工作流程（图像 + 现有文件）
+
+
+
+1. 在Codex聊天中附加图像（拖放或粘贴）。
+2. 提示Codex：```
+    Create a new settings page. Use the attached screenshot as the target UI.
+    Follow design and visual patterns from other files in this project.
+    ```
+
+---
+
+## 通过实时更新迭代 UI
+
+如果您希望在 Codex 编辑代码时实现紧密的“设计 → 调整 → 刷新 → 调整”循环，请使用此功能。
+
+### CLI工作流程（运行Vite，然后使用小提示词进行迭代）
+
+
+
+1.启动Codex：```bash
+    codex
+    ```2. 在单独的终端窗口中启动开发服务器：```bash
+    npm run dev
+    ```3. 提示Codex进行更改：```
+    Propose 2-3 styling improvements for the landing page.
+    ```4. 选择一个方向并使用小的、具体的提示词进行迭代：```
+    Go with option 2.
+
+    Change only the header:
+    - make the typography more editorial
+    - increase whitespace
+    - ensure it still looks good on mobile
+    ```5. 重复焦点请求：```
+    Next iteration: reduce visual noise.
+    Keep the layout, but simplify colors and remove any redundant borders.
+    ```
+
+验证：
+
+- 当您的代码更新时，您可以在浏览器中“实时”查看更改。
+- 提交您喜欢的更改并回滚您不喜欢的更改。
+- 如果您回滚或修改更改，请告诉Codex，以便在处理下一个提示词时不会覆盖更改。
+
+---
+
+## 将重构委托给云端
+
+当您想要仔细设计（本地上下文、快速检查）然后将冗长的实现卸载到可以并行运行的云任务时，请使用此功能。
+
+### 本地规划（IDE）
+
+
+
+1. 确保您当前的工作已提交或至少已上演，以便您可以清楚地比较更改。
+2. 请Codex 生成重构计划。如果您有可用的`$plan`技能，请明确调用它：```
+    $plan
+
+    We need to refactor the auth subsystem to:
+    - split responsibilities (token parsing vs session loading vs permissions)
+    - reduce circular imports
+    - improve testability
+
+    Constraints:
+    - No user-visible behavior changes
+    - Keep public APIs stable
+    - Include a step-by-step migration plan
+    ```3. 审查计划并协商变更：```
+    Revise the plan to:
+    - specify exactly which files move in each milestone
+    - include a rollback strategy
+    ```
+
+上下文注释：
+
+- 当Codex 可以在本地扫描当前代码（入口点、模块边界、依赖图提示）时，规划效果最佳。
+
+### 云委托（IDE → 云）
+
+
+
+1. 如果您尚未这样做，请为Codex 设置[云环境](https://developers.OpenAI.com/Codex/cloud/environments)。
+2. 单击提示编辑器下方的云图标，然后选择您的云环境。
+3. 当您输入下一个提示词时，Codex 在云中创建一个新线程，该线程承载现有线程上下文（包括计划和任何本地源更改）。```
+    Implement Milestone 1 from the plan.
+    ```4. 检查云差异并根据需要进行迭代。
+
+5. 直接从云端创建 PR，或在本地拉取更改以进行测试和完成。
+
+6. 迭代计划的其他里程碑。
+
+
+
+---
+
+## 执行本地代码审查
+
+如果您想在提交或创建 PR 之前获得第二双眼睛的关注，请使用此功能。
+
+### CLI 工作流程（检查您的工作树）
+
+
+
+1.启动Codex：```bash
+    codex
+    ```2. 运行审核命令：```
+    /review
+    ```3. 可选：提供明确的要点：```
+    /review Focus on edge cases and security issues
+    ```
+
+验证：
+
+- 根据审核反馈应用修复程序并重新运行 `/review` 以确认问题已解决。
+
+---
+
+## 查看 GitHub 拉取请求
+
+当您想要查看反馈而不在本地拉取分支时，请使用此功能。
+
+在使用此功能之前，请在您的存储库上启用Codex **代码审查**。请参阅[代码审查](https://developers.OpenAI.com/Codex/integrations/github)。
+
+### GitHub 工作流程（评论驱动）
+
+
+
+1. 在 GitHub 上打开拉取请求。
+2. 留下标记Codex的评论并确定关键区域：```
+    @codex review
+    ```3. 可选：提供更明确的说明。```
+    @codex review for security vulnerabilities and security concerns
+    ```
+
+---
+
+## 更新文档
+
+当您需要准确、清晰的文档更改时，请使用此功能。
+
+### IDE或CLI工作流程（本地编辑+本地验证）
+
+
+
+1. 确定要更改的文档文件并打开它们 (IDE) 或 `@` 提及它们（IDE 或 CLI）。
+2. 向Codex提示范围和验证要求：```
+    Update the "advanced features" documentation to provide authentication troubleshooting guidance. Verify that all links are valid.
+    ```3. 在 Codex 中起草更改后，审查文档并根据需要进行迭代。
+
+
+
+验证：
+
+- 阅读渲染的页面。
+
+<AdPlaceholder />

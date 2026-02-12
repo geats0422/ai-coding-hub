@@ -1,0 +1,52 @@
+---
+title: "Model selection"
+description: "Learn about the models supported by Codex, including the recommended GPT-5.3-Codex and other alternatives and how to configure them"
+tool: "codex"
+slug: "codex-models"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Codex model
+
+## Recommended model
+
+*Image Description: The Codex application displays the model selection interface, showing the card layout of the three models gpt-5.3-codex, gpt-5.2-codex and gpt-5.1-codex-mini. Each card contains capability level (five stars), speed level (four stars), supported platform icons and description information. *
+
+For most coding tasks in Codex, start with `gpt-5.3-codex`. It works with ChatGPT authenticated Codex sessions, including Codex apps, CLIs, IDE extensions, and Codex Cloud. API access to this model is coming soon.
+
+<AdPlaceholder />
+
+## Alternative model
+
+*Image Description: The Codex app displays a collapsible list of model cards, including gpt-5.2-codex, gpt-5.1-codex-max, gpt-5.2, gpt-5.1, gpt-5.1-codex, gpt-5-codex, gpt-5-codex-mini, and gpt-5. Each card can be expanded to display a detailed list of features. *
+
+Codex works best among the models listed.
+
+You can also point the Codex to any model and provider that supports [聊天补全](https://platform.openai.com/docs/api-reference/chat) or [响应 API](https://platform.openai.com/docs/api-reference/responses) to suit your specific use case.
+
+<Callout type="warning">
+Support for the chat completion API has been deprecated and will be removed in a future version of Codex.
+</Callout>
+
+## Configure model
+
+### Configure your default local modelCodex CLI and IDE extensions use the same `config.toml` [配置文件](https://developers.openai.com/codex/config-basic). To specify a model, add the `model` entry in the configuration file. If you do not specify a model, the Codex app, CLI, or IDE extension will default to the recommended model.
+```tom
+model = "gpt-5.2"
+```
+### Temporarily select a different local model
+
+In the Codex CLI, you can use the `/model` command in the active thread to change the model. In the IDE extension, you can select a model using the model selector below the input box.
+
+To start a new Codex CLI thread with a specific model or to specify a model for `codex exec`, you can use the `--model`/`-m` flag:
+```bas
+codex -m gpt-5.3-codex
+```
+### Select a model for cloud tasks
+
+Currently, you cannot change the default model for Codex cloud tasks.
+
+<AdPlaceholder />

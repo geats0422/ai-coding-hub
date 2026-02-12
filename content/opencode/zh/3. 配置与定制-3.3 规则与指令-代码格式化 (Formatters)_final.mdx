@@ -1,0 +1,129 @@
+---
+title: 代码格式化
+tool: "opencode"
+slug: formatters
+description: OpenCode 使用特定语言的格式化程序 - 在文件写入或编辑后自动格式化。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 在文件写入或编辑后，使用特定语言的格式化程序自动格式化文件。这确保了生成的代码遵循你项目的代码风格。
+
+## 内置 (Built-in)
+
+OpenCode 为流行的语言和框架配备了几个内置的格式化程序。以下是格式化程序、支持的文件扩展名以及它需要的命令或配置选项的列表。
+
+| 格式化程序 | 扩展名 | 要求 |
+|-----------|------------|--------------|
+| gofmt | .go | gofmt 命令可用 |
+| mix | .ex, .exs, .eex, .heex, .leex, .neex, .sface | mix 命令可用 |
+| prettier | .js, .jsx, .ts, .tsx, .html, .css, .md, .json, .yaml, 等 | package.json 中的 prettier 依赖 |
+| biome | .js, .jsx, .ts, .tsx, .html, .css, .md, .json, .yaml, 等 | biome.json(c) 配置文件 |
+| zig | .zig, .zon | zig 命令可用 |
+| clang-format | .c, .cpp, .h, .hpp, .ino, 等 | .clang-format 配置文件 |
+| ktlint | .kt, .kts | ktlint 命令可用 |
+| ruff | .py, .pyi | ruff 命令可用并带有配置 |
+| rustfmt | .rs | rustfmt 命令可用 |
+| cargofmt | .rs | cargo fmt 命令可用 |
+| uv | .py, .pyi | uv 命令可用 |
+| rubocop | .rb, .rake, .gemspec, .ru | rubocop 命令可用 |
+| standardrb | .rb, .rake, .gemspec, .ru | standardrb 命令可用 |
+| htmlbeautifier | .erb, .html.erb | htmlbeautifier 命令可用 |
+| air | .R | air 命令可用 |
+| dart | .dart | dart 命令可用 |
+| ocamlformat | .ml, .mli | ocamlformat 命令可用和 .ocamlformat 配置文件 |
+| terraform | .tf, .tfvars | terraform 命令可用 |
+| gleam | .gleam | gleam 命令可用 |
+| nixfmt | .nix | nixfmt 命令可用 |
+| shfmt | .sh, .bash | shfmt 命令可用 |
+| pint | .php | composer.json 中的 laravel/pint 依赖 |
+| oxfmt (实验性) | .js, .jsx, .ts, .tsx | package.json 中的 oxfmt 依赖和一个实验性环境变量标志 |
+| ormolu | .hs | ormolu 命令可用 |
+
+因此，如果你的项目在 `package.json` 中有 prettier，OpenCode 将自动使用它。
+
+## 工作原理 (How it works)
+
+当 OpenCode 写入或编辑文件时，它会：
+
+1. 检查文件扩展名是否匹配所有启用的格式化程序。
+2. 对文件运行适当的格式化程序命令。
+3. 自动应用格式化更改。
+
+此过程在后台发生，确保你的代码风格得到维护，无需任何手动步骤。
+
+## 配置 (Configure)
+
+你可以通过 OpenCode 配置中的 `formatter` 部分来自定义格式化程序。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {}
+}
+```
+
+每个格式化程序配置支持以下内容：
+
+| 属性 | 类型 | 描述 |
+|----------|------|-------------|
+| disabled | boolean | 设置为 true 以禁用格式化程序 |
+| command | string[] | 运行格式化的命令 |
+| environment | object | 运行格式化程序时设置的环境变量 |
+| extensions | string[] | 此格式化程序应处理的文件扩展名 |
+
+让我们看一些例子。
+
+## 禁用格式化程序 (Disabling formatters)
+
+要全局禁用所有格式化程序，请将 `formatter` 设置为 `false`：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": false
+}
+```
+
+要禁用特定的格式化程序，请将 `disabled` 设置为 `true`：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "prettier": {
+      "disabled": true
+    }
+  }
+}
+```
+
+## 自定义格式化程序 (Custom formatters)
+
+你可以通过指定命令、环境变量和文件扩展名来覆盖内置格式化程序或添加新的格式化程序：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "formatter": {
+    "prettier": {
+      "command": ["npx", "prettier", "--write", "$FILE"],
+      "environment": {
+        "NODE_ENV": "development"
+      },
+      "extensions": [".js", ".ts", ".jsx", ".tsx"]
+    },
+    "custom-markdown-formatter": {
+      "command": ["deno", "fmt", "$FILE"],
+      "extensions": [".md"]
+    }
+  }
+}
+```
+
+命令中的 `$FILE` 占位符将被替换为正在格式化的文件的路径。
+
+<AdPlaceholder />

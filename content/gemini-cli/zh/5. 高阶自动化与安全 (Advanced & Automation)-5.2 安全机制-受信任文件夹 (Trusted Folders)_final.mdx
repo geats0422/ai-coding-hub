@@ -1,0 +1,61 @@
+---
+title: "受信任的文件夹"
+description: "探索 Gemini CLI 的受信任文件夹功能并了解如何配置和保护对敏感目录的访问。"
+tool: "gemini-cli"
+slug: "trusted-folders"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 受信任文件夹
+
+本文档提供有关 Gemini CLI 中受信任文件夹功能的信息。
+
+<Callout type="note">
+注意：这是一个占位符文档。受信任文件夹的实际内容
+应在此处添加配置和使用。
+</Callout>
+
+<AdPlaceholder />
+
+## 概述
+
+受信任文件夹功能允许您指定考虑的目录
+对于 Gemini CLI 操作是安全的。这有助于防止意外修改
+敏感或重要目录。
+
+## 配置
+
+要配置受信任文件夹，您需要修改 `settings.json` 文件。
+
+### 设置结构
+```
+jso
+n
+{
+  "security": {
+    "trustedFolders": [
+      "/path/to/trusted/directory",
+      "/another/trusted/path"
+    ]
+  }
+}
+```
+## 用法
+
+配置受信任文件夹后，Gemini CLI 将：
+
+- 允许在受信任的目录中进行文件操作，而无需额外警告
+- 可能限制受信任文件夹之外的操作
+- 为重要项目目录提供增强的安全保障
+
+## 最佳实践
+
+- 仅添加您明确信任的目录
+- 定期查看您的受信任文件夹列表
+- 添加系统目录时要小心
+- 考虑使用绝对路径来提高可靠性
+
+<AdPlaceholder />

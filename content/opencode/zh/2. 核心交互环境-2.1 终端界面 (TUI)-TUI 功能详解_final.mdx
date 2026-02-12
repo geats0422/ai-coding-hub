@@ -1,0 +1,324 @@
+---
+title: TUI 功能
+tool: "opencode"
+slug: tui
+description: 使用 OpenCode 终端用户界面 - 用于使用 LLM 处理项目的交互式终端界面。
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode 提供用于使用 LLM 处理项目的交互式终端界面或 TUI。
+
+运行 OpenCode 将为当前目录启动 TUI。
+
+```bash
+opencode
+```
+
+或者你可以为特定的工作目录启动它。
+
+```bash
+opencode /path/to/project
+```
+
+进入 TUI 后，你可以用消息提示它。
+
+```bash
+给我一个快速的代码库摘要。
+```
+
+<AdPlaceholder />
+
+## 文件引用
+
+你可以在消息中使用 @ 来引用文件。这会在当前工作目录中进行模糊文件搜索。
+
+<Callout type="tip">
+你也可以使用 @ 来引用消息中的文件。
+</Callout>
+
+```bash
+@packages/functions/src/api/index.ts 中的身份验证是如何处理的？
+```
+
+文件的内容会自动添加到对话中。
+
+## Bash 命令
+
+以 ! 开头的消息来运行 shell 命令。
+
+```bash
+!ls -la
+```
+
+命令的输出会作为工具结果添加到对话中。
+
+<AdPlaceholder />
+
+## 命令
+
+使用 OpenCode TUI 时，你可以输入 / 后跟命令名称来快速执行操作。例如：
+
+```bash
+/help
+```
+
+大多数命令也有使用 `ctrl+x` 作为引导键的快捷键，其中 `ctrl+x` 是默认引导键。了解更多。
+
+以下是所有可用的斜杠命令：
+
+### connect
+
+将提供商添加到 OpenCode。允许你从可用的提供商中选择并添加他们的 API 密钥。
+
+```bash
+/connect
+```
+
+### compact
+
+压缩当前会话。别名：/summarize
+
+```bash
+/compact
+```
+
+快捷键：`ctrl+x c`
+
+### details
+
+切换工具执行详细信息。
+
+```bash
+/details
+```
+
+快捷键：`ctrl+x d`
+
+### editor
+
+打开外部编辑器以编写消息。使用在你的 EDITOR 环境变量中设置的编辑器。了解更多。
+
+```bash
+/editor
+```
+
+快捷键：`ctrl+x e`
+
+### exit
+
+退出 OpenCode。别名：/quit、/q
+
+```bash
+/exit
+```
+
+快捷键：`ctrl+x q`
+
+### export
+
+将当前对话导出为 Markdown 并在你的默认编辑器中打开。使用在你的 EDITOR 环境变量中设置的编辑器。了解更多。
+
+```bash
+/export
+```
+
+快捷键：`ctrl+x x`
+
+### help
+
+显示帮助对话框。
+
+```bash
+/help
+```
+
+快捷键：`ctrl+x h`
+
+### init
+
+创建或更新 AGENTS.md 文件。了解更多。
+
+```bash
+/init
+```
+
+快捷键：`ctrl+x i`
+
+### models
+
+列出可用模型。
+
+```bash
+/models
+```
+
+快捷键：`ctrl+x m`
+
+### new
+
+开始新会话。别名：/clear
+
+```bash
+/new
+```
+
+快捷键：`ctrl+x n`
+
+### redo
+
+重做先前撤消的消息。仅在使用 /undo 后可用。
+
+<Callout type="tip">
+任何文件更改也将被恢复。
+</Callout>
+
+在内部，它使用 Git 来管理文件更改。因此你的项目需要是一个 Git 仓库。
+
+```bash
+/redo
+```
+
+快捷键：`ctrl+x r`
+
+### sessions
+
+列出并在会话之间切换。别名：/resume、/continue
+
+```bash
+/sessions
+```
+
+快捷键：`ctrl+x l`
+
+### share
+
+分享当前会话。了解更多。
+
+```bash
+/share
+```
+
+快捷键：`ctrl+x s`
+
+### themes
+
+列出可用主题。
+
+```bash
+/theme
+```
+
+快捷键：`ctrl+x t`
+
+### thinking
+
+切换对话中思考/推理块的可见性。启用时，你可以看到支持扩展思考的模型的推理过程。
+
+<Callout type="note">
+此命令仅控制是否显示思考块 - 它不启用或禁用模型的推理能力。要切换实际的推理能力，请使用 `ctrl+t` 循环浏览模型变体。
+</Callout>
+
+```bash
+/thinking
+```
+
+### undo
+
+撤消对话中的最后一条消息。删除最近的用户消息、所有后续响应以及任何文件更改。
+
+<Callout type="tip">
+所做的任何文件更改也将被恢复。
+</Callout>
+
+在内部，它使用 Git 来管理文件更改。因此你的项目需要是一个 Git 仓库。
+
+```bash
+/undo
+```
+
+快捷键：`ctrl+x u`
+
+### unshare
+
+取消分享当前会话。了解更多。
+
+```bash
+/unshare
+```
+
+<AdPlaceholder />
+
+## 编辑器设置
+
+/edit 和 /export 命令都使用在你的 EDITOR 环境变量中指定的编辑器。
+
+**Linux/macOS**
+
+```bash
+# nano 或 vim 的示例
+export EDITOR=nano
+export EDITOR=vim
+
+# 对于 GUI 编辑器，VS Code、Cursor、VSCodium、Windsurf、Zed 等。
+# 包含 --wait
+export EDITOR="code --wait"
+```
+
+要使其永久，将其添加到你的 shell 配置文件；~/.bashrc、~/.zshrc 等。
+
+流行的编辑器选项包括：
+
+- `code` - Visual Studio Code
+- `cursor` - Cursor
+- `windsurf` - Windsurf
+- `nvim` - Neovim 编辑器
+- `vim` - Vim 编辑器
+- `nano` - Nano 编辑器
+- `notepad` - Windows 记事本
+- `subl` - Sublime Text
+
+<Callout type="note">
+某些编辑器（如 VS Code）需要使用 --wait 标志启动。
+</Callout>
+
+某些编辑器需要命令行参数以在阻塞模式下运行。--wait 标志使编辑器进程阻塞直到关闭。
+
+<AdPlaceholder />
+
+## 配置
+
+你可以通过你的 OpenCode 配置文件自定义 TUI 行为。
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "tui": {
+    "scroll_speed": 3,
+    "scroll_acceleration": {
+      "enabled": true
+    }
+  }
+}
+```
+
+### 选项
+
+- `scroll_acceleration` - 启用 macOS 风格滚动加速以实现流畅、自然的滚动。启用后，滚动速度会随着快速滚动手势而增加，并在较慢的移动时保持精确。此设置优先于 scroll_speed 并在启用时覆盖它。
+- `scroll_speed` - 控制使用滚动命令时 TUI 滚动的速度（最小值：1）。默认为 3。注意：如果 scroll_acceleration.enabled 设置为 true，则忽略此设置。
+
+## 自定义
+
+你可以使用命令面板（`ctrl+x h` 或 /help）自定义 TUI 视图的各种方面。这些设置在重启之间持久存在。
+
+### 用户名显示
+
+切换你的用户名是否出现在聊天消息中。通过以下方式访问：
+
+- 命令面板：搜索"username"或"hide username"
+- 设置会自动持久化，并将被 TUI 会话记住
+
+<AdPlaceholder />

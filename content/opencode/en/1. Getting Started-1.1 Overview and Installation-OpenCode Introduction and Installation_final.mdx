@@ -1,0 +1,313 @@
+---
+title: OpenCode Introduction and Installation
+tool: "opencode"
+slug: opencode-intro
+description: Get started with OpenCode - an open source AI coding agent available as terminal interface, desktop app, or IDE extension.
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+<AdPlaceholder />
+
+OpenCode is an open source AI coding agent. It's available as a terminal-based interface, desktop app, or IDE extension.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+To use OpenCode in your terminal, you'll need:
+
+A modern terminal emulator like:
+
+WezTerm, cross-platform
+Alacritty, cross-platform
+Ghostty, Linux and macOS
+Kitty, Linux and macOS
+API keys for the LLM providers you want to use.
+
+## Install
+
+The easiest way to install OpenCode is through the install script.
+
+```bash
+curl -fsSL https://opencode.ai/install | bash
+```
+
+You can also install it with the following commands:
+
+Using Node.js
+
+- npm
+```bash
+npm install -g opencode-ai
+```
+- Bun
+```bash
+bun install -g opencode-ai
+```
+- pnpm
+```bash
+pnup install -g opencode-ai
+```
+Yarn
+```bash
+yarn global add opencode-ai
+```
+
+<AdPlaceholder />
+
+Using Homebrew on macOS and Linux
+
+```bash
+brew install anomalyco/tap/opencode
+```
+
+<Callout type="tip">
+We recommend using the OpenCode tap for the most up to date releases. The official brew install opencode formula is maintained by the Homebrew team and is updated less frequently.
+</Callout>
+
+Using Paru on Arch Linux
+
+```bash
+paru -S opencode-bin
+```
+
+<Callout type="warning">
+Recommended: Use WSL
+For the best experience on Windows, we recommend using Windows Subsystem for Linux (WSL). It provides better performance and full compatibility with OpenCode's features.
+</Callout>
+
+Using Chocolatey
+```bash
+choco install opencode
+```
+
+Using Scoop
+```bash
+scoop install opencode
+```
+
+Using NPM
+
+```bash
+npm install -g opencode-ai
+```
+
+Using Mise
+
+```bash
+mise use -g github:anomalyco/opencode
+```
+
+Using Docker
+
+```bash
+docker run -it --rm ghcr.io/anomalyco/opencode
+```
+
+Support for installing OpenCode on Windows using Bun is currently in progress.
+
+You can also grab the binary from the Releases.
+
+<AdPlaceholder />
+
+## Configure
+
+With OpenCode you can use any LLM provider by configuring their API keys.
+
+If you are new to using LLM providers, we recommend using OpenCode Zen. It's a curated list of models that have been tested and verified by the OpenCode team.
+
+Run the `/connect` command in the TUI, select opencode, and head to opencode.ai/auth.
+
+```bash
+/connect
+```
+
+Sign in, add your billing details, and copy your API key.
+
+Paste your API key.
+
+```bash
+┌ API key
+│
+│
+└ enter
+```
+
+Alternatively, you can select one of the other providers. Learn more.
+
+## Initialize
+
+Now that you've configured a provider, you can navigate to a project that you want to work on.
+
+```bash
+cd /path/to/project
+```
+
+And run OpenCode.
+
+```bash
+opencode
+```
+
+Next, initialize OpenCode for the project by running the following command.
+
+```bash
+/init
+```
+
+This will get OpenCode to analyze your project and create an AGENTS.md file in the project root.
+
+<Callout type="tip">
+You should commit your project's AGENTS.md file to Git.
+</Callout>
+
+This helps OpenCode understand the project structure and the coding patterns used.
+
+<AdPlaceholder />
+
+## Usage
+
+You are now ready to use OpenCode to work on your project. Feel free to ask it anything!
+
+If you are new to using an AI coding agent, here are some examples that might help.
+
+## Ask questions
+
+You can ask OpenCode to explain the codebase to you.
+
+<Callout type="tip">
+Use the @ key to fuzzy search for files in the project.
+</Callout>
+
+```bash
+How is authentication handled in @packages/functions/src/api/index.ts
+```
+
+This is helpful if there's a part of the codebase that you didn't work on.
+
+## Add features
+
+You can ask OpenCode to add new features to your project. Though we first recommend asking it to create a plan.
+
+Create a plan
+
+OpenCode has a Plan mode that disables its ability to make changes and instead suggest how it'll implement the feature.
+
+Switch to it using the `Tab` key. You'll see an indicator for this in the lower right corner.
+
+```bash
+<TAB>
+```
+
+Now let's describe what we want it to do.
+
+```bash
+When a user deletes a note, we'd like to flag it as deleted in the database.
+Then create a screen that shows all the recently deleted notes.
+From this screen, the user can undelete a note or permanently delete it.
+```
+
+You want to give OpenCode enough details to understand what you want. It helps to talk to it like you are talking to a junior developer on your team.
+
+<Callout type="tip">
+Give OpenCode plenty of context and examples to help it understand what you want.
+</Callout>
+
+Iterate on the plan
+
+Once it gives you a plan, you can give it feedback or add more details.
+
+```bash
+We'd like to design this new screen using a design I've used before.
+[Image #1] Take a look at this image and use it as a reference.
+```
+
+<Callout type="tip">
+Drag and drop images into the terminal to add them to the prompt.
+</Callout>
+
+OpenCode can scan any images you give it and add them to the prompt. You can do this by dragging and dropping an image into the terminal.
+
+Build the feature
+
+Once you feel comfortable with the plan, switch back to Build mode by hitting the `Tab` key again.
+
+```bash
+<TAB>
+```
+
+And asking it to make the changes.
+
+```bash
+Sounds good! Go ahead and make the changes.
+```
+
+## Make changes
+
+For more straightforward changes, you can ask OpenCode to directly build it without having to review the plan first.
+
+```bash
+We need to add authentication to the /settings route. Take a look at how this is
+handled in the /notes route in @packages/functions/src/notes.ts and implement
+the same logic in @packages/functions/src/settings.ts
+```
+
+You want to make sure you provide a good amount of detail so OpenCode makes the right changes.
+
+## Undo changes
+
+Let's say you ask OpenCode to make some changes.
+
+Can you refactor the function in @packages/functions/src/api/index.ts?
+
+But you realize that it is not what you wanted. You can undo the changes using the `/undo` command.
+
+```bash
+/undo
+```
+
+OpenCode will now revert the changes you made and show your original message again.
+
+```bash
+Can you refactor the function in @packages/functions/src/api/index.ts?
+```
+
+From here you can tweak the prompt and ask OpenCode to try again.
+
+<Callout type="tip">
+You can run /undo multiple times to undo multiple changes.
+</Callout>
+
+Or you can redo the changes using the `/redo` command.
+
+```bash
+/redo
+```
+
+<AdPlaceholder />
+
+## Share
+
+The conversations that you have with OpenCode can be shared with your team.
+
+```bash
+/share
+```
+
+This will create a link to the current conversation and copy it to your clipboard.
+
+<Callout type="note">
+Conversations are not shared by default.
+</Callout>
+
+Here's an example conversation with OpenCode.
+
+## Customize
+
+And that's it! You are now a pro at using OpenCode.
+
+To make it your own, we recommend picking a theme, customizing the keybinds, configuring code formatters, creating custom commands, or playing around with the OpenCode config.
+
+<AdPlaceholder />

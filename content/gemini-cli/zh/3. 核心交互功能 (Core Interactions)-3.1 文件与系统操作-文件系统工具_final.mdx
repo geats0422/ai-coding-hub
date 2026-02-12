@@ -1,0 +1,208 @@
+---
+title: "文件系统工具"
+description: "了解Gemini CLI提供的全套文件系统工具，包括如何使用list_directory、read_file、write_file、glob、grep_search和replace等工具。"
+tool: "gemini-cli"
+slug: "file-system-tools"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# Gemini CLI 文件系统工具
+
+Gemini CLI 提供了一套全面的工具用于与
+本地文件系统。这些工具允许 Gemini 模型读取、写入、
+列出、搜索和修改文件和目录，一切都在您的控制之下
+通常需要确认敏感操作。
+
+<Callout type="note">
+注意：所有文件系统工具都在`rootDirectory`（通常是
+为了安全起见，您启动 CLI 的当前工作目录。路径
+您提供给这些工具一般都希望得到绝对的或者得到解决
+相对于此根目录。
+</Callout>
+
+<AdPlaceholder />
+
+## 1.`list_directory`（读取文件夹）`list_directory` 直接列出文件和子目录的名称
+指定的目录路径。它可以选择忽略提供的匹配条目
+全局模式。- **工具名称：** `list_directory`
+- **显示名称：** ReadFolder
+- **文件：** `ls.ts`
+- **参数：**
+  - `path`（字符串，必需）：要列出的目录的绝对路径。
+  - `ignore`（字符串数组，可选）：要排除的 glob 模式列表
+    来自列表（例如`["*.log", ".git"]`）。
+  - `respect_git_ignore`（布尔值，可选）：是否尊重`.gitignore`
+    列出文件时的模式。默认为`true`。
+- **行为：**
+  - 返回文件和目录名称的列表。
+  - 指示每个条目是否是一个目录。
+  - 首先按目录对条目进行排序，然后按字母顺序排序。
+- **输出 (`llmContent`):** 类似的字符串：
+  `Directory listing for /path/to/your/folder:\n[DIR] subfolder1\nfile1.txt\nfile2.png`
+- **确认：** 否。
+
+## 2.`read_file`（读取文件）`read_file` 读取并返回指定文件的内容。这个工具处理
+文本、图像（PNG、JPG、GIF、WEBP、SVG、BMP）、音频文件（MP3、WAV、AIFF、AAC、
+OGG、FLAC）和 PDF 文件。对于文本文件，它可以读取特定的行范围。
+其他二进制文件类型通常会被跳过。- **工具名称：** `read_file`
+- **显示名称：** ReadFile
+- **文件：** `read-file.ts`
+- **参数：**
+  - `path`（字符串，必需）：要读取的文件的绝对路径。
+  - `offset`（数字，可选）：对于文本文件，从 0 开始的行号
+    开始阅读。需要设置`limit`。
+  - `limit`（数字，可选）：对于文本文件，最大行数
+    阅读。如果省略，则读取默认最大值（例如 2000 行）或整个
+    如果可行的话归档。
+- **行为：**
+  - 对于文本文件：返回内容。如果使用`offset`和`limit`，
+    仅返回该行片段。指示内容是否由于以下原因而被截断
+    行限制或行长度限制。
+  - 对于图像、音频和 PDF 文件：将文件内容返回为
+    适合模型使用的 base64 编码数据结构。
+  - 对于其他二进制文件：尝试识别并跳过它们，返回
+    消息表明它是通用二进制文件。
+- **输出：** (`llmContent`):
+  - 对于文本文件：文件内容，可能带有截断前缀
+    消息（例如，
+    `[File content truncated: showing lines 1-100 of 500 total lines...]\nActual file content...`）。
+  - 对于图像/音频/PDF 文件：包含 `inlineData` 和 `mimeType` 的对象
+    和 base64 `data` （例如，
+    `{ inlineData: { mimeType: 'image/png', data: 'base64encodedstring' } }`）。
+  - 对于其他二进制文件：类似的消息
+    `Cannot display content of binary file: /path/to/data.bin`。
+- **确认：** 否。## 3.`write_file`（写入文件）
+
+`write_file` 将内容写入指定文件。如果该文件存在，它将是
+被覆盖。如果该文件不存在，它（以及任何必要的父文件）
+目录）将被创建。- **工具名称：** `write_file`
+- **显示名称：** WriteFile
+- **文件：** `write-file.ts`
+- **参数：**
+  - `file_path`（字符串，必需）：要写入的文件的绝对路径。
+  - `content`（字符串，必需）：要写入文件的内容。
+- **行为：**
+  - 将提供的`content`写入`file_path`。
+  - 如果父目录不存在，则创建父目录。
+- **输出 (`llmContent`):** 成功消息，例如，
+  `Successfully overwrote file: /path/to/your/file.txt` 或
+  `Successfully created and wrote to new file: /path/to/new/file.txt`。
+- **确认：** 是的。显示更改的差异并请求用户批准
+  在写作之前。
+
+## 4.`glob`（查找文件）`glob` 查找与特定 glob 模式匹配的文件（例如，`src/**/*.ts`、
+`*.md`)，返回按修改时间排序的绝对路径（最新的在前）。- **工具名称：** `glob`
+- **显示名称：** FindFiles
+- **文件：** `glob.ts`
+- **参数：**
+  - `pattern`（字符串，必需）：要匹配的全局模式（例如，
+    `"*.py"`，`"src/**/*.js"`）。
+  - `path`（字符串，可选）：要搜索的目录的绝对路径
+    之内。如果省略，则搜索工具的根目录。
+  - `case_sensitive`（布尔值，可选）：是否应该搜索
+    区分大小写。默认为`false`。
+  - `respect_git_ignore`（布尔值，可选）：是否尊重.gitignore
+    查找文件时的模式。默认为`true`。
+- **行为：**
+  - 在指定目录中搜索与 glob 模式匹配的文件。
+  - 返回绝对路径列表，按最近修改的顺序排序
+    首先是文件。
+  - 忽略常见的滋扰目录，例如`node_modules`和`.git`
+    默认。
+- **输出 (`llmContent`):** 类似的消息：
+  `Found 5 file(s) matching "*.ts" within src, sorted by modification time (newest first):\nsrc/file1.ts\nsrc/subdir/file2.ts...`
+- **确认：** 否。## 5.`grep_search`（搜索文本）
+
+`grep_search` 在内容中搜索正则表达式模式
+指定目录中的文件。可以通过 glob 模式过滤文件。返回
+包含匹配项的行及其文件路径和行号。- **工具名称：** `grep_search`
+- **显示名称：** 搜索文本
+- **文件：** `grep.ts`
+- **参数：**
+  - `pattern`（字符串，必需）：要搜索的正则表达式（regex）
+    （例如`"function\s+myFunction"`）。
+  - `path`（字符串，可选）：要搜索的目录的绝对路径
+    之内。默认为当前工作目录。
+  - `include`（字符串，可选）：用于过滤哪些文件的全局模式
+    搜索（例如，`"*.js"`、`"src/**/*.{ts,tsx}"`）。如果省略，则搜索最多
+    文件（尊重常见忽略）。
+- **行为：**
+  - 如果 Git 存储库中可用，则使用 `git grep` 以提高速度；否则，跌倒
+    返回系统 `grep` 或基于 JavaScript 的搜索。
+  - 返回匹配行的列表，每行都以其文件路径为前缀（相对
+    到搜索目录）和行号。
+- **输出 (`llmContent`):** 格式化的匹配字符串，例如：
+```
+  Found 3 matches for pattern "myFunction" in path "." (filter: "*.ts"):
+  ---
+  File: src/utils.ts
+  L15: export function myFunction() {
+  L22:   myFunction.call();
+  ---
+  File: src/index.ts
+  L5: import { myFunction } from './utils';
+  
+```
+-
+ **确认：** 否。
+
+## 6.`replace`（编辑）
+
+`replace` 替换文件中的文本。默认情况下，替换单个出现的情况，
+但当指定 `expected_replacements` 时可以替换多次出现的情况。
+该工具专为精确、有针对性的更改而设计，需要大量
+`old_string` 周围的上下文，以确保它修改正确的位置。
+
+- **工具名称：** `replace`
+- **显示名称：** 编辑
+- **文件：** `edit.ts`
+- **参数：**
+  - `file_path`（字符串，必需）：要修改的文件的绝对路径。
+  - `old_string`（字符串，必需）：要替换的确切文字文本。**关键：** 该字符串必须唯一标识单个实例
+    改变。它应该包含至少 3 行上下文 _before_ 和 _after_
+    目标文本，精确匹配空格和缩进。如果
+    `old_string` 为空，该工具尝试在 `file_path` 创建新文件
+    以 `new_string` 作为内容。
+
+  - `new_string`（字符串，必需）：要替换的确切文字文本
+    `old_string` 与。
+  - `expected_replacements`（数字，可选）：出现的次数
+    替换。默认为`1`。- **行为：**
+  - 如果`old_string`为空且`file_path`不存在，则创建一个新文件
+    以 `new_string` 作为内容。
+  - 如果提供`old_string`，它会读取`file_path`并尝试查找
+    `old_string` 正好出现一次。
+  - 如果找到一个匹配项，则会将其替换为`new_string`。
+  - **增强可靠性（多阶段编辑校正）：** 显着
+    提高编辑的成功率，特别是当模型提供时
+    `old_string` 可能并不完全精确，该工具包含
+    多阶段编辑修正机制。
+    - 如果初始 `old_string` 未找到或匹配多个位置，则
+      工具可以利用Gemini模型来迭代地完善`old_string`（并且
+      可能`new_string`）。
+    - 这个自我修正过程试图识别独特的部分
+      旨在修改的模型，使 `replace` 操作更加稳健
+      初始上下文稍有不完美。
+- **失败条件：** 尽管有修正机制，该工具仍会失败
+  如果：
+  - `file_path` 不是绝对的或者位于根目录之外。
+  - `old_string` 不为空，但`file_path` 不存在。
+  - `old_string` 为空，但 `file_path` 已​​存在。
+  - 尝试更正后，在文件中找不到 `old_string`。
+  -`old_string`被多次发现，并有自我纠错机制
+    无法将其解析为单个、明确的匹配。
+- **输出（`llmContent`）：**
+  - 关于成功：
+    `Successfully modified file: /path/to/file.txt (1 replacements).` 或
+    `Created new file: /path/to/new_file.txt with provided content.`
+  - 失败时：解释原因的错误消息（例如，
+    `Failed to edit, 0 occurrences found...`，
+    `Failed to edit, expected 1 occurrences but found 2...`）。
+- **确认：** 是的。显示建议更改的差异并询问用户
+  在写入文件之前获得批准。这些文件系统工具为Gemini CLI 理解提供了基础
+并与您当地的项目环境进行交互。
+
+<AdPlaceholder />

@@ -1,0 +1,65 @@
+---
+title: "环境配置"
+description: "了解如何为 Codex 应用程序配置本地环境，包括设置脚本和常见操作"
+tool: "codex"
+slug: "local-environments"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 本地环境
+
+本地环境允许您配置项目的工作树设置步骤和常用操作。
+
+您可以通过[Codex 应用设置](Codex://settings) 窗格配置本地环境。您可以将生成的文件签入项目的 Git 存储库中，以便与其他人共享。
+
+Codex将此配置存储在项目根目录的`.Codex`文件夹中。如果您的存储库包含多个项目，请打开包含共享`.Codex` 文件夹的项目目录。
+
+<AdPlaceholder />
+
+## 设置脚本由于工作树与本地任务在不同的目录中运行，因此您的项目可能未完全设置，并且可能缺少未检入存储库的依赖项或文件。设置脚本在 Codex 创建新工作树时在新线程开始时自动运行。
+
+使用此脚本运行配置环境所需的任何命令，例如安装依赖项或运行构建过程。
+
+例如，对于 TypeScript 项目，您可能希望使用安装脚本来安装依赖项并执行初始构建：
+```
+bas
+h
+npm install
+npm run build
+```
+如果您的设置是特定于平台的，请为 macOS、Windows 或 Linux 定义设置脚本以覆盖默认值。
+
+## 行动
+
+<section class="feature-grid">
+
+<div>
+
+使用操作来定义常见任务，例如启动应用程序的开发服务器或运行测试套件。这些操作显示在 Codex 应用程序的顶部栏中，以便快速访问。该操作将在应用程序的[集成终端](https://developers.OpenAI.com/Codex/app/features#integrated-terminal) 中运行。
+
+操作有助于避免键入常见操作，例如触发项目的构建或启动开发服务器。为了一次性快速调试，您可以直接使用集成终端。
+
+</div><CodexScreenshot
+  alt="项目动作列表显示在 Codex 应用设置中"
+  lightSrc="/images/Codex/app/actions-light.webp"
+  darkSrc="/images/Codex/app/actions-dark.webp"
+  maxHeight="400px"
+  class="mb-4 lg:mb-0"
+/>
+
+</section>
+
+例如，对于 Node.js 项目，您可以创建一个包含以下脚本的“运行”操作：
+```
+bas
+h
+npm start
+```
+如果操作的命令是特定于平台的，请为 macOS、Windows 和 Linux 定义特定于平台的脚本。
+
+要识别您的操作，请选择与每个操作关联的图标。
+
+<AdPlaceholder />

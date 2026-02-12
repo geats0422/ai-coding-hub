@@ -1,0 +1,397 @@
+---
+title: "Claude Code Quick Start Guide: Master AI Programming Assistant in 5 Minutes"
+description: "Learn how to master Claude Code in 5 minutes, from installation to your first code change. Includes common commands, workflows, and best practices."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "quick-start-guide"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Quick Start Guide: Master AI Programming Assistant in 5 Minutes
+
+Welcome to Claude Code! This powerful AI programming assistant will help you code, debug, and maintain projects faster. This guide will take you from zero to mastering Claude Code's core features in minutes.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before starting with Claude Code, make sure you have the following:
+
+- **Terminal Environment**: Open terminal or command prompt
+- **Code Project**: A code project directory to work on
+- **Account**: Valid [Claude.ai](https://claude.ai) subscription account or [Claude Console](https://console.anthropic.com/) API account
+- **Network Connection**: Stable internet connection (for authentication and AI interaction)
+
+## Step 1: Install Claude Code
+
+### Step 1.1: Choose Installation Method
+
+Claude Code offers multiple installation methods to fit different working environments.
+
+**Option A: Native Installation (Recommended)**
+
+**macOS, Linux, WSL:**
+```bash
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+**Windows PowerShell:**
+```powershell
+irm https://claude.ai/install.ps1 | iex
+```
+
+**Windows CMD:**
+```batch
+curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+```
+
+<ProTip>
+Native installation automatically updates to the latest version in the background, ensuring you always have the latest features and security fixes.
+</ProTip>
+
+**Option B: Homebrew Installation (macOS)**
+
+```bash
+brew install --cask claude-code
+```
+
+<Note>
+Homebrew installation does not auto-update, need to periodically run `brew upgrade claude-code`.
+</Note>
+
+**Option C: WinGet Installation (Windows)**
+
+```powershell
+winget install Anthropic.ClaudeCode
+```
+
+<Note>
+WinGet installation does not auto-update, need to periodically run `winget upgrade Anthropic.ClaudeCode`.
+</Note>
+
+### Step 1.2: Verify Installation
+
+After installation is complete, open a new terminal window and run:
+
+```bash
+claude --version
+```
+
+If a version number is displayed, installation was successful.
+
+## Step 2: Login to Your Account
+
+### Step 2.1: Start Login Process
+
+Run `claude` command to start interactive session:
+
+```bash
+claude
+```
+
+On first use, the system will automatically prompt you to login.
+
+### Step 2.2: Choose Account Type
+
+You can login using either of the following account types:
+
+- **Claude.ai subscription account** (recommended): Subscribe to Pro, Max, Teams, or Enterprise plans
+- **Claude Console account**: Use API access with prepaid credits
+
+### Step 2.3: Complete Authentication
+
+Follow the on-screen instructions to complete the login process. After logging in, credentials will be stored on your system, and you won't need to login again.
+
+<ProTip>
+If using Claude Console account, the system automatically creates a workspace named "Claude Code" for centralized cost tracking.
+</ProTip>
+
+## Step 3: Start Your First Session
+
+### Step 3.1: Enter Project Directory
+
+Navigate to the project directory you want to work on:
+
+```bash
+cd /path/to/your/project
+```
+
+### Step 3.2: Start Claude Code
+
+Run claude command to start session:
+
+```bash
+claude
+```
+
+You will see the welcome screen, which includes session information, recent conversations, and latest updates.
+
+<ProTip>
+Ensure your project is a Git repository, so Claude Code can better understand the project structure.
+</ProTip>
+
+### Step 3.3: View Help Information
+
+Type the following command to view available commands:
+
+```bash
+/help
+```
+
+## Step 4: Ask Your First Question
+
+### Step 4.1: Understand Your Project
+
+Let Claude analyze your codebase:
+
+```bash
+> what does this project do?
+```
+
+```bash
+> what technologies does this project use?
+```
+
+```bash
+> where is the main entry point?
+```
+
+```bash
+> explain the folder structure
+```
+
+### Step 4.2: Understand Claude Code Itself
+
+Claude Code can answer questions about its own features:
+
+```bash
+> what can Claude Code do?
+```
+
+```bash
+> how do I use slash commands in Claude Code?
+```
+
+```bash
+> can Claude Code work with Docker?
+```
+
+<Note>
+Claude Code automatically reads your files as needed, no need to manually add context.
+</Note>
+
+## Step 5: Make Your First Code Change
+
+### Step 5.1: Request a Change
+
+Try a simple task:
+
+```bash
+> add a hello world function to the main file
+```
+
+### Step 5.2: Understand the Change Process
+
+Claude Code will execute the following steps:
+
+1. **Locate file**: Find the appropriate file to modify
+2. **Show changes**: Display the suggested code changes to you
+3. **Request approval**: Wait for your confirmation
+4. **Execute change**: Make edits after approval is received
+
+<Note>
+Claude Code always requests permission before modifying files. You can approve individual changes or enable "accept all" mode for the session.
+</Note>
+
+<ProTip>
+For simple tasks, you can use "accept all" mode to speed up the process.
+</ProTip>
+
+## Step 6: Use Git in Claude Code
+
+### Step 6.1: View Change Status
+
+```bash
+> what files have I changed?
+```
+
+### Step 6.2: Create Commit
+
+```bash
+> commit my changes with a descriptive message
+```
+
+### Step 6.3: Perform Other Git Operations
+
+```bash
+> create a new branch called feature/quickstart
+```
+
+```bash
+> show me the last 5 commits
+```
+
+```bash
+> help me resolve merge conflicts
+```
+
+## Step 7: Fix Errors or Add Features
+
+### Step 7.1: Add New Features
+
+Describe what you want in natural language:
+
+```bash
+> add input validation to the user registration form
+```
+
+### Step 7.2: Fix Existing Issues
+
+Describe the bug that needs fixing:
+
+```bash
+> there's a bug where users can submit empty forms - fix it
+```
+
+### Step 7.3: Understand the Processing Flow
+
+Claude Code will automatically:
+
+- Locate relevant code files
+- Understand code context
+- Implement solution
+- Run tests to verify if available
+
+## Step 8: Try Other Common Workflows
+
+### Step 8.1: Refactor Code
+
+```bash
+> refactor the authentication module to use async/await instead of callbacks
+```
+
+### Step 8.2: Write Tests
+
+```bash
+> write unit tests for the calculator functions
+```
+
+### Step 8.3: Update Documentation
+
+```bash
+> update the README with installation instructions
+```
+
+### Step 8.4: Code Review
+
+```bash
+> review my changes and suggest improvements
+```
+
+<AdPlaceholder />
+
+## Common Commands Cheat Sheet
+
+| Command | Function | Example |
+|---------|-----------|---------|
+| `claude` | Start interactive mode | `claude` |
+| `claude "task"` | Run one-time task | `claude "fix the build error"` |
+| `claude -p "query"` | Run query and exit | `claude -p "explain this function"` |
+| `claude -c` | Continue recent conversation | `claude -c` |
+| `claude -r` | Resume previous conversation | `claude -r` |
+| `claude commit` | Create Git commit | `claude commit` |
+| `/clear` | Clear conversation history | `> /clear` |
+| `/help` | Display help information | `> /help` |
+| `exit` or Ctrl+C | Exit Claude Code | `> exit` |
+
+## Pro Tips
+
+### Tip 1: Be Specific with Your Requests
+
+**Don't say this:**
+```bash
+> fix the bug
+```
+
+**Try saying this instead:**
+```bash
+> fix the login bug where users see a blank screen after entering wrong credentials
+```
+
+<ProTip>
+The more specific your description, the more accurate Claude's response will be. Provide error messages, expected behavior, and comparison with actual behavior.
+</ProTip>
+
+### Tip 2: Use Step-by-Step Instructions
+
+Break down complex tasks into multiple steps:
+
+```bash
+> 1. create a new database table for user profiles
+```
+
+```bash
+> 2. create an API endpoint to get and update user profiles
+```
+
+```bash
+> 3. build a webpage that allows users to see and edit their information
+```
+
+<ProTip>
+Step-by-step execution lets Claude better understand context, with each step building on the previous one's results.
+</ProTip>
+
+### Tip 3: Let Claude Explore First
+
+Before making changes, let Claude understand your code:
+
+```bash
+> analyze the database schema
+```
+
+```bash
+> build a dashboard showing products that are most frequently returned by our UK customers
+```
+
+<ProTip>
+Claude automatically builds understanding of your codebase, which helps make subsequent modifications more accurate.
+</ProTip>
+
+### Tip 4: Use Shortcuts to Save Time
+
+- Press `?` to view all available keyboard shortcuts
+- Use Tab for command completion
+- Press ↑ to view command history
+- Type `/` to view all slash commands
+
+### Tip 5: Make Good Use of Slash Commands
+
+Claude Code provides various slash commands:
+- `/help`: Get help information
+- `/compact`: Compress conversation history
+- `/clear`: Clear current conversation
+- `/config`: Open configuration menu
+
+## Conclusion
+
+Congratulations on completing Claude Code quick start! You've now mastered:
+
+- ✅ Install and login to Claude Code
+- ✅ Start and manage sessions
+- ✅ Ask questions and get project insights
+- ✅ Make code changes and Git operations
+- ✅ Fix bugs and add new features
+
+Next, explore more advanced features such as:
+- Custom configuration and workflow settings
+- Use MCP integration with external tools
+- Create custom skills and automation hooks
+- Extend functionality with plugins
+
+<ProTip>
+Remember: Claude Code is your AI pair programmer. Talk to it like you would to a helpful colleague - describe what you want to achieve, and it will help you get there.
+</ProTip>
+
+<AdPlaceholder />

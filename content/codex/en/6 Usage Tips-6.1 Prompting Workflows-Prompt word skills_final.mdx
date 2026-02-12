@@ -1,0 +1,59 @@
+---
+title: "Prompt word skills"
+description: "Learn how to optimize prompt words for better Codex results, including prompt word writing best practices"
+tool: "codex"
+slug: "prompting-tips"
+locale: "en"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# prompt word
+
+## Prompt word
+
+You interact with Codex by sending it prompt words (user messages) that describe what you want it to do.
+
+Example prompt words:
+```
+Explain how the transform module works and how other modules use it.
+```
+
+```
+Add a new command-line option `--json` that outputs JSON.
+```When
+ you submit a prompt word, Codex works in a loop: it calls the model, and then performs whatever operations are indicated in the model output (file reads, file edits, tool calls, etc.). This process ends when the task is completed or you cancel.
+
+<Callout type="tip">
+Codex's effects depend on the instructions you give it. Including steps for verification work, such as reproducing the problem, verifying functionality, and running linting and pre-commit checks, can produce higher quality output.
+</Callout>
+
+<Callout type="note">
+Codex works better with complex tasks when you break them down into smaller, focused steps. Smaller tasks are easier for Codex to test and easier for you to review. If you're not sure how to split your tasks, you can ask Codex to come up with a plan.
+</Callout>
+
+See [工作流](https://developers.openai.com/codex/workflows) for more tips on Codex ideas.
+
+<AdPlaceholder />
+
+## Thread
+
+A thread is a single session: your prompt words and the resulting model output and tool calls. Threads can contain multiple prompt words. For example, your first prompt might ask Codex to implement a feature, while subsequent prompts might ask it to add a test.
+
+A thread is said to be "running" when Codex is actively processing it. You can run multiple threads simultaneously, but avoid two threads modifying the same file. You can also resume a thread by continuing it with another prompt word.
+
+Threads can run locally or in the cloud:
+
+- **Local thread** runs on your machine. Codex can read and edit your files and run commands, so you can see changes and use your existing tools. To reduce the risk of unwanted changes outside the workspace, local threads run in [沙箱](https://developers.openai.com/codex/security).
+- **Cloud Threads** run in isolated [环境](https://developers.openai.com/codex/cloud/environments). Codex clones your code base and checks out the branch it's on. Cloud threads are useful when you want to run work in parallel or delegate tasks from another device. To use Cloud Threads with your code base, first push your code to GitHub. You can also [从本地机器委派任务](https://developers.openai.com/codex/ide/cloud-tasks), which includes your current employment status.
+
+## Context
+
+When you submit a prompt, please include context that Codex can use, such as references to relevant files and images. The Codex IDE extension automatically includes the list of open files and selected text ranges as context.
+
+As the agent works, it also gathers context from file contents, tool output, and an ongoing record of actions it has completed and still needs to perform.
+
+All information in the thread must fit within the model's context window, which varies from model to model. Codex monitors and reports remaining space. For longer tasks, Codex may automatically compress context by summarizing relevant information and discarding less relevant details. By repeatedly compressing, Codex can continue processing complex tasks in many steps.
+
+<AdPlaceholder />

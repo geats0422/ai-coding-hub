@@ -1,0 +1,269 @@
+---
+title: "Claude Code Desktop App Complete Guide: Local Sessions and Git Worktrees in Practice"
+description: "Learn how to use Claude Code desktop app for local session management, including Git worktrees, environment configuration, .worktreeinclude files, and remote session launch features."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "desktop-app"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Desktop App Complete Guide: Local Sessions and Git Worktrees in Practice
+
+The Claude Code desktop application provides a native interface for running multiple Claude Code sessions on your local machine, seamlessly integrated with the web version of Claude Code. This guide will help you master the desktop app's core features, including parallel sessions, Git worktrees, and environment customization.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before starting with Claude Code desktop app, make sure you have the following ready:
+
+- **Operating System**: macOS (Intel and Apple Silicon universal build) or Windows (x64)
+- **Desktop App**: Claude desktop app installed
+- **Claude Code Account**: Logged in
+
+<Note>
+Windows ARM64 does not support local sessions.
+</Note>
+
+## Step 1: Launch Claude Desktop App
+
+Open the Claude desktop app, and you will see an options menu for creating and managing sessions.
+
+<ProTip>
+On first launch, the app may prompt you to login to your Claude Code account.
+</ProTip>
+
+## Step 2: Create a Local Session
+
+### Step 2.1: Open New Session Tab
+
+Click the "New Session" button to start creating a new local session.
+
+### Step 2.2: Select Project
+
+Select the project directory you want to work on. The desktop app will navigate to that directory.
+
+### Step 2.3: Local Session Features
+
+Local sessions run in Git worktrees, which means:
+- **Independent Working Directory**: Each session has its own copy of the filesystem
+- **No Conflicts**: Multiple sessions can simultaneously modify the same project without affecting each other
+
+### Step 2.4: Session Naming
+
+Give the session a descriptive name for easy identification.
+
+## Step 3: Understand Git Worktrees
+
+Git worktrees allow Claude Code desktop app to run multiple sessions in parallel on the same repository.
+
+### Step 3.1: Default Location
+
+By default, worktrees are stored in the `~/.claude-worktrees` directory.
+
+### Step 3.2: View Existing Worktrees
+
+The desktop app will display all current worktrees and their status.
+
+## Step 4: Configure .worktreeinclude Files
+
+### Step 4.1: What is a .worktreeinclude File
+
+The `.worktreeinclude` file specifies which git-ignored files should be automatically copied to the new working directory when creating a worktree.
+
+<ProTip>
+This is especially useful for `.env`, `.env.local`, and other configuration files.
+</ProTip>
+
+### Step 4.2: Create .worktreeinclude File
+
+Create a `.worktreeinclude` file in the project root, adding file patterns that need to be copied:
+
+```markdown
+.env
+.env.local
+.env.*
+**/.claude/settings.local.json
+```
+
+### Step 4.3: Automatic Copy Behavior
+
+When creating a new worktree, Claude Code will:
+- Read the project root's `.worktreeinclude`
+- Copy matching files to the new worktree
+- Ensure the worktree has a complete development environment
+
+<ProTip>
+This ensures each local session has the required configuration files without manual copying.
+</ProTip>
+
+### Step 4.4: File Matching Rules
+
+`.worktreeinclude` uses Gitignore-style file patterns:
+- `*` matches any characters
+- `**/*.local` matches multi-level directories
+- Supports paths like `config/production.env`
+
+## Step 5: Environment Variable Configuration
+
+### Step 5.1: Desktop App Environment Variables
+
+The desktop app automatically extracts `$PATH` environment variables from your shell configuration.
+
+<ProTip>
+This means local sessions can access commands like `yarn`, `npm`, `node` without additional configuration.
+</ProTip>
+
+### Step 5.2: Project-Specific Variables
+
+Customize environment variables for specific projects:
+1. In the desktop app, select "local" environment
+2. Click the settings button
+3. Add environment variable key-value pairs
+
+<Note>
+These variables apply only to the current session and project.
+</Note>
+
+## Step 6: Launch Remote Sessions
+
+### Step 6.1: Switch to Remote Environment
+
+When creating a new session, select "remote" environment instead of "local" environment.
+
+### Step 6.2: Remote Session Features
+
+Remote sessions run on Anthropic's secure cloud infrastructure, providing:
+- Higher computing resources
+- Cloud execution
+- No local installation required
+
+<ProTip>
+Remote sessions are suitable for tasks that require heavy computation or cannot run locally.
+</ProTip>
+
+## Common Use Case Scenarios
+
+### Use Case 1: Parallel Development
+
+Run multiple local sessions on the same project simultaneously, each handling different feature development.
+
+<ProTip>
+Each worktree is a completely independent copy of the project state, allowing safe parallel work.
+</ProTip>
+
+### Use Case 2: Isolated Testing
+
+Use local sessions to test new features without affecting the main project.
+
+### Use Case 3: Configuration File Management
+
+Use `.worktreeinclude` to ensure each development environment has the correct configuration.
+
+<ProTip>
+Centrally managing the `.worktreeinclude` file keeps all project environments automatically synchronized.
+</ProTip>
+
+## Step 7: Session Management
+
+### Step 7.1: View All Sessions
+
+The desktop app's session tab displays all active sessions.
+
+### Step 7.2: Session Operations
+
+- **Switch Session**: Quickly switch between different sessions
+- **Terminate Session**: Stop inactive sessions
+
+### Step 7.3: Session Persistence
+
+Local sessions save state on exit and restore on next launch.
+
+<ProTip>
+This allows you to work seamlessly across multiple sessions, each maintaining its context.
+</ProTip>
+
+### Step 7.4: Delete Session
+
+Sessions no longer needed can be deleted to free up resources.
+
+## Pro Tips
+
+### Tip 1: Use Worktrees Reasonably
+
+<ProTip>
+Git worktrees are powerful tools, but each worktree occupies disk space. Regularly clean up unused worktrees to free up storage space.
+</ProTip>
+
+### Tip 2: Environment Variable Isolation
+
+Different projects may need different environment configurations. Use session-level environment variables to avoid configuration conflicts.
+
+### Tip 3: Session Naming Convention
+
+Use descriptive names for sessions, such as "feature-login", "bugfix-api", etc., for quick identification.
+
+### Tip 4: Remote vs Local Selection
+
+- **Local Sessions**: Quick iteration, need local tools, personal projects
+- **Remote Sessions**: Large tasks, need more resources, cloud environment
+
+### Tip 5: Regularly Backup Important Data
+
+Although local sessions persist, it's always good practice to regularly backup important configurations and scripts.
+
+## Common Troubleshooting
+
+### Problem 1: Worktree Creation Fails
+
+<ProTip>
+Check if files in `.gitignore` are correctly ignored.
+</ProTip>
+
+<Problem>
+If worktree creation fails, check:
+- Git repository is initialized
+- User has sufficient disk permissions
+</Problem>
+
+### Problem 2: Environment Variables Not Taking Effect
+
+<Problem>
+Check:
+- Environment variables are in the correct shell configuration
+- Desktop app correctly reads environment variables
+</Problem>
+
+<Solution>
+Try recreating the session or restarting the desktop app.
+</Solution>
+
+### Problem 3: Remote Session Cannot Launch
+
+<Problem>
+Check:
+- Network connection is working
+- Claude Code account is valid
+- Cloud service is available
+</Problem>
+
+### Problem 4: .worktreeinclude File Not Working
+
+<ProTip>
+Ensure:
+1. File is located in project root
+2. Correct Gitignore format is used
+3. File uses Unix line endings (LF)
+</ProTip>
+
+## Conclusion
+
+Claude Code desktop app provides powerful parallel development capabilities through Git worktrees, allowing you to:
+- Work on multiple features in the same project simultaneously
+- Independently configure each development environment
+- Flexibly switch between local and remote environments
+
+Mastering these features will significantly improve your development efficiency, especially when handling large projects or team collaboration.
+
+<AdPlaceholder />

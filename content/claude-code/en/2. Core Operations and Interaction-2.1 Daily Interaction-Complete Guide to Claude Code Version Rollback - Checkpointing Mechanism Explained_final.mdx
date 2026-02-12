@@ -1,0 +1,330 @@
+---
+title: "Complete Guide to Claude Code Version Rollback: Checkpointing Mechanism Explained"
+description: "Learn how to use Claude Code's Checkpointing feature to safely roll back code changes. Includes automatic tracking mechanisms, rollback operations, and detailed common use cases."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "checkpointing"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Complete Guide to Claude Code Version Rollback: Checkpointing Mechanism Explained
+
+In complex development tasks, erroneous code changes can lead to serious production issues. Claude Code's Checkpointing feature provides you with a safety net that automatically tracks and allows you to quickly roll back unwanted code changes, enabling you to confidently attempt ambitious large-scale refactoring.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before learning about the Checkpointing feature, make sure you meet the following conditions:
+
+- **Claude Code**: An installed and running version of Claude Code
+- **Basic usage experience**: Familiarity with Claude Code's basic file editing operations
+- **Code repository**: A project with version control or files that need editing
+- **Understanding**: Basic knowledge of version control concepts
+
+## Step 1: Understand How Checkpointing Works
+
+### Step 1.1: Automatic Tracking Mechanism
+
+When you work with Claude, Checkpointing automatically captures the state of the code before each edit. This safety net allows you to confidently perform ambitious large-scale tasks because you can always return to a previous code state.
+
+**Automatic Tracking Features:**
+
+- **Each user prompt creates a new checkpoint**: Every time you submit a new request, the system automatically saves the current code state
+- **Persistence across sessions**: Checkpoints persist between sessions, and you can access them in resumed conversations
+- **Automatic cleanup**: Checkpoints are automatically cleaned up after 30 days (this setting is configurable)
+
+<ProTip>
+Checkpointing is Claude Code's built-in safety mechanism that requires no configuration to use. It silently protects your code safety in the background.
+</ProTip>
+
+### Step 1.2: Understand Tracking Scope
+
+**Tracked Changes:**
+- All direct file edits made by Claude Code file editing tools
+- Code modifications via Write, Edit, NotebookEdit tools
+- Any file changes actively triggered by Claude
+
+**Untracked Changes:**
+- Files modified by Bash commands (such as `rm`, `mv`, `cp`, etc.)
+- Edits from external concurrent sessions
+- Manual changes made outside Claude Code
+
+## Step 2: Execute Rollback Operations
+
+### Step 2.1: Open Rollback Menu
+
+There are two ways to open the rollback menu:
+
+**Method 1: Use Shortcut**
+```bash
+Esc + Esc
+```
+Press Escape key twice to open the rollback menu.
+
+**Method 2: Use Command**
+```bash
+/rewind
+```
+
+### Step 2.2: Select Rollback Type
+
+After opening the rollback menu, you can select the following restore options:
+
+| Rollback Type | Description | Use Case |
+|---------------|-------------|----------|
+| **Conversation only** | Roll back to user message while keeping code changes | When you want to rephrase the question but keep current code |
+| **Code only** | Restore file changes while keeping conversation | When you want to undo code changes but preserve conversation history |
+| **Both code and conversation** | Restore both to a previous point in the session | When you want to completely restore to a previous state |
+
+### Step 2.3: Execute Rollback Operation
+
+1. Press `Esc` twice to open the rollback menu
+2. Use arrow keys to select the checkpoint time point to roll back to
+3. Select rollback type (conversation only, code only, or both)
+4. Confirm and execute the rollback operation
+
+<ProTip>
+Before performing large-scale refactoring, it's recommended to manually create a Git commit first for double protection.
+</ProTip>
+
+## Step 3: Common Use Case Scenarios
+
+### Step 3.1: Explore Alternative Approaches
+
+When you need to try different implementation methods, Checkpointing allows you to experiment boldly without losing your starting point:
+
+**Use Case:**
+```bash
+# First attempt: Implement feature using a certain method
+> Implement user authentication module using JWT approach
+
+# Not satisfied, rollback
+Esc + Esc
+# Select restore to previous checkpoint
+
+# Second attempt: Use a different method
+> Implement user authentication module using Session approach
+```
+
+**Advantages:**
+- No need to worry about "breaking" the code
+- Can compare results of different approaches
+- Quickly switch ideas without losing progress
+
+### Step 3.2: Recover from Errors
+
+When code introduces errors or breaks functionality, you can quickly undo changes:
+
+**Use Case:**
+```bash
+# Claude's changes cause test failures
+> Run test suite
+
+# Tests fail, need to rollback
+/rewind
+# Select restore to previous successful checkpoint
+```
+
+**Advantages:**
+- Quickly restore to working state
+- Reduce debugging time
+- Avoid wasting too much time on incorrect code
+
+### Step 3.3: Iterative Feature Development
+
+When conducting variant experiments, knowing you can restore to a working state:
+
+**Use Case:**
+```bash
+# Basic functionality complete, working correctly
+> Implement user login functionality
+
+# Start trying optimizations
+> Optimize caching strategy for login performance
+
+# Optimization approach not ideal, rollback
+Esc + Esc
+# Restore to checkpoint of basic functionality
+```
+
+**Advantages:**
+- Boldly attempt optimizations and innovations
+- Maintain availability of basic version
+- Support progressive development mode
+
+## Step 4: Understand Limitations and Boundaries
+
+### Step 4.1: Bash Command Changes Not Tracked
+
+Checkpointing does not track files modified by bash commands. For example, if Claude Code runs:
+
+```bash
+# Files modified by these commands are not tracked
+rm file.txt
+mv old.txt new.txt
+cp source.txt dest.txt
+```
+
+**Why Not Tracked:**
+- Execution results of Bash commands are unpredictable
+- External tool behavior is outside Claude Code's control
+- Direct file system operations cannot be simply "undone"
+
+**Solutions:**
+- Create a Git commit before running destructive commands
+- Use `git revert` to roll back unwanted changes
+- Use destructive commands like rm with caution
+
+<ProTip>
+For any destructive operations, always perform version control first. Checkpointing is a safety net, not a replacement.
+</ProTip>
+
+### Step 4.2: External Changes Not Tracked
+
+Checkpointing only tracks files that have been edited in the current session:
+
+**Untracked Changes:**
+- Manual changes you make to files outside Claude Code
+- Edits from other concurrent sessions
+- File changes triggered by automatic sync tools
+
+**Considerations:**
+- Conflicts may occur when editing in multiple places simultaneously
+- External changes may overwrite checkpoint tracking
+- It's recommended to complete related edits in a single session
+
+### Step 4.3: Version Control Relationship
+
+**Checkpointing is not a replacement for version control:**
+
+| Feature | Checkpointing | Git Version Control |
+|----------|---------------|-------------------|
+| Recovery speed | Instant recovery | Requires manual operation |
+| Persistence | Cleaned up after 30 days | Permanent storage |
+| Collaboration support | Single user | Multi-user collaboration |
+| Branch support | None | Supports branch management |
+| Use case | Quick rollback within session | Long-term history management |
+
+**Best Practices:**
+- Treat checkpoints as "local undo"
+- Treat Git as "permanent history"
+- Use both together for best results
+
+## Pro Tips
+
+### Tip 1: Build a Habit of Using Checkpointing
+
+- Use `/rewind` to manually create a visible checkpoint before any large-scale refactoring
+- Regularly create mental checkpoints at key milestones
+- Make rollback a standard step in the debugging workflow
+
+<ProTip>
+Develop the habit of checking the current state before key operations, making it easier to find the time point to restore to.
+</ProTip>
+
+### Tip 2: Use in Combination with Git
+
+Checkpointing and Git can form a powerful protection combination:
+
+```bash
+# Before large-scale refactoring
+git commit -m "refactor: Start large-scale refactoring"
+
+# Use Claude Code for refactoring
+> Migrate authentication module to new architecture
+
+# If issues occur
+git checkout -- .
+# Then use /rewind for fine-grained recovery
+```
+
+**Recommended Workflow:**
+1. First create a Git commit as baseline
+2. Use Checkpointing for incremental changes
+3. When issues occur, first try Checkpointing recovery
+4. For serious issues, use Git rollback
+
+### Tip 3: Understand Recovery Granularity
+
+Checkpointing's recovery granularity is by "user prompt" unit. This means:
+- **Each user request** corresponds to one checkpoint
+- Multiple edits within the same request are treated as a whole
+- Cannot restore only a part of a single edit operation
+
+**Impact:**
+- Fine control requires combination with Git
+- Multiple modifications within the same task need to be restored together
+- Plan the scope of each request
+
+### Tip 4: Configure Automatic Cleanup
+
+Checkpoints are automatically cleaned up after 30 days. If you need to adjust:
+- Longer retention is suitable for long-term projects
+- Shorter retention saves disk space
+- Consider the project cycle when choosing appropriate retention period
+
+<ProTip>
+For large projects, consider increasing the retention period for more protection.
+</ProTip>
+
+## Common Troubleshooting
+
+### Issue 1: Expected Checkpoint Not Found
+
+**Possible Causes:**
+- Checkpoint has been automatically cleaned up (over 30 days)
+- The file was not edited in the current session
+- Changes were made by external tools or concurrent sessions
+
+**Solutions:**
+- Use Git for recovery
+- Check if you're in the correct session
+- Review recent Git commits
+
+### Issue 2: Inconsistent Code State After Rollback
+
+**Possible Causes:**
+- Existence of external concurrent editing
+- Bash commands modified certain files
+- Dependencies exist between multiple checkpoints
+
+**Solutions:**
+- Use Git reset to a known good state
+- Manually merge conflicting changes
+- Avoid editing the same file in multiple places simultaneously
+
+### Issue 3: Rollback Operation Cannot Complete
+
+**Possible Causes:**
+- File is locked by an external program
+- Permission issues preventing write
+- File system error
+
+**Solutions:**
+- Check file permissions
+- Close programs that may be locking files
+- Use Git checkout for recovery
+
+### Issue 4: Checkpointing Takes Up Too Much Space
+
+**Solutions:**
+- Adjust automatic cleanup time settings
+- Regularly manually clean old checkpoints
+- Reduce edit frequency within a single session
+
+## Conclusion
+
+Checkpointing is a powerful safety mechanism provided by Claude Code that automatically tracks code changes and allows quick rollback, enabling developers to perform large-scale code modifications more confidently. Mastering this feature will help you:
+
+- ✅ Safely try different implementation approaches
+- ✅ Quickly recover from errors
+- ✅ Support iterative development workflows
+- ✅ Form complementary protection with Git version control
+
+<ProTip>
+Remember: Checkpointing is a safety net, not a replacement. Important milestones should always be permanently saved using Git.
+</ProTip>
+
+<AdPlaceholder />

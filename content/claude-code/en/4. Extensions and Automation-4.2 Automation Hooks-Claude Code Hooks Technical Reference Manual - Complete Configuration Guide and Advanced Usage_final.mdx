@@ -1,0 +1,458 @@
+---
+title: "Claude Code Hooks Technical Reference Manual: Complete Configuration Guide and Advanced Usage"
+description: "Deep dive into Claude Code hooks' complete technical specifications, including configuration file structure, event types, input/output formats, JSON control mechanisms, and security best practices."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "hooks-technical-reference"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Claude Code Hooks Technical Reference Manual
+
+Claude Code's hook system provides rich configuration options and event types, supporting everything from simple command execution to complex LLM-based intelligent decision-making. This manual aims to help developers deeply understand the technical details of hooks, master advanced configuration techniques, and thus build custom workflows that truly meet business needs. After mastering these technical points, you'll be able to fully leverage hooks' potential.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+This reference manual is intended for developers with some hook usage experience. It's recommended that you have read the getting started guide and successfully created basic hooks. Before diving into this manual, make sure you understand the following concepts:
+
+- Basic hook configuration structure and common event types
+- Basic JSON syntax and escaping rules
+- Writing and debugging command-line scripts
+
+## Configuration File Details
+
+### File Location and Priority
+
+Claude Code hook configuration supports multiple storage locations, ordered by priority from high to low:
+
+**Project-level configuration** is stored in the `.claude/settings.json` file and applies only to the current project. This configuration method is suitable for defining project-specific workflow standards, such as enforcing code formatting standards or project-specific testing processes. All team members share this configuration, making it an effective means of maintaining consistent team code style.
+
+**User-level configuration** is stored in the `~/.claude/settings.json` file and applies to all your projects. It's suitable for placing common tool configurations and cross-project default behaviors, such as universal logging hooks or global notification settings.
+
+**Local override configuration** uses the `.claude/settings.local.json` file and is not committed to version control. This allows you to make personalized adjustments without affecting team configuration, making it very suitable for temporary testing and experimentation in development environments.
+
+### Configuration Structure
+
+Hook configuration uses JSON format, organized by event type, with each event capable of containing multiple matchers:
+
+```json
+{
+  "hooks": {
+    "EventName": [
+      {
+        "matcher": "ToolPattern",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "your-command-here",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The **matcher** field is used to filter specific tools and is case-sensitive. It supports three matching methods: exact match (such as `Write` matches only the Write tool), regular expression (such as `Edit|Write` matches Edit or Write tools), and wildcard (`*` matches all tools). For global events that don't require matchers like `UserPromptSubmit` or `Stop`, the matcher field can be omitted.
+
+The **hooks** array contains the specific hook configurations to execute, supporting two types: `command` type for executing bash commands, and `prompt` type for LLM-based intelligent evaluation. The `timeout` parameter sets the maximum execution time for a single hook in seconds, avoiding long-running scripts affecting development efficiency.
+
+<AdPlaceholder />
+
+## Complete Analysis of Hook Event Types
+
+### PreToolUse Event
+
+PreToolUse is one of the most commonly used hook events, triggered after tool parameters are created but before actual invocation. This event provides complete control over tool execution, including allowing, denying, and parameter modification.
+
+**Supported matchers** cover all Claude Code tool types: Bash for shell command execution, Glob for file pattern matching, Grep for content search, Read for reading files, Edit for modifying files, Write for creating or overwriting files, and WebFetch and WebSearch for network operations.
+
+**Permission decision** functionality allows PreToolUse hooks to directly influence permission system behavior. Exit code 0 indicates allow execution and continue normal flow; exit code 2 indicates block operation, with error message displayed to Claude; other non-zero exit codes indicate non-blocking errors, execution continues but error messages appear in verbose mode.
+
+**Parameter modification** is an advanced feature that allows hooks to modify tool input parameters before execution. By returning JSON output containing `updatedInput`, you can dynamically adjust command content, file paths, or other parameters, implementing conditional automatic approval workflows.
+
+### PostToolUse Event
+
+PostToolUse triggers immediately after a tool completes successfully, making it suitable for executing follow-up processing and result verification tasks. Since the tool has already executed, this event cannot block operations, but can provide feedback information to Claude.
+
+Typical use cases for this event include: code formatting (automatically format after file editing), logging (record all executed operations), quality checks (verify generated code meets specifications), and automated testing (run test suite after code modifications).
+
+### PermissionRequest Event
+
+PermissionRequest triggers when the permission dialog is displayed to the user and can make permission decisions on behalf of the user. This is particularly valuable for building automated approval workflows, such as automatically approving low-risk operations while requesting confirmation only for high-risk operations.
+
+### Notification Event
+
+Notification event supports filtering by multiple notification types: `permission_prompt` captures permission request notifications, `idle_prompt` captures idle prompts (Claude waiting for user input for more than 60 seconds), `auth_success` captures authentication success notifications, and `elicitation_dialog` captures MCP tool elicitation requirement notifications.
+
+### User Interaction Events
+
+**UserPromptSubmit** triggers when the user submits a prompt, before Claude processes it, and can add additional context, validate prompt content, or block specific types of prompts. This event is very suitable for implementing custom prompt validation logic and context injection mechanisms.
+
+**Stop** event triggers when the main Claude Code agent completes a response, and will not run if the stop was due to user interruption. It's suitable for cleanup work before session ends or final verification checks.
+
+**SubagentStop** event triggers when a subagent task completes and can be used to verify subagent work results or trigger follow-up operations.
+
+### Session Lifecycle Events
+
+**SessionStart** triggers when Claude Code starts a new session or resumes an existing session, supporting multiple trigger sources: `startup` from startup invocation, `resume` from `--resume` or `/resume` resume operations, `clear` from `/clear` clear operations, and `compact` from compact operations. This event is very useful for loading development context, installing dependencies, or setting environment variables.
+
+**SessionEnd** triggers when the Claude Code session ends, with the `reason` field indicating the end cause: `clear` indicates using /clear to clear, `logout` indicates user logout, `prompt_input_exit` indicates user exiting while prompt input is visible, and `other` indicates other reasons. It's suitable for executing cleanup tasks and saving session state.
+
+### Context Management Events
+
+**PreCompact** triggers just before Claude Code is about to run a compact operation, supporting two trigger types: `manual` (manual invocation) and `auto` (automatic triggering). This event allows you to intervene or record state before context compression.
+
+<AdPlaceholder />
+
+## LLM-Based Intelligent Hooks
+
+In addition to traditional bash command hooks, Claude Code also supports prompt-based intelligent hooks (`type: "prompt"`). This type of hook uses an LLM to evaluate operation context and make intelligent decisions, making it particularly suitable for complex scenarios requiring semantic understanding.
+
+### How It Works
+
+Prompt-based hooks don't execute predefined commands but instead send operation context to a fast LLM (such as the Haiku model), which makes decisions based on the prompt and returns a structured JSON response. This approach enables context-aware intelligent judgment rather than just rule matching.
+
+### Configuration Example
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Evaluate if Claude should stop: $ARGUMENTS. Check if all tasks are complete.",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Use the `$ARGUMENTS` placeholder to insert the complete hook input JSON data. If the prompt doesn't contain `$ARGUMENTS`, the input data is automatically appended to the end of the prompt.
+
+### Response Format
+
+The LLM must return JSON format containing decision information:
+
+```json
+{
+  "ok": true,
+  "reason": "All tasks completed successfully"
+}
+```
+
+The `ok` field being `true` indicates allowing the operation, `false` indicates blocking the operation. The `reason` field is required when `ok` is `false` and will be displayed to Claude as the decision explanation.
+
+### Comparison with Bash Hooks
+
+| Feature | Bash Command Hooks | Prompt-Based Hooks |
+|---------|-------------------|-------------------|
+| Execution method | Run local scripts | Call LLM API |
+| Decision logic | Hardcoded rules | Natural language understanding |
+| Configuration complexity | Need to write scripts | Just configure prompts |
+| Context awareness | Depends on script parsing | Native support |
+| Response speed | Instant execution | Need to wait for API |
+| Use case | Deterministic rules | Semantic judgment scenarios |
+
+### Best Practices
+
+Prompt-based hooks should follow these principles: prompts should be specific and clear, telling the LLM what needs to be evaluated; list clear decision criteria to help the LLM make consistent judgments; set reasonable timeout (default 30 seconds) to avoid long waits; use for complex judgment scenarios, avoiding wasting API resources on simple rule-based scenarios.
+
+<AdPlaceholder />
+
+## Hook Input/Output Details
+
+### Input Data Format
+
+Hooks receive JSON format input data via stdin, containing session information and event-specific data:
+
+```json
+{
+  "session_id": "abc123",
+  "transcript_path": "/Users/.../.claude/projects/.../transcript.jsonl",
+  "cwd": "/Users/...",
+  "permission_mode": "default",
+  "hook_event_name": "PreToolUse",
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/path/to/file.txt",
+    "content": "file content"
+  },
+  "tool_use_id": "toolu_01ABC123..."
+}
+```
+
+Common fields include: `session_id` identifies the current session, `transcript_path` points to the conversation record file, `cwd` is the current working directory during execution, `permission_mode` indicates the current permission mode, and `hook_event_name` specifies the triggered event type.
+
+### Output Control Mechanism
+
+Hooks convey status and information through exit codes and stdout/stderr. **Exit code 0** indicates success, with JSON in stdout parsed as structured control output. **Exit code 2** indicates blocking error, using stderr directly as the error message. **Other non-zero exit codes** indicate non-blocking errors, with stderr displayed in verbose mode but execution continues.
+
+### JSON Advanced Output Control
+
+All hook types can return JSON containing control fields:
+
+```json
+{
+  "continue": true,
+  "stopReason": "operation prevented by security policy",
+  "suppressOutput": true,
+  "systemMessage": "Warning: Security policy violation detected"
+}
+```
+
+Setting `continue` to false causes Claude to stop processing after the hook executes. `suppressOutput` can hide stdout output, avoiding displaying sensitive information in verbose mode. `systemMessage` is used to display warning messages to the user.
+
+### PreToolUse Specific Control
+
+```json
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "permissionDecision": "allow",
+    "permissionDecisionReason": "Security check passed",
+    "updatedInput": {
+      "command": "npm run lint --fix"
+    }
+  }
+}
+```
+
+`permissionDecision` supports three values: `allow` bypasses the permission system, `deny` blocks execution, and `ask` requires user confirmation. `updatedInput` allows modifying tool parameters before execution, and when combined with `allow`, enables conditional automatic approval.
+
+### UserPromptSubmit Context Injection
+
+```json
+{
+  "decision": "block",
+  "reason": "Prompt contains potential security risks",
+  "hookSpecificOutput": {
+    "hookEventName": "UserPromptSubmit",
+    "additionalContext": "Current user context: senior developer"
+  }
+}
+```
+
+Setting `decision` to `block` can block prompt processing, and `additionalContext` allows injecting additional information as conversation context. For simple use cases, you can also directly print text to stdout, which will be injected as context.
+
+<AdPlaceholder />
+
+## Project-Specific Hook Scripts
+
+### Using Environment Variables
+
+Project-specific hook scripts should use the `$CLAUDE_PROJECT_DIR` environment variable to reference files. This variable points to the project root directory, ensuring correct file location regardless of how the current working directory changes:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/check-style.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+This approach ensures hook scripts can find the correct file path in different execution environments, making it a best practice for writing portable hooks.
+
+### Persistent Environment Variables
+
+SessionStart hooks can use the `CLAUDE_ENV_FILE` environment variable to persist settings, and these variables will take effect for subsequent bash commands throughout the session:
+
+```bash
+#!/bin/bash
+
+if [ -n "$CLAUDE_ENV_FILE" ]; then
+  echo 'export NODE_ENV=development' >> "$CLAUDE_ENV_FILE"
+  echo 'export API_URL=http://localhost:3000' >> "$CLAUDE_ENV_FILE"
+fi
+
+exit 0
+```
+
+A more advanced usage is to capture environment changes and persist all modifications, such as when using nvm:
+
+```bash
+#!/bin/bash
+
+ENV_BEFORE=$(export -p | sort)
+
+source ~/.nvm/nvm.sh
+nvm use 20
+
+if [ -n "$CLAUDE_ENV_FILE" ]; then
+  ENV_AFTER=$(export -p | sort)
+  comm -13 <(echo "$ENV_BEFORE") <(echo "$ENV_AFTER") >> "$CLAUDE_ENV_FILE"
+fi
+
+exit 0
+```
+
+This approach is particularly useful in team development, ensuring each developer uses the same Node.js version and other environment configurations.
+
+<AdPlaceholder />
+
+## MCP Tool Hook Configuration
+
+### MCP Tool Naming Convention
+
+When MCP servers provide tools, they follow a special naming pattern: `mcp__<server>__<tool>`. For example, `mcp__memory__create_entities` comes from the Memory server, `mcp__filesystem__read_file` comes from the Filesystem server, and `mcp__github__search_repositories` comes from the GitHub server.
+
+### Configuring MCP Hooks
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__memory__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Memory operation initiated' >> ~/mcp-operations.log"
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__.*__write.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/home/user/scripts/validate-mcp-write.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+The first matcher listens to all Memory server operations, and the second matcher listens to all MCP servers' operations containing "write". This fine-grained control allows you to define different processing logic for different types of MCP tools.
+
+<AdPlaceholder />
+
+## Plugin Hook System
+
+### How It Works
+
+Plugins can provide hooks that seamlessly integrate with user and project hooks. Plugin hooks are defined in the plugin's `hooks/hooks.json` file, or a custom path can be specified via the `hooks` field in the configuration. When a plugin is enabled, its hooks are automatically merged with the user configuration.
+
+### Plugin Hook Configuration Example
+
+```json
+{
+  "description": "Automatic code formatting plugin",
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/format.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Plugin hooks can use the `${CLAUDE_PLUGIN_ROOT}` environment variable to reference files within the plugin directory, and `${CLAUDE_PROJECT_DIR}` to reference the project root. Multiple hooks can respond to the same event and they execute in parallel.
+
+### Hooks Integrated with Components
+
+Skills, subagents, and slash commands can also define their own hooks in frontmatter, and these hooks are scoped to the component lifecycle:
+
+```yaml
+---
+name: secure-operations
+description: Perform operations with security checks
+hooks:
+  PreToolUse:
+    - matcher: "Bash"
+      hooks:
+        - type: command
+          command: "./scripts/security-check.sh"
+---
+```
+
+This definition allows hooks to be automatically enabled and disabled along with the component, making it very suitable for creating reusable feature packages. Component-level hooks also support the `once` option, which when set to true causes the hook to run only once per session.
+
+<AdPlaceholder />
+
+## Security Best Practices
+
+### Core Security Principles
+
+Writing secure hooks requires following these key principles. First, **validate and sanitize all input** - never blindly trust data received by hooks. Second, **always wrap shell variables in quotes** to prevent command injection attacks. Third, **prevent path traversal attacks** by checking for `..` characters in file paths. Fourth, **use absolute paths** to specify script locations, using `$CLAUDE_PROJECT_DIR` as the project root reference. Fifth, **skip sensitive files**, avoiding hooks accessing `.env`, `.git/`, key files, etc.
+
+### Configuration Security Mechanisms
+
+Claude Code's hook system has built-in security protection mechanisms. Direct edits to settings files don't take effect immediately - Claude Code takes a snapshot of hooks at startup and uses this snapshot throughout the session. If hooks are modified by external programs, the system will issue a warning requiring you to view changes in the `/hooks` menu before they can be applied. This ensures malicious hook modifications don't affect the current session.
+
+### Key Points for Writing Secure Hooks
+
+Always use proper escaping in JSON configuration, especially for quotes and backslashes. Use `exit 0` to explicitly indicate success, avoiding reliance on default behavior. Set reasonable timeout for long-running scripts to prevent consuming too many resources. Regularly review hook configurations and remove unused hooks to reduce attack surface.
+
+<AdPlaceholder />
+
+## Debugging and Troubleshooting
+
+### Basic Debugging Steps
+
+When hooks don't work as expected, follow these steps. First, use the `/hooks` command to confirm hooks are properly registered. Second, use JSON validation tools to check if configuration file syntax is correct. Third, manually run hook commands to verify their behavior before testing in production. Fourth, ensure script files have execute permissions (`chmod +x script.sh`). Fifth, run with `claude --debug` mode to view detailed hook execution logs.
+
+### Common Issues and Solutions
+
+**Quotes not properly escaped** is the most common issue. In JSON strings, you need to use `\"` to represent double quotes. **Matcher not matching** is usually due to case sensitivity or misspelled tool names. **Command not found** errors require using full paths to specify script locations.
+
+### Advanced Debugging Tips
+
+Using `claude --debug` allows you to view detailed execution process:
+
+```
+[DEBUG] Executing hooks for PostToolUse:Write
+[DEBUG] Found 1 hook matchers in settings
+[DEBUG] Matched 1 hooks for query "Write"
+[DEBUG] Executing hook command with timeout 60000ms
+[DEBUG] Hook command completed with status 0
+```
+
+Debug output will show which hook is running, the specific command being executed, success/failure status, and output or error messages. In verbose mode (ctrl+o), you can view progress messages.
+
+<AdPlaceholder />
+
+## Execution Details and Performance
+
+### Execution Characteristics
+
+Hook execution has the following characteristics. **Timeout control**: Default 60-second execution limit, with shorter or longer timeout times configurable per individual command. **Parallel execution**: All matched hooks run in parallel, improving execution efficiency. **Automatic deduplication**: Multiple identical hook commands are automatically deduplicated to avoid duplicate execution. **Environment isolation**: Runs in the current directory using Claude Code's environment variables.
+
+### Performance Optimization Recommendations
+
+Avoid using long-running hooks on hot paths, as this will significantly affect response speed. For scenarios requiring complex processing, consider using background execution or caching results. Use conditional matchers to reduce unnecessary hook trigger frequency. Regularly review hook configurations and clean up unused hooks to maintain system performance.
+
+## Summary
+
+This reference manual covers the advanced configuration options and technical details of Claude Code's hook system. From configuration file structure to detailed event type analysis, from input/output formats to security best practices, this knowledge will help you build powerful and reliable automation workflows. It's recommended to start with simple logging hooks and gradually explore more complex intelligent hooks and plugin integrations. Always pay attention to security best practices and ensure hook code is fully tested before putting it into production use.
+
+<AdPlaceholder />

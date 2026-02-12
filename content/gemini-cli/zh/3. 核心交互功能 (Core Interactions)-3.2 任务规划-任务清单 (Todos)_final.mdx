@@ -1,0 +1,70 @@
+---
+title: "托多斯"
+description: "了解如何使用 write_todos 工具在 Gemini CLI 中创建和管理复杂任务的分步计划。"
+tool: "gemini-cli"
+slug: "task-planning-todos"
+locale: "zh"
+---
+
+import { AdPlaceholder } from '@/components/AdPlaceholder'
+import { Callout } from '@/components/Callout'
+
+# 待办事项工具 (`write_todos`)
+
+本文档介绍Gemini CLI 的`write_todos` 工具。
+
+## 说明
+
+`write_todos`工具允许Gemini代理创建和管理列表
+复杂用户请求的子任务。这为您（用户）提供了更多
+了解代理的计划及其当前进度。它还有助于
+使智能体不太可能迷失其当前目标的对齐方式。
+
+<AdPlaceholder />
+
+### 参数
+
+`write_todos` 采用一个参数：
+
+- `todos`（对象数组，必需）：待办事项的完整列表。这个
+  替换现有列表。每项内容包括：
+  - `description`（字符串）：任务描述。
+  - `status`（字符串）：当前状态（`pending`、`in_progress`、
+    `completed`，或`cancelled`）。
+
+＃＃ 行为代理使用此工具将复杂的多步骤请求分解为清晰的
+计划。
+
+- **进度跟踪：** 代理在工作时更新此列表，标记任务
+  完成后为`completed`。
+- **单一焦点：** 一次只会标记一个任务`in_progress`，
+  准确指示代理当前正在做什么。
+- **动态更新：** 该计划可能会随着代理发现新的情况而演变
+  信息，导致添加新任务或删除不必要的任务
+  取消了。
+
+激活时，当前`in_progress`任务显示在输入框上方，
+让您了解立即采取的行动。您可以切换完整视图
+随时按 `Ctrl+T` 即可查看待办事项列表。
+
+使用示例（内部表示）：
+```
+javascrip
+t
+write_todos({
+  todos: [
+    { description: 'Initialize new React project', status: 'completed' },
+    { description: 'Implement state management', status: 'in_progress' },
+    { description: 'Create API service', status: 'pending' },
+  ],
+});
+```
+## 重要提示
+
+- **启用：** 该工具默认启用。您可以在您的
+  通过设置`"useWriteTodos": false`来`settings.json`文件。
+
+- **预期用途：** 该工具主要由代理用于复杂、
+  多轮任务。它通常不用于简单的单轮问题。
+
+<AdPlaceholder />

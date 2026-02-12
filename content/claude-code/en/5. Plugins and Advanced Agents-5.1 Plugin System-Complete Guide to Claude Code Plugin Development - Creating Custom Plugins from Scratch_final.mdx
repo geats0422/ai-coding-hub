@@ -1,0 +1,427 @@
+---
+title: "Complete Guide to Claude Code Plugin Development: Creating Custom Plugins from Scratch"
+description: "Learn how to create custom plugins to extend Claude Code, including plugin manifest configuration, skill development, hooks integration, MCP servers, and complete process for migrating from standalone configuration to plugins."
+date: "2026-02-10"
+tool: "Claude Code"
+slug: "develop-custom-plugins"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# Complete Guide to Claude Code Plugin Development
+
+Plugins are the core mechanism for extending Claude Code functionality. By creating custom plugins, you can package skills, agents, hooks, and MCP servers into reusable units to share with your team or community. The plugin system supports version control, cross-project sharing, and marketplace distribution, making it the best way to build scalable AI development environments. Mastering plugin development will help you customize Claude Code based on team needs.
+
+<AdPlaceholder />
+
+## Prerequisites
+
+Before starting plugin development, make sure you meet the following conditions:
+
+- Claude Code 1.0.33 or higher installed
+- Basic command-line operation experience
+- Understanding of JSON and YAML formats
+- Basic understanding of skills, agents, hooks, and other concepts
+
+## Plugins vs Standalone Configuration
+
+### When to Use Standalone Configuration
+
+Standalone configuration (`.claude/` directory) is suitable for the following scenarios: customizing Claude Code for a single project; configuration is for personal use and doesn't need sharing; quick experimentation before packaging; wanting short skill names like `/hello` or `/review`.
+
+### When to Use Plugins
+
+Plugins are suitable for the following scenarios: want to share functionality with team or community; need to use the same skills or agents across multiple projects; want version control and easy updates for extensions; distribute via marketplace. Can accept namespaced skills like `/my-plugin:hello`, namespaces can prevent conflicts between plugins.
+
+### Comparison Summary
+
+| Method | Skill Name | Best For |
+|---------|-------------|-----------|
+| Standalone (`.claude/` directory) | `/hello` | Personal workflows, project-specific customizations, quick experiments |
+| Plugin | `/plugin-name:hello` | Team sharing, community distribution, versioned releases |
+
+It's recommended to start with standalone configuration in `.claude/` for rapid iteration, then convert to plugins when ready to share.
+
+<AdPlaceholder />
+
+## Quick Start: Creating Your First Plugin
+
+### Step 1: Create Plugin Directory
+
+Each plugin is located in a separate directory containing the manifest file and skills, agents, or hooks. First, create the plugin directory:
+
+```bash
+mkdir my-first-plugin
+```
+
+### Step 2: Create Plugin Manifest
+
+The manifest file located at `.claude-plugin/plugin.json` defines the plugin's identity: name, description, and version. Claude Code uses this metadata to display the plugin in the plugin manager.
+
+Create the `.claude-plugin` directory within the plugin folder:
+
+```bash
+mkdir my-first-plugin/.claude-plugin
+```
+
+Create `my-first-plugin/.claude-plugin/plugin.json`:
+
+```json
+{
+  "name": "my-first-plugin",
+  "description": "A greeting plugin to learn the basics",
+  "version": "1.0.0",
+  "author": {
+    "name": "Your Name"
+  }
+}
+```
+
+Manifest field descriptions: `name` is the unique identifier and skill namespace, with skills using this as prefix. `description` appears when browsing or installing the plugin. `version` uses semantic versioning to track releases. `author` is optional and helps with attribution.
+
+### Step 3: Add Skill
+
+Skills are located in the `skills/` directory, with each skill being a folder containing a `SKILL.md` file. The folder name becomes the skill name, prefixed by the plugin namespace.
+
+Create the skill directory:
+
+```bash
+mkdir -p my-first-plugin/skills/hello
+```
+
+Create `my-first-plugin/skills/hello/SKILL.md`:
+
+```yaml
+---
+description: Greet user with a friendly message
+disable-model-invocation: true
+---
+
+Greet user warmly and ask how you can help them today.
+```
+
+### Step 4: Test Plugin
+
+Run Claude Code with the `--plugin-dir` flag to load the plugin for testing:
+
+```bash
+claude --plugin-dir ./my-first-plugin
+```
+
+After starting, try the new command:
+
+```shell
+/my-first-plugin:hello
+```
+
+You should see Claude respond with a greeting. Run `/help` to see if the command is listed under the plugin namespace.
+
+<AdPlaceholder />
+
+### Step 5: Add Skill Parameters
+
+Capture user input via the `$ARGUMENTS` placeholder for dynamic behavior:
+
+```yaml
+---
+description: Greet user with a personalized message
+---
+
+# Hello Command
+
+Greet user named "$ARGUMENTS" warmly and ask how you can help them today. Make greeting personal and encouraging.
+```
+
+Restart Claude Code to pick up changes, then run the command with a name:
+
+```shell
+/my-first-plugin:hello Alex
+```
+
+Claude will greet you by name.
+
+<AdPlaceholder />
+
+## Plugin Structure Overview
+
+### Directory Structure
+
+Plugins can contain multiple components. Here's the correct directory structure:
+
+| Directory | Location | Purpose |
+|-----------|-----------|---------|
+| `.claude-plugin/` | Plugin root | Contains plugin.json manifest |
+| `commands/` | Plugin root | Skills as Markdown files |
+| `agents/` | Plugin root | Custom agent definitions |
+| `skills/` | Plugin root | Agent skills with SKILL.md files |
+| `hooks/` | Plugin root | Event handlers in hooks.json |
+| `.mcp.json` | Plugin root | MCP server configuration |
+| `.lsp.json` | Plugin root | LSP server configuration |
+
+**Important warning**: Do not place `commands/`, `agents/`, `skills/`, or `hooks/` inside the `.claude-plugin/` directory. Only `plugin.json` should be inside `.claude-plugin/`, all other directories must be at the plugin root level.
+
+### Complete Plugin Example Structure
+
+```
+my-plugin/
+├── .claude-plugin/
+│   └── plugin.json
+├── commands/
+│   └── greet.md
+├── skills/
+│   └── code-review/
+│       └── SKILL.md
+├── agents/
+│   └── researcher.yaml
+├── hooks/
+│   └── hooks.json
+├── .mcp.json
+├── .lsp.json
+└── README.md
+```
+
+<AdPlaceholder />
+
+## Developing More Complex Plugins
+
+### Adding Agent Skills
+
+Plugins can contain Agent Skills to extend Claude's functionality. Skills are invoked by the model, and Claude automatically uses them based on task context.
+
+Add the `skills/` directory to the plugin root, containing skill folders with `SKILL.md` files:
+
+```yaml
+---
+name: code-review
+description: Reviews code for best practices and potential issues. Use when reviewing code, checking PRs, or analyzing code quality.
+---
+
+When reviewing code, check for:
+1. Code organization and structure
+2. Error handling
+3. Security concerns
+4. Test coverage
+```
+
+Restart Claude Code after installing the plugin to load the skill.
+
+### Adding LSP Server
+
+For common languages like TypeScript, Python, and Rust, install pre-built LSP plugins from the official marketplace. Only create custom LSP plugins when you need to support languages without official plugins.
+
+Create an LSP plugin by adding a `.lsp.json` file to the plugin:
+
+```json
+{
+  "go": {
+    "command": "gopls",
+    "args": ["serve"],
+    "extensionToLanguage": {
+      ".go": "go"
+    }
+  }
+}
+```
+
+Users installing the plugin must have the language server binary installed on their machine.
+
+### Adding MCP Server
+
+MCP (Model Context Protocol) servers allow Claude to connect with external tools and data sources. Plugins can configure MCP servers via a `.mcp.json` file:
+
+```json
+{
+  "servers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/github-mcp-server"]
+    }
+  }
+}
+```
+
+### Adding Hooks
+
+Hooks allow plugins to automatically execute custom logic when tool events occur. Create a `hooks.json` file in the `hooks/` directory:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npm run lint:fix"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+<AdPlaceholder />
+
+## Testing Plugins Locally
+
+### Test with --plugin-dir
+
+Use the `--plugin-dir` flag to test plugins during development. This loads the plugin directly without installation:
+
+```bash
+claude --plugin-dir ./my-plugin
+```
+
+Restart Claude Code when making changes to the plugin to pick up updates. Test all components: use `/command-name` to try commands, check if agents appear in `/agents`, verify hooks work as expected.
+
+### Load Multiple Plugins
+
+You can load multiple plugins at once by specifying the flag multiple times:
+
+```bash
+claude --plugin-dir ./plugin-one --plugin-dir ./plugin-two
+```
+
+### Debug Common Issues
+
+If plugins don't work as expected, troubleshoot as follows:
+
+1. **Check structure**: Ensure directories are at plugin root, not inside `.claude-plugin/`
+2. **Test components individually**: Check each command, agent, and hook separately
+3. **Use validation tools**: Run `claude plugin validate ./my-plugin` to check configuration
+
+<AdPlaceholder />
+
+## Migrating Existing Configuration to Plugins
+
+If you already have skills or hooks in the `.claude/` directory, you can convert them to plugins for easier sharing and distribution.
+
+### Migration Steps
+
+**Step 1: Create Plugin Structure**
+
+```bash
+mkdir -p my-plugin/.claude-plugin
+```
+
+Create `my-plugin/.claude-plugin/plugin.json`:
+
+```json
+{
+  "name": "my-plugin",
+  "description": "Migrated from standalone configuration",
+  "version": "1.0.0"
+}
+```
+
+**Step 2: Copy Existing Files**
+
+```bash
+# Copy commands
+cp -r .claude/commands my-plugin/
+
+# Copy agents
+cp -r .claude/agents my-plugin/
+
+# Copy skills
+cp -r .claude/skills my-plugin/
+```
+
+**Step 3: Migrate Hooks**
+
+If you have hooks in your settings, create the hooks directory and add `hooks.json`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | xargs npm run lint:fix"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Step 4: Test Migrated Plugin**
+
+```bash
+claude --plugin-dir ./my-plugin
+```
+
+Test each component to ensure everything works correctly.
+
+### Migration Changes Comparison
+
+| Standalone (`.claude/`) | Plugin |
+|---------------------------|--------|
+| Only available in one project | Can share via marketplace |
+| Files in `.claude/commands/` | Files in `plugin-name/commands/` |
+| Hooks in `settings.json` | Hooks in `hooks/hooks.json` |
+| Must manually copy to share | Install with `/plugin install` |
+
+After migration, you can delete original files from `.claude/` to avoid duplicates. The plugin version will take priority.
+
+<AdPlaceholder />
+
+## Sharing and Distributing Plugins
+
+### Prepare for Release
+
+When the plugin is ready for sharing, complete the following preparations:
+
+1. **Add documentation**: Include a `README.md` file with installation and usage instructions
+2. **Version control**: Use semantic versioning in `plugin.json`
+3. **Create marketplace**: Distribute via plugin marketplace
+4. **Team testing**: Have team members test before wider distribution
+
+### README Template
+
+A good README should include: plugin name and description, feature list, installation steps, usage examples, configuration options, known issues, and support channels.
+
+### Version Management
+
+Use semantic versioning (semantic version numbers): Major version indicates incompatible API changes, minor version indicates backward-compatible feature additions, patch version indicates backward-compatible bug fixes.
+
+<AdPlaceholder />
+
+## Troubleshooting
+
+### Common Issues
+
+**Command not recognized**: Ensure plugin is loaded using `--plugin-dir` flag, check if listed in `/help`.
+
+**Skill not loading**: Restart Claude Code to ensure plugin reloads, check if `SKILL.md` format is correct.
+
+**Hooks not triggering**: Verify `hooks.json` syntax, check if matchers are correctly configured.
+
+**Plugin cannot load**: Check if directory structure meets requirements, clear cache and retry.
+
+### Debugging Tools
+
+Claude Code provides multiple debugging commands:
+
+```bash
+# Validate plugin configuration
+claude plugin validate ./my-plugin
+
+# List loaded plugins
+claude plugin list
+
+# Check plugin dependencies
+claude plugin deps ./my-plugin
+```
+
+## Summary
+
+The plugin system provides powerful extension capabilities for Claude Code. Start with a simple greeting plugin, gradually add skills, hooks, and MCP server integrations, and finally create complete solutions to share with your team. Remember to start with standalone configuration for experimentation, verify functionality before converting to plugins for distribution. Make good use of debugging tools and version control to ensure plugin quality and maintainability.
+
+<AdPlaceholder />
