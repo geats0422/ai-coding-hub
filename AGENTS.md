@@ -210,6 +210,43 @@ npm run preview      # Preview production build
 - 三级导航结构
 - 社交链接（GitHub + Bilibili）
 
+### 6. Playbook 教程编写复盘（可复利 SOP）
+
+#### 6.1 背景与目标
+- **输入源**: `Reference Document/playbook/*.md`
+- **目标落点**: `content/playbook/zh/*.mdx` 与 `content/playbook/en/*.mdx`
+- **质量目标**: 前台可渲染、结构统一、支持中英切换、资源目录可持续扩展
+
+#### 6.2 本次任务产出（样例）
+- 中文文档: `content/playbook/zh/1. 工作流与效率-1.1 上下文卫生-Claude Code Token 外科手术指南_final.mdx`
+- 英文文档: `content/playbook/en/1. Workflow and Productivity-1.1 Context Hygiene-Claude Code Token Surgery Playbook_final.mdx`
+- 中文配图: `content/playbook/assets/你以为在写代码其实在给僵尸上下文交税：Claude Code Token 外科手术指南/context-surgery.svg`
+- 英文配图: `content/playbook/assets/claude-code-token-context-surgery/context-surgery-en.svg`
+
+#### 6.3 可复用流程（每篇照做）
+1. **源文盘点**: 从 `Reference Document/<board>/` 读取原稿，确认语言、主题、命令块与证据链接是否完整。
+2. **命名落位**: 按 `{CategoryOrder}. {Category}-{SubOrder}. {SubCategory}-{Title}_final.mdx` 命名并放入对应语言目录。
+3. **Frontmatter 标准化**: 必填 `title/description/slug/date/tool`，中英文同主题保持相同 `slug`。
+4. **MDX 转换**: 原始 Markdown 升级为 MDX，保留代码块；广告位按页面既有能力使用 `<AdPlaceholder />`。
+5. **配图规范化**: 每篇教程单独目录放在 `content/<board>/assets/<教程标题或稳定ID>/`。
+6. **图片引用方式**: 在 MDX 中使用 `import image from '../assets/.../xxx.svg'` + `<img src={image} />`。
+7. **双语同步**: 同步产出 `zh/en` 两版，结构一致、术语对应、链接一致、`slug` 一致。
+8. **构建验收**: 执行 `npm run build`，以构建通过作为文档发布门槛。
+
+#### 6.4 易错点与规避策略
+- **易错 1**: `![alt]({imageVar})` 在 MDX 中不稳定。
+  - **规避**: 统一使用 `<img src={imageVar} alt="..." />`。
+- **易错 2**: 只做中文不做英文，导致语言切换体验割裂。
+  - **规避**: 把“同 slug 的 en/zh 配对”设为完成定义（Definition of Done）。
+- **易错 3**: 资源放错到全局 `content/assets/`。
+  - **规避**: 强制放入 `content/<board>/assets/<教程目录>/`，并在 PR 自检路径。
+
+#### 6.5 完成定义（DoD）
+- [ ] `zh/en` 两个 `.mdx` 文件均已创建且可被 `PlaybookDocs` 加载
+- [ ] frontmatter 完整，且中英 `slug` 一致
+- [ ] 文章配图已落在 board 内 assets 子目录并成功渲染
+- [ ] `npm run build` 通过
+
 ---
 
 ## Documentation Rendering System

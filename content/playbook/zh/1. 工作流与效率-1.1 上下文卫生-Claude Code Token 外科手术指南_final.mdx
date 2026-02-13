@@ -1,0 +1,179 @@
+---
+title: "你以为在写代码，其实在给僵尸上下文交税：Claude Code Token 外科手术指南"
+description: "用 /clear、/compact、/context 三件套管理上下文卫生，降低无效 token 消耗，稳定提升 Claude Code 会话质量。"
+slug: "claude-code-token-context-surgery"
+date: "2026-02-13"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import contextSurgeryImage from '../assets/你以为在写代码其实在给僵尸上下文交税：Claude Code Token 外科手术指南/context-surgery.svg'
+
+# 你以为在写代码，其实在给僵尸上下文交税：Claude Code Token 外科手术指南
+
+<img src={contextSurgeryImage} alt="Claude Code 上下文卫生流程图" />
+
+> **驭智增效，慧见未来。**
+> 自动化不是花活，而是把注意力从重复动作里抢回来。
+
+## 0x00. The Matrix (乱象现场)
+
+昨晚一点多，我一边赶 Mesa Community College 的远程网课 due，一边盯着 Claude Code 修一个普通脚本错误。
+结果我没先清上下文，前面半小时的试错记录、日志、无关讨论全在。每发一条新消息，都在给旧垃圾续费。
+
+更离谱的是，前天我还在 Vercel 卡了半天，老 GitHub 账号死活解绑不掉；昨天又去查 `aicodinghub.dev` 的 Cloudflare DNS。
+上下文一脏，判断就慢，动作就拖。
+
+你看到的是“模型变笨了”，实际更常见的是：会话没有卫生管理。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Way (上下文卫生三件事)
+
+把 Claude Code 当作一台会累积熵的机器，而不是聊天框。
+
+- `/clear`：任务切换时直接清场，不给旧历史继续占窗口。
+- `/compact [instructions]`：长链路中途压缩，只保留你指定的执行信息。
+- `/context`：盯占用比例，用数据决定何时介入。
+
+> 官方文档确认了 `/clear` 与 `/compact` 的功能，也确认了 auto-compaction 会在接近上限时触发。
+> 官方文档没有给“固定百分比阈值”；“95%”来自官方仓库 issue 讨论语境，按“待验证”处理更稳。
+
+## 0x02. The System (开工前 30 秒)
+
+- [ ] 本机可运行 `claude`
+- [ ] 知道 slash commands 只在 Claude 交互会话里执行
+- [ ] 手里有一个明确目标：实现计划、当前报错、下一步动作
+- [ ] （可选）在 `CLAUDE.md` 固化 compact 指令，团队统一习惯
+
+## 0x03. 进入会话
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```markdown
+# CLAUDE.md
+## Compact Instructions
+When compacting, keep only:
+1) implementation plan
+2) last error message
+3) modified files list
+```
+
+## 0x04. 两个高频场景
+
+### 场景 A：任务做完，立刻冷启动
+
+这个动作要快，别犹豫。
+
+> 下面这些 `/` 命令只在 Claude Code 交互会话内执行，不是系统 shell 命令。
+
+```text
+/rename feat-auth-token-rotation
+```
+
+```text
+/clear
+```
+
+```text
+Conversation history cleared.
+Start a new prompt.
+```
+
+### 场景 B：会话变长，手动压缩
+
+你可以等 auto-compaction，但那通常已经很靠近边界。
+我自己的习惯是看到占用过半就干预，留足回旋空间。
+
+```text
+/context
+```
+
+```text
+Context window usage: 52%
+```
+
+```text
+/compact "Keep only the implementation plan and last error message"
+```
+
+```text
+Compacted conversation with focus instructions.
+Preserved key plan and latest failure context.
+```
+
+一句话原则：保留可执行状态，丢掉叙事噪音。
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+- Error: 直到窗口快满才压缩，结果摘要把关键细节挤没了
+  - Symptom: 回复开始飘，反复改同一个点
+  - Fix:
+    ```text
+    /context
+    ```
+    ```text
+    /compact "Keep only the implementation plan, current branch, modified files, and last error message"
+    ```
+
+- Error: 切换任务不清场，新任务被旧上下文污染
+  - Symptom: 新问题里反复出现上一任务名词
+  - Fix:
+    ```text
+    /rename feat-auth-token-rotation-next
+    ```
+    ```text
+    /clear
+    ```
+    ```text
+    /resume
+    ```
+    把 `feat-auth-token-rotation-next` 改成你自己的任务名。
+
+- Error: 你以为是模型状态不行，其实是自己喂了太多无关内容
+  - Symptom: 为了一个小 bug 连续追问十几轮还在原地
+  - Fix: 先停手，清场，重述目标，用三行说清楚“要改什么、在哪改、怎么验收”。
+
+## 0x06. 收束
+
+我现在把这个当日常卫生习惯，不当技巧。
+
+切任务就 `/clear`。
+链路拉长就 `/context` + `/compact`。
+不要等系统替你兜底。
+
+**驭智增效，慧见未来**，不是口号。
+是把算力花在结果上，把注意力留给真正难的问题。
+
+## Sources（官方证据与状态）
+
+### 已证实（Official）
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/clear`: Clear conversation history
+   - `/compact [instructions]`: Compact conversation with optional focus instructions
+
+2. `https://code.claude.com/docs/en/costs`
+   - Auto-compaction 会在接近上下文限制时触发
+   - 文档建议主动做上下文管理（`/clear`、`/compact`）
+
+3. `https://code.claude.com/docs/en/best-practices`
+   - 建议在不相关任务间使用 `/clear`，长会话主动管理 context
+
+### 待验证（Need Verification）
+
+1. “当前版本固定在 95% 才触发 Auto-compact”
+   - 官方文档未给固定百分比；官方 issue 出现过“hardcoded 95% threshold”讨论
+   - 参考：`https://github.com/anthropics/claude-code/issues/15719`
+
+2. “必须在 50% 介入”
+   - 这是实践策略，不是官方硬规则
+   - 可作为团队 SOP，但应明确是工程约定
+
+<AdPlaceholder />

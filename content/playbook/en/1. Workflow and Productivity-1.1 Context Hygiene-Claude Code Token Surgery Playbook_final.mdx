@@ -1,0 +1,193 @@
+---
+title: "You Think You're Coding, But You're Paying Zombie Context Tax: A Claude Code Token Surgery Playbook"
+description: "Use /clear, /compact, and /context to keep sessions clean, reduce token waste, and keep Claude Code fast and accurate in long workflows."
+slug: "claude-code-token-context-surgery"
+date: "2026-02-13"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import contextSurgeryImage from '../assets/claude-code-token-context-surgery/context-surgery-en.svg'
+
+# You Think You're Coding, But You're Paying Zombie Context Tax
+
+<img src={contextSurgeryImage} alt="Claude Code context hygiene workflow" />
+
+> **Drive intelligence, gain leverage.**
+> Automation is not a trick. It is how you win back attention from repetitive work.
+
+## 0x00. The Matrix (What Actually Goes Wrong)
+
+Late at night, I was fixing a small script bug in Claude Code while rushing an online class deadline.
+I forgot to clean the session first, so half an hour of failed attempts, noisy logs, and unrelated chat stayed in context.
+Every new message kept paying for old garbage.
+
+The day before, I got stuck on a Vercel account binding issue.
+Then I spent time debugging a Cloudflare DNS record for `aicodinghub.dev`.
+When context gets dirty, judgment slows down and execution drifts.
+
+What looks like "the model got worse" is often session hygiene failure.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Way (Three Hygiene Tools)
+
+Treat Claude Code like an entropy-accumulating machine, not a chat box.
+
+- `/clear`: hard reset when switching tasks.
+- `/compact [instructions]`: compress a long chain and preserve only actionable state.
+- `/context`: monitor usage and intervene early.
+
+> Official docs confirm `/clear`, `/compact`, and auto-compaction near context limits.
+> They do not provide a fixed threshold; "95%" appears in issue discussions and should be treated as unverified behavior.
+
+## 0x02. Pre-Flight (30 Seconds Before Work)
+
+- [ ] `claude` runs on your machine
+- [ ] You know slash commands run inside Claude interactive sessions, not system shell
+- [ ] You have a concrete goal: plan, current failure, next step
+- [ ] Optional: keep compact rules in `CLAUDE.md` for team consistency
+
+## 0x03. Enter the Session
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```markdown
+# CLAUDE.md
+## Compact Instructions
+When compacting, keep only:
+1) implementation plan
+2) last error message
+3) modified files list
+```
+
+## 0x04. Two High-Frequency Scenarios
+
+### Scenario A: Task complete, immediate cold start
+
+Move fast. Do not hesitate.
+
+> These slash commands run inside Claude Code interactive mode, not your shell.
+
+```text
+/rename feat-auth-token-rotation
+```
+
+```text
+/clear
+```
+
+```text
+Conversation history cleared.
+Start a new prompt.
+```
+
+### Scenario B: Session grows long, compact manually
+
+You can wait for auto-compaction, but that usually means you are already near the boundary.
+My default is to intervene around halfway to keep room for controlled execution.
+
+```text
+/context
+```
+
+```text
+Context window usage: 52%
+```
+
+```text
+/compact "Keep only the implementation plan and last error message"
+```
+
+```text
+Compacted conversation with focus instructions.
+Preserved key plan and latest failure context.
+```
+
+Rule of thumb: keep executable state, drop narrative noise.
+
+## 0x05. Pitfalls and Fixes
+
+### Error 1: Compacting too late
+
+Symptom: responses drift and rework the same point.
+
+Fix:
+
+```text
+/context
+```
+
+```text
+/compact "Keep only the implementation plan, current branch, modified files, and last error message"
+```
+
+### Error 2: Switching tasks without clearing
+
+Symptom: old terminology leaks into the new task.
+
+Fix:
+
+```text
+/rename feat-auth-token-rotation-next
+```
+
+```text
+/clear
+```
+
+```text
+/resume
+```
+
+Replace `feat-auth-token-rotation-next` with your own task name.
+
+### Error 3: Blaming model quality for context pollution
+
+Symptom: you spend many rounds on a tiny bug with no forward progress.
+
+Fix: stop, clear, restate the goal in three lines: what to change, where to change it, how to verify it.
+
+## 0x06. Wrap-Up
+
+I now treat this as hygiene, not a trick.
+
+Switch tasks: `/clear`.
+Long chain: `/context` + `/compact`.
+Do not wait for the system to save you.
+
+This is not a slogan.
+It is a way to spend compute on outcomes and keep attention for hard problems.
+
+## Sources (Evidence and Status)
+
+### Confirmed (Official)
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/clear`: clear conversation history
+   - `/compact [instructions]`: compact conversation with optional focus instructions
+
+2. `https://code.claude.com/docs/en/costs`
+   - auto-compaction triggers near context limits
+   - docs recommend proactive context hygiene (`/clear`, `/compact`)
+
+3. `https://code.claude.com/docs/en/best-practices`
+   - recommend `/clear` between unrelated tasks and active context management in long sessions
+
+### Needs Verification
+
+1. "Auto-compact always triggers at a fixed 95% threshold"
+   - not documented as a fixed number in official docs
+   - related discussion: `https://github.com/anthropics/claude-code/issues/15719`
+
+2. "You must intervene at 50%"
+   - this is an operational strategy, not an official hard rule
+   - valid as team SOP if labeled as convention
+
+<AdPlaceholder />

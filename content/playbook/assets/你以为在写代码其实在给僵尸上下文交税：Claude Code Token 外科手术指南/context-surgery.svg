@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Claude Code context surgery workflow">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="neon" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="36" y="36" width="1128" height="558" rx="24" fill="none" stroke="#1f2a44"/>
+
+  <text x="72" y="110" fill="#e2e8f0" font-size="42" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Claude Code Token 外科手术指南</text>
+  <text x="72" y="150" fill="#94a3b8" font-size="24" font-family="Segoe UI, Arial, sans-serif">会话卫生三件套：/context 监控、/compact 压缩、/clear 清场</text>
+
+  <rect x="80" y="210" width="300" height="250" rx="16" fill="#111827" stroke="#334155"/>
+  <text x="104" y="250" fill="#f8fafc" font-size="22" font-family="Consolas, monospace">/context</text>
+  <rect x="104" y="272" width="252" height="20" rx="10" fill="#1e293b"/>
+  <rect x="104" y="272" width="176" height="20" rx="10" fill="#f59e0b"/>
+  <text x="104" y="320" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">Context window usage: 52%</text>
+
+  <rect x="450" y="210" width="300" height="250" rx="16" fill="#111827" stroke="#334155"/>
+  <text x="474" y="250" fill="#f8fafc" font-size="22" font-family="Consolas, monospace">/compact</text>
+  <text x="474" y="290" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">Keep only plan + latest error</text>
+  <rect x="474" y="320" width="252" height="82" rx="12" fill="#0f172a" stroke="#1f2937"/>
+  <text x="494" y="350" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Plan</text>
+  <text x="494" y="376" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Last failure</text>
+  <text x="494" y="402" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Modified files</text>
+
+  <rect x="820" y="210" width="300" height="250" rx="16" fill="#111827" stroke="#334155"/>
+  <text x="844" y="250" fill="#f8fafc" font-size="22" font-family="Consolas, monospace">/clear</text>
+  <text x="844" y="298" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">Conversation history cleared.</text>
+  <text x="844" y="330" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">Start a new prompt.</text>
+
+  <path d="M380 335 H440" stroke="url(#neon)" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M750 335 H810" stroke="url(#neon)" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#34d399"/>
+    </marker>
+  </defs>
+
+  <text x="72" y="540" fill="#34d399" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="600">保留可执行状态，丢掉叙事噪音。</text>
+</svg>

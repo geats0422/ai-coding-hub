@@ -5,6 +5,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# Source reference docs (do not track)
+Reference Document/
+
 # Environment files
 .env
 .env.*
