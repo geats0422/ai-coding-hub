@@ -1,4 +1,5 @@
-# Update with your real publisher IDs before submission.
+# ads.txt is only required if you run ad networks.
+# Replace with your real publisher IDs before ad review.
 # Example (AdSense):
 # google.com, pub-xxxxxxxxxxxxxxxx, DIRECT, f08c47fec0942fa0
 # Example (Adsterra):
