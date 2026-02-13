@@ -39,6 +39,17 @@ GEMINI_API_KEY=your_gemini_api_key
 # 可选：广告脚本（仅同意后加载）
 VITE_ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx
 VITE_ADSTERRA_SCRIPT_URL=https://your-adsterra-script-url.js
+
+# 可选：广告位渲染模式（development | none | vercel）
+# development: 开发模式，渲染灰色占位块（便于调试）
+# none: 不渲染任何广告位（适合 AdSense 审核期）
+# vercel: 生产模式，仅渲染真实 AdSense 标签并加载 Adsterra 脚本
+VITE_AD_PLACEHOLDER_MODE=none
+
+# 当 VITE_AD_PLACEHOLDER_MODE=vercel 时，需要配置各广告位 slot
+VITE_ADSENSE_SLOT_BANNER=1234567890
+VITE_ADSENSE_SLOT_SIDEBAR=1234567890
+VITE_ADSENSE_SLOT_RECT=1234567890
 ```
 
 ### 3) 启动与构建

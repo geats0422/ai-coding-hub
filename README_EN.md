@@ -39,6 +39,17 @@ GEMINI_API_KEY=your_gemini_api_key
 # Optional: ad scripts (loaded only after consent)
 VITE_ADSENSE_CLIENT_ID=ca-pub-xxxxxxxxxxxxxxxx
 VITE_ADSTERRA_SCRIPT_URL=https://your-adsterra-script-url.js
+
+# Optional: ad slot render mode (development | none | vercel)
+# development: render gray placeholder boxes for local debugging
+# none: render nothing for ad slots (recommended during AdSense review)
+# vercel: production mode; render real AdSense slots and load Adsterra script
+VITE_AD_PLACEHOLDER_MODE=none
+
+# Required when VITE_AD_PLACEHOLDER_MODE=vercel
+VITE_ADSENSE_SLOT_BANNER=1234567890
+VITE_ADSENSE_SLOT_SIDEBAR=1234567890
+VITE_ADSENSE_SLOT_RECT=1234567890
 ```
 
 ### 3) Run and build

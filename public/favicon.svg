@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="AI Coding Hub">
+  <defs>
+    <linearGradient id="bg" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0b1020"/>
+  <rect x="4" y="4" width="56" height="56" rx="12" fill="url(#bg)"/>
+  <path d="M25 22 16 32l9 10" fill="none" stroke="#e8f8ef" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M39 22l9 10-9 10" fill="none" stroke="#e8f8ef" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="m35 18-6 28" fill="none" stroke="#0b1020" stroke-width="4" stroke-linecap="round"/>
+</svg>
