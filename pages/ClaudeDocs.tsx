@@ -101,6 +101,7 @@ const MessageBox: React.FC<{ type: keyof typeof messageClassByType; children?: R
 
 const mdxComponents: Record<string, React.ComponentType<{ children?: React.ReactNode }>> = {
   AdPlaceholder,
+  h1: () => null,
   pre: MdxCodeBlock,
   Note: ({ children }) => <MessageBox type="Note">{children}</MessageBox>,
   ProTip: ({ children }) => <MessageBox type="ProTip">{children}</MessageBox>,

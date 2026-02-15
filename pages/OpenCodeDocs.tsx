@@ -87,6 +87,7 @@ const parseDocFileMeta = (fileName: string): ParsedDocFileMeta | null => {
 
 const mdxComponents: Record<string, React.ComponentType<{ children?: React.ReactNode }>> = {
   AdPlaceholder,
+  h1: () => null,
   pre: MdxCodeBlock,
 };
 

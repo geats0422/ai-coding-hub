@@ -1,0 +1,237 @@
+---
+title: "别让上下文蒸发：Claude Code 本地语境管理系统实战"
+description: "用 CLAUDE.md、本地记忆回写与 Skills 固化流程，建立可持续复用的 Claude Code 本地语境管理系统。"
+slug: "claude-code-local-context-management-system"
+date: "2026-02-15"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import localContextImageZh from '../assets/claude-code-local-context-management-system/local-context-system-zh.svg'
+
+# 别让上下文蒸发：Claude Code 本地语境管理系统实战
+
+<img src={localContextImageZh} alt="Claude Code 本地语境管理系统示意图" />
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 智不在多，在可驭；效不在快，在可证。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+昨晚为了赶 Mesa Community College 的远程网课 due，我一边盯着 Claude Code 终端，一边调 PayPal/Wise 接口。
+
+今天再开会话，前一晚的决策像蒸发了一样。你会开始重复劳动：重讲架构，重贴报错，重写 PR 描述。
+
+更烦的是你脑子里还挂着别的雷：Vercel 上那个老 GitHub 账号 `geats0422` 解绑失败，`aicodinghub.dev` 的 Cloudflare DNS 记录又配错一条。
+
+这不是“模型不够强”，是你把工程记忆托管给了会腐烂的 Chat History。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+把 Claude Code 从补全器升级成 CLI Agent，要做三件事：
+
+- **本地记忆文件化**：用 `CLAUDE.md` + `docs/` 承载决策历史与架构变迁，不靠会话记忆续命。
+- **会话后自动回写**：每次 Coding 结束固定提示 `Update project context with what we did`，把新事实沉淀为下一轮上下文。
+- **Skill 化重复流程**：把一次手工操作固化为 `SKILL.md`，后续用短指令触发复用。
+
+> 官方文档已证实：`/init` 可初始化 `CLAUDE.md`，`/memory` 可编辑记忆文件，`/clear` 与 `/compact` 用于上下文治理。
+> `Turn this into a skill`、`Split this diff` 不是官方内建命令，应视为项目内自定义 Skill 触发语（见 Sources 的“待验证”）。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 Claude Code，并可执行 `claude`
+- [ ] 仓库有基础验证命令（如 `npm run lint`、`npm test`、`npm run build`）
+- [ ] 项目根目录可维护 `CLAUDE.md` 或 `./.claude/CLAUDE.md`
+- [ ] 团队同意把关键决策写入本地 Markdown（如 `docs/decisions/*.md`）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Build/Test Verification
+- npm run lint
+- npm test
+- npm run build
+
+## Context Update Protocol
+- At end of each coding session, run this prompt:
+  "Update project context with what we did"
+
+## Commit Strategy
+- Split large diffs into atomic commits in this order:
+  1) interface/contracts
+  2) implementation logic
+  3) tests
+```
+
+## 0x04. The Workflow (实战推演)
+
+### 场景 1：动态知识库构建（记忆不再蒸发）
+
+目标：让 AI 持续掌握“最近发生了什么”。
+
+```text
+/memory
+```
+
+```text
+Update project context with what we did
+```
+
+```text
+Expected:
+- updated CLAUDE.md or docs notes
+- new decisions + changed commands + known pitfalls recorded
+```
+
+> 官方建议把常用 build/test/lint 命令写进 `CLAUDE.md`，减少重复搜索与重复解释。
+
+### 场景 2：原子化 PR 拆分 Skill（大改动也能顺序落刀）
+
+目标：把“手工拆 Commit”变成可复用技能。
+
+```bash
+mkdir -p .claude/skills/split-diff
+```
+
+```markdown
+---
+name: split-diff
+description: Split large diff into atomic commits in interface -> logic -> tests order
+disable-model-invocation: true
+---
+
+Analyze current git diff and split into 3 commit groups:
+1) interface/contracts
+2) implementation logic
+3) tests
+
+For each group:
+- stage only related files
+- create focused commit message
+- verify tests still pass
+```
+
+```text
+/split-diff
+```
+
+```text
+Expected:
+- atomic commit sequence generated
+- each commit stays single-purpose
+```
+
+> 官方已证实 Skills 支持 `SKILL.md`、参数注入与手动触发；你可以把“Split this diff”作为该 Skill 的团队口令。
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+### Error: 上下文毒化（Context Bloat）导致建议漂移
+
+Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+```
+
+```text
+/clear
+```
+
+```text
+/memory
+```
+
+### Error: 本地记忆长期不更新，旧决策污染新实现（幻觉累积）
+
+Fix:
+
+```text
+Update project context with what we did
+```
+
+```bash
+git diff --name-only
+```
+
+```text
+Reconcile changed files with CLAUDE.md and docs/decisions
+```
+
+### Error: Skill 在当前项目失效（路径参数不匹配）
+
+Fix:
+
+```markdown
+# in .claude/skills/<skill>/SKILL.md
+Use project-relative paths only.
+Prefer: src/**, tests/**
+Avoid: hardcoded absolute paths.
+```
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+别再把工程记忆寄存在聊天记录里。
+
+Step 1：先把 `CLAUDE.md` 写成协议，不写鸡汤。把 build/test 命令、目录约束、命名规则、失败后的回滚动作都写清楚；每次改完代码都用同一条提示回写“我们刚做了什么”，让下一次会话接得住，不再靠你临场回忆。
+
+Step 2：`/clear`。就现在。
+
+Step 3：把你手工做过一次的流程沉淀成 Skill，哪怕先只固化一个动作（例如拆分 diff 或补齐 PR 描述），也比每天重新讲一遍上下文强。
+
+一周后你会看到变化：PR 描述、Commit 拆分、On-call 排查，开始从“靠运气”转成“靠协议”。
+
+**驭智增效，慧见未来。以法驭智，以术定效。**
+
+## Sources（官方证据与状态）
+
+### 已证实（Official）
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/init`: Initialize project with `CLAUDE.md` guide
+   - `/memory`: Edit `CLAUDE.md` memory files
+   - `/clear`: Clear conversation history
+   - `/compact [instructions]`: Compact conversation with optional focus instructions
+
+2. `https://code.claude.com/docs/en/memory`
+   - `Bootstrap a CLAUDE.md for your codebase with /init`
+   - Project memory supports `./CLAUDE.md` or `./.claude/CLAUDE.md`
+   - Auto memory loads first 200 lines of `MEMORY.md`
+
+3. `https://code.claude.com/docs/en/skills`
+   - Skills are defined by `.claude/skills/<skill-name>/SKILL.md`
+   - Skills can be manually invoked with `/<skill-name>`
+   - Custom slash commands have been merged into skills
+
+4. `https://code.claude.com/docs/en/common-workflows`
+   - Official workflow includes `git worktree add/list/remove` for parallel isolated sessions
+
+5. `https://code.claude.com/docs/en/best-practices`
+   - Recommends `/init` starter file and writing build/test/lint commands into `CLAUDE.md`
+
+### 待验证（Need Verification）
+
+1. `Turn this into a skill` 是官方固定命令
+   - 官方文档未列为内建命令
+   - 结论：可作为团队提示语，不是官方硬命令
+
+2. `Split this diff` 可直接触发官方默认拆分流程
+   - 官方文档未列为内建命令
+   - 结论：应通过自定义 Skill（如 `/split-diff`）落地
+
+<AdPlaceholder />

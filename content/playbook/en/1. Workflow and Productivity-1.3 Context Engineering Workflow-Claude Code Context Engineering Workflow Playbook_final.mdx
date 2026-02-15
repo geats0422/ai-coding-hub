@@ -1,0 +1,246 @@
+---
+title: "Stop Treating AI Like Autocomplete: Claude Code Context Engineering Workflow Playbook"
+description: "Upgrade Claude Code into a controllable execution agent with local memory, built-in verification loops, and stateless parallel workflows."
+slug: "claude-code-context-engineering-workflow"
+date: "2026-02-15"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import contextWorkflowImageEn from '../assets/claude-code-context-engineering-workflow/context-engineering-workflow-en.svg'
+
+# Stop Treating AI Like Autocomplete: Claude Code Context Engineering Workflow Playbook
+
+<img src={contextWorkflowImageEn} alt="Claude Code context engineering workflow diagram" />
+
+> **Drive intelligence, gain leverage.**
+> You do not lack model power. You lack context engineering and a verification loop.
+
+## 0x00. The Matrix (Agitate)
+
+You ask AI to write code. It does write code.
+Then you rework. Rework again. Explain everything again.
+
+The issue is rarely model capability. The issue is treating chat as infinite cache:
+
+- old task noise leaks into new tasks and collapses decision boundaries;
+- no local memory files, so rules drift with session history;
+- no build/test loop, so output looks right but breaks at runtime.
+
+This is not just efficiency loss. It is control loss.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+High-leverage Claude Code usage is not "ask one more prompt." It is upgrading it into a governed execution agent:
+
+- **Local memory takeover**: use `CLAUDE.md` to lock architecture constraints, naming rules, and verification commands.
+- **Built-in verification loop**: encode lint/test/build rules and enforce post-edit self-check.
+- **Stateless parallel execution**: run multiple tasks with terminals + Git worktrees; rely on `/compact` and local docs, not long-session memory.
+
+> Official docs confirm `/init`, `/clear`, and `/compact`.
+> You can enforce a 300-line team discipline, but official guidance is roughly keeping `CLAUDE.md` within about 500 lines.
+
+## 0x02. The System: Prerequisites
+
+- [ ] Claude Code installed and runnable via `claude`
+- [ ] Git repository initialized (for worktree isolation)
+- [ ] Project has executable validation commands (`npm run build`, `npm test`, `npm run lint`)
+- [ ] Team adopts `CLAUDE.md` as engineering memory entrypoint (`CLAUDE.local.md` optional for personal preferences)
+
+## 0x03. The Execution: Deployment
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Architecture Constraints
+- Follow top-down module boundaries; no cross-layer imports.
+- Keep feature logic inside `src/features/*`.
+
+## Verification Protocol
+- After each edit batch, run:
+  1) npm run lint
+  2) npm run test
+  3) npm run build
+- If any command fails, fix root cause and re-run all three.
+
+## Compact Instructions
+- Preserve only: implementation plan, changed files, last error message.
+```
+
+## 0x04. The Workflow
+
+### Scenario 1: Memory Injection
+
+Goal: constrain AI behavior into a repeatable engineering protocol through local memory files.
+
+```text
+/init
+```
+
+```text
+/memory
+```
+
+```text
+Implement feature X. Follow CLAUDE.md verification protocol.
+Run lint/test/build after coding and fix failures before final output.
+```
+
+```text
+Expected: Claude edits files -> runs commands -> reports pass/fail -> self-corrects.
+```
+
+> Official guidance: put common build/test/lint commands into `CLAUDE.md` to remove repeated searching.
+
+### Scenario 2: Stateless Parallelism
+
+Goal: isolate code state across concurrent tasks while keeping context fresh.
+
+```bash
+git worktree add ../proj-feature-a -b feature-a
+```
+
+```bash
+git worktree add ../proj-bugfix bugfix-123
+```
+
+```bash
+git worktree list
+```
+
+```bash
+cd ../proj-feature-a
+```
+
+```bash
+claude
+```
+
+```text
+/compact "Keep only the implementation plan and last error message"
+```
+
+```text
+/clear
+```
+
+```text
+Expected: each worktree owns isolated file state, sessions stay task-focused.
+```
+
+> Persist critical decisions into local docs (for example `docs/DECISIONS.md`), not only chat history.
+
+## 0x05. Troubleshooting
+
+### Error: Context bloat makes long sessions drift
+
+Fix:
+
+```text
+/context
+```
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+```
+
+```text
+/clear
+```
+
+```text
+/memory
+```
+
+### Error: MCP overload saturates context with tool descriptions
+
+Fix:
+
+```text
+/mcp
+```
+
+```bash
+claude mcp list
+```
+
+```bash
+claude mcp remove <UNUSED_SERVER_NAME>
+```
+
+Use `claude mcp list` first to get names. Example: `claude mcp remove github`.
+
+```bash
+ENABLE_TOOL_SEARCH=auto:5 claude
+```
+
+> Official docs confirm each MCP server adds context overhead. Disable unused ones and prefer CLI tooling (`gh`, `aws`, `gcloud`) when possible.
+
+## 0x06. The Ascension
+
+Upgrading AI from autocomplete to autonomous execution is not magic.
+It is three operating principles:
+
+1. local memory files
+2. verification loop
+3. stateless parallelism
+
+Ship this today: `/init` your protocol, run one worktree-parallel round, then persist key logic with `/compact` and local docs.
+
+**Drive intelligence, gain leverage.**
+
+## Sources (Evidence and Status)
+
+### Confirmed (Official)
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/init`: Initialize project with `CLAUDE.md` guide
+   - `/clear`: Clear conversation history
+   - `/compact [instructions]`: Compact conversation with optional focus instructions
+
+2. `https://code.claude.com/docs/en/memory`
+   - bootstrap `CLAUDE.md` with `/init`
+   - project memory paths: `./CLAUDE.md` or `./.claude/CLAUDE.md`
+   - auto memory loads first 200 lines of `MEMORY.md`
+
+3. `https://code.claude.com/docs/en/best-practices`
+   - recommends `/init`
+   - recommends storing build/test/lint commands in `CLAUDE.md`
+
+4. `https://code.claude.com/docs/en/common-workflows`
+   - official worktree workflow: `git worktree add/list/remove`
+
+5. `https://code.claude.com/docs/en/costs`
+   - each MCP server adds context overhead
+   - disable unused servers and lower tool-search threshold when needed
+
+6. `https://code.claude.com/docs/en/mcp`
+   - Tool Search triggers when MCP tool descriptions exceed 10% context
+   - threshold adjustable via `ENABLE_TOOL_SEARCH=auto:<N>`
+
+### Need Verification
+
+1. "`CLAUDE.md` must be under 300 lines"
+   - no official hard limit at 300 lines
+   - official guidance is around 500 lines
+   - 300 can be a team policy, not a platform rule
+
+2. "Selective MCP enablement by subdirectory is the only correct strategy"
+   - official docs support scoping and on-demand disablement
+   - no official single mandatory directory strategy
+
+<AdPlaceholder />

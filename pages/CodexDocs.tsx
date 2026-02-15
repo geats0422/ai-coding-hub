@@ -89,6 +89,7 @@ const WorkflowSteps: React.FC<{ children?: React.ReactNode }> = ({ children }) =
 
 const mdxComponents: Record<string, React.ComponentType<Record<string, unknown>>> = {
   AdPlaceholder,
+  h1: () => null,
   Callout,
   FileTree,
   ToggleSection,

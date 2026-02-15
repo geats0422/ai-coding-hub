@@ -45,6 +45,7 @@ const getFileName = (path: string) => path.split('/').pop() ?? path;
 
 const mdxComponents: Record<string, React.ComponentType<{ children?: React.ReactNode }>> = {
   AdPlaceholder,
+  h1: () => null,
   pre: MdxCodeBlock,
 };
 

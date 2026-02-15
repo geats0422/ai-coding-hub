@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Claude Code 本地语境管理系统图">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#22d3ee"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#34d399"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="34" y="34" width="1132" height="562" rx="22" fill="none" stroke="#24324d"/>
+
+  <text x="70" y="102" fill="#e5e7eb" font-size="40" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Claude Code 本地语境管理系统</text>
+  <text x="70" y="140" fill="#9ca3af" font-size="22" font-family="Segoe UI, Arial, sans-serif">记忆文件化 -> 会话回写 -> Skill 复用</text>
+
+  <rect x="80" y="210" width="300" height="250" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="102" y="252" fill="#f8fafc" font-size="24" font-family="Consolas, monospace">CLAUDE.md</text>
+  <text x="102" y="294" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">- 架构约束</text>
+  <text x="102" y="324" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">- 验证命令</text>
+  <text x="102" y="354" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">- 命名规则</text>
+
+  <rect x="450" y="210" width="300" height="250" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="472" y="252" fill="#f8fafc" font-size="24" font-family="Consolas, monospace">/memory</text>
+  <text x="472" y="294" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">Update project context</text>
+  <text x="472" y="324" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">with what we did</text>
+  <text x="472" y="366" fill="#86efac" font-size="17" font-family="Segoe UI, Arial, sans-serif">新决策持续沉淀</text>
+
+  <rect x="820" y="210" width="300" height="250" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="842" y="252" fill="#f8fafc" font-size="24" font-family="Consolas, monospace">/split-diff</text>
+  <text x="842" y="294" fill="#cbd5e1" font-size="18" font-family="Segoe UI, Arial, sans-serif">interface -> logic -> tests</text>
+  <text x="842" y="336" fill="#86efac" font-size="17" font-family="Segoe UI, Arial, sans-serif">原子提交，可复用流程</text>
+
+  <path d="M390 334 H440" stroke="url(#line)" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M760 334 H810" stroke="url(#line)" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <text x="70" y="540" fill="#34d399" font-size="26" font-family="Segoe UI, Arial, sans-serif" font-weight="600">别把工程记忆托管给会腐烂的 Chat History。</text>
+</svg>

@@ -1,0 +1,243 @@
+---
+title: "别再把 AI 当补全器：Claude Code Context Engineering Workflow 实战手册"
+description: "通过本地记忆、验证闭环与无状态并发，把 Claude Code 从补全工具升级为可控自治执行体。"
+slug: "claude-code-context-engineering-workflow"
+date: "2026-02-15"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import contextWorkflowImageZh from '../assets/claude-code-context-engineering-workflow/context-engineering-workflow-zh.svg'
+
+# 别再把 AI 当补全器：Claude Code Context Engineering Workflow 实战手册
+
+<img src={contextWorkflowImageZh} alt="Claude Code Context Engineering Workflow 示意图" />
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 你没有缺模型。你缺的是上下文工程与验证闭环。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+你让 AI 写代码，AI 也确实在写。然后你开始返工，再返工，再解释一次。
+
+问题通常不在模型本身，而在你把会话当作无限缓存：
+
+- 旧任务噪音混进新任务，决策边界消失。
+- 没有本地记忆文件，规则靠聊天历史漂流。
+- 没有 Build/Test 验证闭环，输出看起来对，运行就碎。
+
+这不是效率问题，这是工程控制权外包给随机上下文的后果。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+Claude Code 的高杠杆用法不是“多问一句”，而是把它升级成自治执行体：
+
+- **本地记忆接管**：用 `CLAUDE.md` 固化架构约束、命名规则、验证命令，让每次会话都从同一套法开始。
+- **验证闭环内置**：把 Build/Test/Lint 命令写死到记忆中，要求 AI 每轮改动后自检。
+- **无状态并发执行**：多终端 + Git Worktrees 并行跑任务，靠 `/compact` 和本地文档沉淀，而不是依赖长会话记忆。
+
+> 官方文档明确：`/init` 可初始化 `CLAUDE.md`，`/clear` 清空会话历史，`/compact` 压缩上下文。
+> 你可以设定“300 行以内”作为团队纪律；官方给出的经验值是 `CLAUDE.md` 保持在约 500 行以内。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 Claude Code，并可运行 `claude`
+- [ ] 仓库已初始化 Git（用于 worktree 并发隔离）
+- [ ] 项目具备可执行验证命令（如 `npm run build`、`npm test`、`npm run lint`）
+- [ ] 团队确认 `CLAUDE.md` 作为工程记忆入口（可加 `CLAUDE.local.md` 做个人偏好）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Architecture Constraints
+- Follow top-down module boundaries; no cross-layer imports.
+- Keep feature logic inside `src/features/*`.
+
+## Verification Protocol
+- After each edit batch, run:
+  1) npm run lint
+  2) npm run test
+  3) npm run build
+- If any command fails, fix root cause and re-run all three.
+
+## Compact Instructions
+- Preserve only: implementation plan, changed files, last error message.
+```
+
+## 0x04. The Workflow (实战推演)
+
+### 场景 1：记忆植入（Memory Injection）
+
+目标：用本地记忆文件把 AI 行为约束成可重复执行的工程协议。
+
+```text
+/init
+```
+
+```text
+/memory
+```
+
+```text
+Implement feature X. Follow CLAUDE.md verification protocol.
+Run lint/test/build after coding and fix failures before final output.
+```
+
+```text
+Expected: Claude edits files -> runs commands -> reports pass/fail -> self-corrects.
+```
+
+> 官方建议：把常用 build/test/lint 命令写进 `CLAUDE.md`，避免每次重复搜索。
+
+### 场景 2：无状态并发（Stateless Parallelism）
+
+目标：多任务并发时，隔离代码现场，保持上下文鲜活。
+
+```bash
+git worktree add ../proj-feature-a -b feature-a
+```
+
+```bash
+git worktree add ../proj-bugfix bugfix-123
+```
+
+```bash
+git worktree list
+```
+
+```bash
+cd ../proj-feature-a
+```
+
+```bash
+claude
+```
+
+```text
+/compact "Keep only the implementation plan and last error message"
+```
+
+```text
+/clear
+```
+
+```text
+Expected: each worktree owns isolated file state, sessions stay task-focused.
+```
+
+> 关键逻辑请存盘到本地文档（如 `docs/DECISIONS.md`），不要把 Chat History 当唯一知识库。
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+### Error: 上下文毒化（Context Bloat），会话越长越飘
+
+Fix:
+
+```text
+/context
+```
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+```
+
+```text
+/clear
+```
+
+```text
+/memory
+```
+
+### Error: MCP 滥用，工具描述占满上下文窗口
+
+Fix:
+
+```text
+/mcp
+```
+
+```bash
+claude mcp list
+```
+
+```bash
+claude mcp remove <UNUSED_SERVER_NAME>
+```
+
+先用 `claude mcp list` 查看服务名。示例：`claude mcp remove github`。
+
+```bash
+ENABLE_TOOL_SEARCH=auto:5 claude
+```
+
+> 官方文档明确：每个 MCP server 都会带来上下文开销；不用的就关。可优先用 `gh`、`aws`、`gcloud` 这类 CLI 减少常驻工具定义负担。
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+把 AI 从补全器升级为自治智能体，不靠玄学。靠的是三件事：
+
+1. 本地记忆文件
+2. 验证闭环
+3. 无状态并发
+
+今天就落地一次：`/init` 写入规则，跑一轮 worktree 并发，再用 `/compact` 和文档沉淀关键逻辑。
+
+**驭智增效，慧见未来。**
+
+## Sources（官方证据与状态）
+
+### 已证实（Official）
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/init`: Initialize project with `CLAUDE.md` guide
+   - `/clear`: Clear conversation history
+   - `/compact [instructions]`: Compact conversation with optional focus instructions
+
+2. `https://code.claude.com/docs/en/memory`
+   - `Bootstrap a CLAUDE.md for your codebase with /init`
+   - `Project memory` 位置支持 `./CLAUDE.md` 或 `./.claude/CLAUDE.md`
+   - auto memory 的 `MEMORY.md` 仅自动加载前 200 行
+
+3. `https://code.claude.com/docs/en/best-practices`
+   - `Run /init to generate a starter CLAUDE.md file based on your current project structure`
+   - 建议将 build/test/lint 命令写入 `CLAUDE.md`
+
+4. `https://code.claude.com/docs/en/common-workflows`
+   - 官方给出 `git worktree add/list/remove` 并行会话工作流
+
+5. `https://code.claude.com/docs/en/costs`
+   - 明确指出每个 MCP server 会增加上下文开销
+   - 建议禁用未使用服务器，必要时降低 tool search 阈值
+
+6. `https://code.claude.com/docs/en/mcp`
+   - Tool Search 默认在 MCP 工具描述超过 10% 上下文时触发
+   - 可通过 `ENABLE_TOOL_SEARCH=auto:<N>` 调整阈值
+
+### 待验证（Need Verification）
+
+1. “`CLAUDE.md` 必须限制 300 行”
+   - 官方未给 300 行硬限制；官方经验值为约 500 行以内
+   - 结论：300 行可作为团队纪律，不是官方硬规则
+
+2. “在特定子目录下按需启用 MCP 才是唯一正确姿势”
+   - 官方明确有 scope 和按需禁用建议，但未规定“唯一正确”目录策略
+   - 结论：可作为团队策略，需标注为工程约定
+
+<AdPlaceholder />

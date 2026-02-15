@@ -1,0 +1,234 @@
+---
+title: "Stop Letting Context Evaporate: Claude Code Local Context Management in Practice"
+description: "Build a durable local context system with CLAUDE.md, post-session memory updates, and reusable skills for stable Claude Code execution."
+slug: "claude-code-local-context-management-system"
+date: "2026-02-15"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import localContextImageEn from '../assets/claude-code-local-context-management-system/local-context-system-en.svg'
+
+# Stop Letting Context Evaporate: Claude Code Local Context Management in Practice
+
+<img src={localContextImageEn} alt="Claude Code local context management system diagram" />
+
+> **Drive intelligence, gain leverage.**
+> Intelligence is only useful when controllable; efficiency is only useful when verifiable.
+
+## 0x00. The Matrix (Agitate)
+
+Last night, while rushing a Mesa Community College remote class deadline, I was debugging a PayPal/Wise integration in Claude Code.
+
+Today I reopened the session. Decisions from yesterday felt gone.
+Then the loop starts: explain architecture again, paste errors again, rewrite PR description again.
+
+Meanwhile, other operational noise still hangs in your head: a failed GitHub account unbind on Vercel and a wrong Cloudflare DNS record for `aicodinghub.dev`.
+
+This is not "the model is weak." It is what happens when engineering memory is outsourced to decaying chat history.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+To upgrade Claude Code from autocomplete to CLI agent, do three things:
+
+- **File-based local memory**: store architecture decisions and evolution in `CLAUDE.md` + `docs/`, not in session luck.
+- **Post-session writeback**: end each coding round with `Update project context with what we did`.
+- **Skill-ize repeated workflows**: convert recurring manual flow into `SKILL.md` and trigger with short commands.
+
+> Official docs confirm `/init`, `/memory`, `/clear`, and `/compact`.
+> `Turn this into a skill` and `Split this diff` are not official built-ins; treat them as custom team trigger phrases.
+
+## 0x02. The System: Prerequisites
+
+- [ ] Claude Code is installed and `claude` is executable
+- [ ] Repository has baseline verification commands (`npm run lint`, `npm test`, `npm run build`)
+- [ ] You maintain `CLAUDE.md` or `./.claude/CLAUDE.md` in repo root
+- [ ] Team agrees to write key decisions into local markdown notes (`docs/decisions/*.md`)
+
+## 0x03. The Execution: Deployment
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Build/Test Verification
+- npm run lint
+- npm test
+- npm run build
+
+## Context Update Protocol
+- At end of each coding session, run this prompt:
+  "Update project context with what we did"
+
+## Commit Strategy
+- Split large diffs into atomic commits in this order:
+  1) interface/contracts
+  2) implementation logic
+  3) tests
+```
+
+## 0x04. The Workflow
+
+### Scenario 1: Dynamic Knowledge Base (memory no longer evaporates)
+
+Goal: keep AI aware of what changed recently.
+
+```text
+/memory
+```
+
+```text
+Update project context with what we did
+```
+
+```text
+Expected:
+- updated CLAUDE.md or docs notes
+- new decisions + changed commands + known pitfalls recorded
+```
+
+> Official best practice: place build/test/lint commands in `CLAUDE.md` to avoid repeated search and re-explanation.
+
+### Scenario 2: Skill for Atomic PR Split
+
+Goal: convert manual commit splitting into reusable automation.
+
+```bash
+mkdir -p .claude/skills/split-diff
+```
+
+```markdown
+---
+name: split-diff
+description: Split large diff into atomic commits in interface -> logic -> tests order
+disable-model-invocation: true
+---
+
+Analyze current git diff and split into 3 commit groups:
+1) interface/contracts
+2) implementation logic
+3) tests
+
+For each group:
+- stage only related files
+- create focused commit message
+- verify tests still pass
+```
+
+```text
+/split-diff
+```
+
+```text
+Expected:
+- atomic commit sequence generated
+- each commit stays single-purpose
+```
+
+> Skills are officially supported through `SKILL.md` with manual invocation.
+
+## 0x05. Troubleshooting
+
+### Error: Context bloat causes suggestion drift
+
+Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+```
+
+```text
+/clear
+```
+
+```text
+/memory
+```
+
+### Error: Local memory is stale and pollutes new implementation
+
+Fix:
+
+```text
+Update project context with what we did
+```
+
+```bash
+git diff --name-only
+```
+
+```text
+Reconcile changed files with CLAUDE.md and docs/decisions
+```
+
+### Error: Skill fails in current project due to path mismatch
+
+Fix:
+
+```markdown
+# in .claude/skills/<skill>/SKILL.md
+Use project-relative paths only.
+Prefer: src/**, tests/**
+Avoid: hardcoded absolute paths.
+```
+
+## 0x06. The Ascension
+
+Do not store engineering memory in chat history.
+
+Step 1: turn `CLAUDE.md` into an executable protocol (build/test commands, constraints, naming rules, rollback behavior).
+
+Step 2: `/clear` now.
+
+Step 3: convert at least one repeated manual workflow into a skill (for example diff splitting or PR description generation).
+
+Within a week, PR writing, commit splitting, and on-call debugging move from luck-driven to protocol-driven.
+
+**Drive intelligence, gain leverage. Govern AI with rules, secure output with methods.**
+
+## Sources (Evidence and Status)
+
+### Confirmed (Official)
+
+1. `https://code.claude.com/docs/en/interactive-mode`
+   - `/init`, `/memory`, `/clear`, `/compact [instructions]`
+
+2. `https://code.claude.com/docs/en/memory`
+   - `CLAUDE.md` bootstrap via `/init`
+   - project memory paths: `./CLAUDE.md` or `./.claude/CLAUDE.md`
+   - auto memory loads first 200 lines of `MEMORY.md`
+
+3. `https://code.claude.com/docs/en/skills`
+   - skills defined as `.claude/skills/<skill-name>/SKILL.md`
+   - manual invocation with `/<skill-name>`
+
+4. `https://code.claude.com/docs/en/common-workflows`
+   - worktree workflow: `git worktree add/list/remove`
+
+5. `https://code.claude.com/docs/en/best-practices`
+   - recommends `/init` and storing build/test/lint commands in `CLAUDE.md`
+
+### Need Verification
+
+1. `Turn this into a skill` is an official built-in command
+   - not listed in official built-ins
+   - treat as a team phrase, not a hard command
+
+2. `Split this diff` triggers official default split flow
+   - not listed as built-in
+   - should be implemented through custom skill (for example `/split-diff`)
+
+<AdPlaceholder />
