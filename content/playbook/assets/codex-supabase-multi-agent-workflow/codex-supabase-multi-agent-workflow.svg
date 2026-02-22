@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Codex Supabase multi-agent workflow">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38bdf8"/>
+      <stop offset="1" stop-color="#22c55e"/>
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polygon points="0 0, 10 5, 0 10" fill="#22c55e"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect x="32" y="32" width="1136" height="566" rx="20" fill="none" stroke="#22314e"/>
+
+  <text x="70" y="96" fill="#f1f5f9" font-size="36" font-family="Segoe UI, Arial, sans-serif" font-weight="700">Codex + Supabase Multi-Agent Workflow</text>
+  <text x="70" y="134" fill="#94a3b8" font-size="22" font-family="Segoe UI, Arial, sans-serif">Spec alignment -> parallel execution -> secure delivery</text>
+
+  <rect x="80" y="190" width="300" height="300" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="104" y="234" fill="#f8fafc" font-size="23" font-family="Consolas, monospace">Main Agent</text>
+  <text x="104" y="272" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Scope and spec alignment</text>
+  <text x="104" y="300" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Task decomposition</text>
+  <text x="104" y="328" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Delivery orchestration</text>
+  <text x="104" y="370" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Output: SPEC + migration plan</text>
+
+  <rect x="450" y="190" width="300" height="300" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="474" y="234" fill="#f8fafc" font-size="23" font-family="Consolas, monospace">Frontend Agent</text>
+  <text x="474" y="272" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- UI structure and interaction</text>
+  <text x="474" y="300" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Components and styling</text>
+  <text x="474" y="328" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Route and state integration</text>
+  <text x="474" y="370" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Output: pages + components</text>
+
+  <rect x="820" y="190" width="300" height="300" rx="16" fill="#0b1220" stroke="#334155"/>
+  <text x="844" y="234" fill="#f8fafc" font-size="23" font-family="Consolas, monospace">Backend Agent</text>
+  <text x="844" y="272" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- API and auth flows</text>
+  <text x="844" y="300" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- Schema and migrations</text>
+  <text x="844" y="328" fill="#cbd5e1" font-size="17" font-family="Segoe UI, Arial, sans-serif">- RLS and audit logging</text>
+  <text x="844" y="370" fill="#86efac" font-size="16" font-family="Segoe UI, Arial, sans-serif">Output: API + secure DB</text>
+
+  <path d="M388 334 H438" stroke="url(#line)" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M758 334 H808" stroke="url(#line)" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <text x="70" y="548" fill="#22c55e" font-size="25" font-family="Segoe UI, Arial, sans-serif" font-weight="600">From week-scale setup to minute-scale delivery.</text>
+</svg>

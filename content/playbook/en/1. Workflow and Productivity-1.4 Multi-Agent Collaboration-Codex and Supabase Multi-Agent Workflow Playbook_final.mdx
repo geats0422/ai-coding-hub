@@ -1,0 +1,181 @@
+---
+title: "Drop Manual Setup: Codex + Supabase Multi-Agent Workflow from Weeks to Minutes"
+description: "Use Codex + Supabase + parallel agents to move from idea to full-stack delivery in minutes with repeatable security and collaboration flow."
+slug: "codex-supabase-multi-agent-workflow"
+date: "2026-02-22"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import codexSupabaseWorkflowImage from '../assets/codex-supabase-multi-agent-workflow/codex-supabase-multi-agent-workflow.svg'
+
+# Drop Manual Setup: Codex + Supabase Multi-Agent Workflow from Weeks to Minutes
+
+<img src={codexSupabaseWorkflowImage} alt="Codex and Supabase multi-agent workflow diagram" />
+
+> **Drive intelligence, gain leverage.**
+> You are not blocked by capability. You are blocked by outdated workflow overhead.
+
+## 0x00. The Matrix
+
+How long did your last "from-zero full-stack setup" take?
+
+Three days? One week?
+
+Most teams still follow this default path:
+
+- open editor, initialize project, wire Git;
+- scaffold frontend framework, routes, and UI library;
+- implement backend APIs, migrations, and indexes;
+- hand-write database security policies and retest repeatedly;
+- debug CORS, auth, session, and integration issues;
+- burn energy on sync overhead instead of product delivery.
+
+That is not leverage. That is avoidable operational drag.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift
+
+Now switch to a workflow built for throughput:
+
+- **Fast inference loop**: high-speed model output shortens wait time from minutes to seconds.
+- **Parallel multi-agent execution**: Frontend Agent, Backend Agent, and Main Agent work concurrently.
+- **Security as flow**: Supabase RLS policies are generated and applied in the same delivery cycle.
+
+This is the practical value of **Codex + Supabase + Multi-Agent Parallel Workflow**.
+
+### Core Features
+
+- **Feature 1: fast generation loop**: complete modules can be produced in one instruction cycle.
+- **Feature 2: parallel agent orchestration**: Main Agent aligns scope while frontend and backend move in parallel.
+- **Feature 3: repeatable data security**: RLS policy templates are produced and executed with implementation.
+
+## 0x02. The System: Prerequisites
+
+- [ ] GitHub account for Codex repository integration
+- [ ] Supabase account for project, schema, and credentials
+- [ ] Cerebras API key for Spark model access (`https://cerebras.ai`)
+- [ ] Node.js >= 18 for local runtime
+- [ ] Claude Opus 4.6 (optional) for architecture review on long-running tasks
+
+## 0x03. The Execution: Deployment
+
+### Step 1: connect Codex to GitHub
+
+```bash
+# In Codex App:
+# 1. Settings -> Integrations -> GitHub
+# 2. Connect and authorize repository access
+# 3. Select existing repo or create a new one
+```
+
+### Step 2: create Supabase project and collect credentials
+
+```bash
+# In supabase.com create a project and collect:
+# - SUPABASE_URL=https://<your-project>.supabase.co
+# - SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY_HERE>
+# - SUPABASE_SERVICE_ROLE_KEY=<YOUR_SERVICE_ROLE_KEY_HERE>
+```
+
+### Step 3: configure environment variables
+
+```env
+# .env.local
+CEREBRAS_API_KEY=<YOUR_CEREBRAS_API_KEY_HERE>
+SUPABASE_URL=https://<your-project>.supabase.co
+SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY_HERE>
+SUPABASE_SERVICE_ROLE_KEY=<YOUR_SERVICE_ROLE_KEY_HERE>
+GITHUB_TOKEN=<YOUR_GITHUB_TOKEN_HERE>
+```
+
+## 0x04. The Workflow
+
+### Scenario: from prompt to full-stack delivery
+
+Main Agent instruction:
+
+```text
+Build a user authentication system with:
+1) Obsidian-style minimal dark UI
+2) user sign-up and sign-in
+3) API key authentication
+4) audit logging
+5) Supabase persistence with RLS policies
+
+Assign Frontend Agent to UI, Backend Agent to API, Main Agent to spec alignment.
+```
+
+Expected output:
+
+- Frontend Agent: `src/components/`, `src/pages/`, `src/styles/`
+- Backend Agent: `src/api/`, `src/middleware/auth.ts`, `src/utils/logger.ts`
+- Main Agent: `SPEC.md`, `supabase/migrations/`, and RLS setup
+
+```sql
+-- Example Supabase RLS policies
+CREATE POLICY "Users can only see their own data"
+ON users
+FOR SELECT
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can only insert their own data"
+ON users
+FOR INSERT
+WITH CHECK (auth.uid() = user_id);
+```
+
+## 0x05. Troubleshooting
+
+### Pitfall 1: unstable work trees causing agent drop
+
+- Symptom: one parallel agent loses state mid-run
+- Fix: pin the thread in Codex
+
+```bash
+# In Codex:
+# 1. Open Agent panel
+# 2. Right click target agent -> Pin Thread
+# 3. Confirm pinned state remains active
+```
+
+### Pitfall 2: exposed Supabase data
+
+- Symptom: table access is too open
+- Fix: enforce RLS explicitly
+
+```sql
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
+ALTER TABLE logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Enable all access for authenticated users"
+ON users FOR ALL
+TO authenticated
+USING (true)
+WITH CHECK (true);
+```
+
+### Pitfall 3: architecture debt in long-running projects
+
+- Symptom: velocity drops as code quality degrades
+- Fix: schedule architecture review every ~1000 lines of net changes
+
+```bash
+# In Codex:
+# "Review current architecture, identify technical debt, and propose refactor plan."
+```
+
+## 0x06. The Ascension
+
+You now have a minutes-level delivery workflow from idea to full-stack output.
+
+1. register Cerebras + Supabase;
+2. run this workflow for your first project;
+3. reinvest saved time into product value, not setup churn.
+
+> **Drive intelligence, gain leverage.**
+> Let tools become your multiplier, not your bottleneck.
+
+<AdPlaceholder />
