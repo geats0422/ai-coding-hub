@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/generate-sitemap.mjs && vite build",
     "preview": "vite preview",
-    "check:mdx-tables": "node scripts/check-mdx-tables.mjs"
+    "check:mdx-tables": "node scripts/check-mdx-tables.mjs",
+    "generate:sitemap": "node scripts/generate-sitemap.mjs"
   },
   "dependencies": {
     "clsx": "^2.1.1",

@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useMemo } from 'react';
+import { Link, Navigate, useParams } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import AdPlaceholder from '../components/AdPlaceholder';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
@@ -214,19 +214,27 @@ export const OpenCodeDocs: React.FC = () => {
       }));
   }, [docs]);
 
-  const [activeSlug, setActiveSlug] = useState<string>('');
+  const { slug } = useParams<{ slug?: string }>();
+  const hasSlugMatch = Boolean(slug && docs.some((item) => item.slug === slug));
+  const activeDoc = docs.find((item) => item.slug === slug) ?? docs[0];
 
   useEffect(() => {
-    if (docs.length === 0) {
+    if (!activeDoc) {
       return;
     }
 
-    if (!activeSlug || !docs.some((item) => item.slug === activeSlug)) {
-      setActiveSlug(docs[0].slug);
-    }
-  }, [activeSlug, docs]);
+    document.title = `${activeDoc.title} | AI Coding Hub`;
+    const canonicalUrl = `https://www.aicodinghub.dev/docs/opencode/${activeDoc.slug}`;
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
 
-  const activeDoc = docs.find((item) => item.slug === activeSlug) ?? docs[0];
+    if (!canonicalLink) {
+      canonicalLink = document.createElement('link');
+      canonicalLink.setAttribute('rel', 'canonical');
+      document.head.appendChild(canonicalLink);
+    }
+
+    canonicalLink.setAttribute('href', canonicalUrl);
+  }, [activeDoc]);
 
   if (docs.length === 0) {
     return (
@@ -235,6 +243,10 @@ export const OpenCodeDocs: React.FC = () => {
         <p className="text-muted-foreground">{emptyStateLabel}</p>
       </main>
     );
+  }
+
+  if (!hasSlugMatch) {
+    return <Navigate to={`/docs/opencode/${docs[0].slug}`} replace />;
   }
 
   const ActiveContent = activeDoc.Content;
@@ -262,16 +274,16 @@ export const OpenCodeDocs: React.FC = () => {
 
                           return (
                             <li key={doc.fileName}>
-                              <button
-                                onClick={() => setActiveSlug(doc.slug)}
-                                className={`w-full text-left px-5 py-2 rounded-md text-sm transition-colors ${
+                              <Link
+                                to={`/docs/opencode/${doc.slug}`}
+                                className={`block w-full text-left px-5 py-2 rounded-md text-sm transition-colors ${
                                   isActive
                                     ? 'bg-primary/10 text-primary border border-primary/20'
                                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                                 }`}
                               >
                                 {doc.title}
-                              </button>
+                              </Link>
                             </li>
                           );
                         })}

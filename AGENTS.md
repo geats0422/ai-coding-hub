@@ -97,7 +97,7 @@ npm run preview      # Preview production build
 
 1. **No linting/formatting tools** configured (no ESLint, Prettier, Stylelint)
 2. **Hot reload** enabled via Vite
-3. **Hash routing** used for static deployment compatibility
+3. **BrowserRouter** used for SEO-friendly URLs (requires vercel.json SPA rewrite for static deployment)
 4. **Command palette** accessible via `Cmd+K` / `Ctrl+K`
 
 ---
