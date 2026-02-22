@@ -247,6 +247,51 @@ npm run preview      # Preview production build
 - [ ] 文章配图已落在 board 内 assets 子目录并成功渲染
 - [ ] `npm run build` 通过
 
+### 7. 站点地图未识别复盘（渲染逻辑 / 站点地图 / 侧边栏）
+
+#### 7.1 问题现象
+- Google Search Console 中 `https://www.aicodinghub.dev/docs/claude` 等页面出现未收录/历史 404。
+- 文档页内部切换文章时 URL 不变化，多个文章共用同一路径，搜索引擎难以识别为独立页面。
+- 旧版 sitemap 仅包含少量顶层 URL，深层文章路径未暴露给爬虫。
+
+#### 7.2 根因拆解
+1. **渲染逻辑问题**
+   - 文章切换由页面内部 `useState(activeSlug)` 控制，而不是路由参数驱动。
+   - URL 仅停留在 `/docs/<category>`，文章级内容缺少可分享、可抓取的唯一地址。
+2. **站点地图问题**
+   - sitemap 为手工维护，更新滞后，无法覆盖新增文档。
+   - 仅收录分类页，未收录文章页，导致索引入口不足。
+3. **侧边栏导航问题**
+   - 侧栏使用 `button + setActiveSlug` 切文档，不会触发路由变化。
+   - 爬虫与用户刷新后都无法稳定定位到具体文章。
+
+#### 7.3 修复方案（已落地）
+1. **路由与渲染改造**
+   - 路由统一为：`/docs/:category/:slug`（并保留 `/docs/:category` 到首篇文章的重定向）。
+   - 文档页通过 `useParams()` 获取 `slug` 选择文章，移除内部状态切页依赖。
+2. **侧边栏改造**
+   - 将侧栏切换改为 `<Link to="/docs/<category>/<slug>">`。
+   - 点击文章即更新地址栏，形成可索引、可分享的唯一 URL。
+3. **SEO 元信息补齐**
+   - 每篇文章渲染时动态更新 `document.title`。
+   - 同步写入 `rel="canonical"`，指向当前文章唯一 URL。
+4. **sitemap 自动化**
+   - 新增 `scripts/generate-sitemap.mjs`，遍历 `content/*/{zh,en}/*.mdx` 自动生成全量 URL。
+   - `npm run build` 前置执行 sitemap 生成，避免手工漏更。
+
+#### 7.4 复利 SOP（后续新增文档照做）
+1. 文档 frontmatter 必填 `slug`，且保持跨语言一致。
+2. 新文档进入 `content/<board>/zh|en` 后，执行 `npm run build` 自动更新 sitemap。
+3. 侧栏仅使用路由跳转，不再使用纯本地状态切换文章。
+4. 新页面验收必须包含：直接访问文章 URL、刷新页面、canonical 正确、sitemap 已收录。
+
+#### 7.5 验收清单（DoD）
+- [ ] 每篇文章存在独立 URL：`/docs/<category>/<slug>`
+- [ ] 侧栏切换时地址栏同步变化
+- [ ] `public/sitemap.xml` 含文章级 URL
+- [ ] `document.title` 与 canonical 随文章变化
+- [ ] `npm run build` 通过
+
 ---
 
 ## Documentation Rendering System
