@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Terminal, Zap, Shield, Search } from 'lucide-react';
 import { tools } from '../data/docs';
+import { docEntryRoutes, getDocEntryRoute } from '../data/docEntryRoutes';
 import { useLanguage } from '../context/LanguageContext';
 
 export const Home = () => {
@@ -48,7 +49,7 @@ export const Home = () => {
         <div className="container mx-auto px-4 max-w-7xl">
            <div className="flex items-center justify-between mb-12">
               <h2 className="text-3xl font-bold tracking-tight">{t('popular.title')}</h2>
-              <Link to="/docs/claude" className="text-primary hover:text-primary/80 font-medium flex items-center gap-1">
+              <Link to={docEntryRoutes.claude} className="text-primary hover:text-primary/80 font-medium flex items-center gap-1">
                  {t('popular.viewAll')} <ArrowRight className="w-4 h-4" />
               </Link>
            </div>
@@ -57,7 +58,7 @@ export const Home = () => {
               {Object.values(tools).map((tool) => (
                 <Link 
                   key={tool.id} 
-                  to={`/docs/${tool.id}`}
+                  to={getDocEntryRoute(tool.id)}
                   className="group relative flex flex-col p-8 rounded-2xl bg-card border border-border hover:border-primary/50 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
                 >
                   <div className="h-14 w-14 rounded-xl bg-muted flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 border border-border">

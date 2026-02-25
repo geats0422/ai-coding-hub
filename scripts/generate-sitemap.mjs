@@ -39,8 +39,6 @@ const getSlugFromFrontmatter = (fileContent) => {
 const urls = new Set(['/','/privacy','/terms']);
 
 for (const board of docsBoards) {
-  urls.add(`/docs/${board.route}`);
-
   for (const locale of locales) {
     const contentDir = path.join(root, 'content', board.dir, locale);
 

@@ -6,6 +6,7 @@ import { CommandPalette } from './CommandPalette';
 import { CookieConsentBanner } from './CookieConsentBanner';
 import { useLanguage } from '../context/LanguageContext';
 import { tools } from '../data/docs';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -22,6 +23,9 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+
+  const isDocsCategoryActive = (category: 'claude' | 'gemini' | 'opencode' | 'codex' | 'playbook') =>
+    location.pathname === `/docs/${category}` || location.pathname.startsWith(`/docs/${category}/`);
 
   useEffect(() => {
     if (isDark) {
@@ -74,21 +78,21 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
               <NavLink to="/" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {t('nav.home')}
               </NavLink>
-              <NavLink to="/docs/claude" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+              <Link to={docEntryRoutes.claude} className={cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isDocsCategoryActive('claude') ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {tools.claude[language].name}
-              </NavLink>
-              <NavLink to="/docs/gemini" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+              </Link>
+              <Link to={docEntryRoutes.gemini} className={cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isDocsCategoryActive('gemini') ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {tools.gemini[language].name}
-              </NavLink>
-              <NavLink to="/docs/opencode" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+              </Link>
+              <Link to={docEntryRoutes.opencode} className={cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isDocsCategoryActive('opencode') ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {tools.opencode[language].name}
-              </NavLink>
-              <NavLink to="/docs/codex" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+              </Link>
+              <Link to={docEntryRoutes.codex} className={cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isDocsCategoryActive('codex') ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {tools.codex[language].name}
-              </NavLink>
-              <NavLink to="/docs/playbook" className={({isActive}) => cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isActive ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
+              </Link>
+              <Link to={docEntryRoutes.playbook} className={cn("px-4 py-2 rounded-full text-sm font-medium transition-colors", isDocsCategoryActive('playbook') ? "text-foreground bg-muted" : "text-muted-foreground hover:text-foreground hover:bg-muted/50")}>
                 {language === 'zh' ? 'AI 实战手册' : 'AI Playbook'}
-              </NavLink>
+              </Link>
             </nav>
 
             {/* Right: Actions */}
@@ -171,11 +175,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden border-b border-border bg-background p-4 space-y-2 animate-in slide-in-from-top-2">
             <NavLink to="/" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{t('nav.home')}</NavLink>
-            <NavLink to="/docs/claude" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.claude[language].name}</NavLink>
-            <NavLink to="/docs/gemini" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.gemini[language].name}</NavLink>
-            <NavLink to="/docs/opencode" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.opencode[language].name}</NavLink>
-            <NavLink to="/docs/codex" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.codex[language].name}</NavLink>
-            <NavLink to="/docs/playbook" className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{language === 'zh' ? 'AI 实战手册' : 'AI Playbook'}</NavLink>
+            <NavLink to={docEntryRoutes.claude} className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.claude[language].name}</NavLink>
+            <NavLink to={docEntryRoutes.gemini} className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.gemini[language].name}</NavLink>
+            <NavLink to={docEntryRoutes.opencode} className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.opencode[language].name}</NavLink>
+            <NavLink to={docEntryRoutes.codex} className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{tools.codex[language].name}</NavLink>
+            <NavLink to={docEntryRoutes.playbook} className="block px-4 py-2 rounded-lg hover:bg-muted text-sm font-medium">{language === 'zh' ? 'AI 实战手册' : 'AI Playbook'}</NavLink>
         </div>
       )}
 
@@ -195,10 +199,10 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                <div>
                   <h4 className="font-semibold mb-3 text-sm">{t('footer.resources')}</h4>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                     <li><Link to="/docs/claude" className="hover:text-primary">{tools.claude[language].name}</Link></li>
-                     <li><Link to="/docs/gemini" className="hover:text-primary">{tools.gemini[language].name}</Link></li>
-                     <li><Link to="/docs/opencode" className="hover:text-primary">{tools.opencode[language].name}</Link></li>
-                     <li><Link to="/docs/codex" className="hover:text-primary">{tools.codex[language].name}</Link></li>
+                     <li><Link to={docEntryRoutes.claude} className="hover:text-primary">{tools.claude[language].name}</Link></li>
+                     <li><Link to={docEntryRoutes.gemini} className="hover:text-primary">{tools.gemini[language].name}</Link></li>
+                     <li><Link to={docEntryRoutes.opencode} className="hover:text-primary">{tools.opencode[language].name}</Link></li>
+                     <li><Link to={docEntryRoutes.codex} className="hover:text-primary">{tools.codex[language].name}</Link></li>
                   </ul>
                </div>
                <div>

@@ -9,6 +9,7 @@ import { CodexDocs } from './pages/CodexDocs';
 import { PlaybookDocs } from './pages/PlaybookDocs';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
+import { docEntryRoutes } from './data/docEntryRoutes';
 import { LanguageProvider } from './context/LanguageContext';
 import { AdConsentProvider } from './context/AdConsentContext';
 import { AdNetworkLoader } from './components/AdNetworkLoader';
@@ -36,7 +37,7 @@ const DocsCategoryRoute: React.FC = () => {
     return <PlaybookDocs />;
   }
 
-  return <Navigate to="/docs/claude" replace />;
+  return <Navigate to={docEntryRoutes.claude} replace />;
 };
 
 const App: React.FC = () => {
@@ -53,7 +54,7 @@ const App: React.FC = () => {
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
               {/* Default redirect to first tool if no ID provided in docs root, or just go home */}
-              <Route path="/docs" element={<Navigate to="/docs/claude" replace />} />
+              <Route path="/docs" element={<Navigate to={docEntryRoutes.claude} replace />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </Layout>
