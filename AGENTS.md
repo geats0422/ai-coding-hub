@@ -245,6 +245,7 @@ npm run preview      # Preview production build
 - [ ] `zh/en` 两个 `.mdx` 文件均已创建且可被 `PlaybookDocs` 加载
 - [ ] frontmatter 完整，且中英 `slug` 一致
 - [ ] 文章配图已落在 board 内 assets 子目录并成功渲染
+- [ ] 每次新增/修改文章（含 `zh` 或 `en` 任一侧）后，必须更新 sitemap 并确认该 `slug` 已出现在 `public/sitemap.xml`
 - [ ] `npm run build` 通过
 
 ### 7. 站点地图未识别复盘（渲染逻辑 / 站点地图 / 侧边栏）
@@ -261,9 +262,12 @@ npm run preview      # Preview production build
 2. **站点地图问题**
    - sitemap 为手工维护，更新滞后，无法覆盖新增文档。
    - 仅收录分类页，未收录文章页，导致索引入口不足。
+   - 将会重定向的分类页（`/docs/<category>`）作为 sitemap 条目，会触发“重复网页/重定向页”类索引信号。
 3. **侧边栏导航问题**
    - 侧栏使用 `button + setActiveSlug` 切文档，不会触发路由变化。
    - 爬虫与用户刷新后都无法稳定定位到具体文章。
+4. **入口 URL 规范问题**
+   - 首页、导航、页脚等入口如果指向 `/docs/<category>`，会持续制造重定向链路，不利于规范页收敛。
 
 #### 7.3 修复方案（已落地）
 1. **路由与渲染改造**
@@ -277,18 +281,23 @@ npm run preview      # Preview production build
    - 同步写入 `rel="canonical"`，指向当前文章唯一 URL。
 4. **sitemap 自动化**
    - 新增 `scripts/generate-sitemap.mjs`，遍历 `content/*/{zh,en}/*.mdx` 自动生成全量 URL。
+   - sitemap 仅输出文章级 URL（`/docs/<category>/<slug>`），不再输出分类重定向页（`/docs/<category>`）。
    - `npm run build` 前置执行 sitemap 生成，避免手工漏更。
+5. **入口链接规范化**
+   - 站内入口（导航/首页/页脚）统一直达文章级 URL，避免先进入分类重定向页。
 
 #### 7.4 复利 SOP（后续新增文档照做）
 1. 文档 frontmatter 必填 `slug`，且保持跨语言一致。
-2. 新文档进入 `content/<board>/zh|en` 后，执行 `npm run build` 自动更新 sitemap。
+2. **强制规则**：每次新增或修改一篇文章（包括仅改 `zh` 或仅改 `en`），都必须执行 `npm run build`（或 `npm run generate:sitemap`）并确认 sitemap 已包含对应文章 URL。
 3. 侧栏仅使用路由跳转，不再使用纯本地状态切换文章。
 4. 新页面验收必须包含：直接访问文章 URL、刷新页面、canonical 正确、sitemap 已收录。
+5. 禁止将 `/docs/<category>` 作为 sitemap 条目与站内主入口链接。
 
 #### 7.5 验收清单（DoD）
 - [ ] 每篇文章存在独立 URL：`/docs/<category>/<slug>`
 - [ ] 侧栏切换时地址栏同步变化
-- [ ] `public/sitemap.xml` 含文章级 URL
+- [ ] `public/sitemap.xml` 仅含文章级 URL（不含 `/docs/<category>`）
+- [ ] 每次文章更新后，sitemap 含对应 `slug` 的 URL
 - [ ] `document.title` 与 canonical 随文章变化
 - [ ] `npm run build` 通过
 

@@ -1,0 +1,178 @@
+---
+title: "你以为缺的是模型其实缺协作协议：Claude Code 并行工程实战手册"
+description: "用并行执行、计划优先与记忆沉淀，把 Claude Code 从对话工具升级为可复利的并行工程系统。"
+slug: "claude-code-parallel-engineering-workflow"
+date: "2026-02-27"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# 你以为缺的是模型其实缺协作协议：Claude Code 并行工程实战手册
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 你没有撞上模型天花板。你只是还在用串行时代的旧法，驱动并行时代的工具。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+你可能很熟悉这条默认路径：
+
+- 在一个会话里同时处理需求、报错、重构、验证
+- 计划和实现混在一起，偏航后继续硬推
+- 只在聊天里解释规则，不把规则沉淀到 `CLAUDE.md`
+- 修 bug 时在 Slack、CI、日志、终端之间来回切换
+- 主代理承担所有任务，最终上下文窗口被噪音占满
+
+这不是“还不够努力”。
+
+这是工程协议缺失带来的精神熵（Psychic Entropy）：你以为在推进，实际上在放大错误反馈循环（Feedback Loops）。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+Claude Code 真正的高杠杆用法，不是“写更长提示词”，而是建立并行工程协议。
+
+- **并行执行面（Parallel Surface）**：用 `git worktree` 或多 checkout 同时推进实现、验证、分析三条链路，把等待时间压成切换时间。
+- **计划优先（Plan First）**：复杂任务先进入 plan mode，未通过评审不进入实现；一旦偏航，立刻回计划层重排。
+- **记忆复利（Memory Compounding）**：每次纠错都回写 `CLAUDE.md` 与项目 notes，让同类错误只犯一次，把特定知识变成可执行资产。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 Claude Code CLI，并可运行 `claude`
+- [ ] 本地仓库已初始化 Git（用于 worktree 并发）
+- [ ] 项目可执行 `lint/test/build` 验证命令
+- [ ] 已准备 `CLAUDE.md`（项目规则）与 `docs/NOTES.md`（任务沉淀）
+- [ ] 已配置必要凭证（按需）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Verification Protocol
+- After each change batch, run:
+  1) npm run lint
+  2) npm run test
+  3) npm run build
+- If any check fails, fix root cause and rerun all checks.
+
+## Context Hygiene
+- If plan drifts, switch to plan mode and re-plan.
+- Use /compact to keep only implementation plan and latest error.
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+ENABLE_TOOL_SEARCH=auto:10
+```
+
+## 0x04. The Workflow (实战推演)
+
+### 场景 1：并行实现 + 计划审查
+
+目标：让一个复杂功能在并行链路里稳定交付。
+
+```bash
+git worktree add ../proj-feature-a -b feature-a
+git worktree add ../proj-verify verify-a
+git worktree list
+```
+
+```text
+在 feature-a 会话中：
+- 先进入 plan mode，把输入、约束、验收标准、失败回滚和验证命令一次写清。
+- 只审 plan。
+- plan 通过后再执行实现。
+```
+
+```text
+Expected:
+- 实现链路与验证链路互不污染
+- 偏航能被快速识别并回退到计划层
+- 改动报告包含“改了什么 + 验证结果 + 回滚路径”
+```
+
+### 场景 2：证据驱动的 Bug 自愈
+
+目标：减少“猜测式修复”，改为证据闭环。
+
+```text
+把以下证据直接喂给 Claude Code：
+- Slack bug thread
+- failing CI output
+- docker logs
+```
+
+```text
+Prompt:
+Go fix the failing CI tests.
+Return: changed files, verification commands, and why this fix is root-cause level.
+```
+
+```text
+Expected:
+- 先定位根因，再修改
+- 自动执行 lint/test/build
+- 提供可复核的修复说明
+```
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+- Error: 会话越长越飘，决策质量持续下降（Context Bloat）
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+/memory
+```
+
+- Error: 同类错误反复出现，代理像“失忆”
+  - Fix:
+
+```text
+Update your CLAUDE.md so you don't make that mistake again.
+```
+
+```markdown
+在 CLAUDE.md 新增：错误模式、触发条件、验证命令、禁止做法
+```
+
+- Error: 主会话被子任务拖垮，上下文脏化
+  - Fix:
+
+```text
+use subagents
+```
+
+```text
+把独立任务卸载给 subagents，只保留主会话做规格对齐与最终验收
+```
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+你并不需要再追逐“下一个更强模型”。
+
+你需要的是一套稳定复利的工程协议：并行执行、计划优先、记忆沉淀、证据闭环。
+
+今天就做一个动作：把下个复杂任务拆成 3 条并行链路，先 plan 再实现，再把错误回写到 `CLAUDE.md`。
+
+当系统开始替你守纪律，你就从“忙碌”跨进“杠杆”。
+
+**驭智增效，慧见未来。**
+
+<AdPlaceholder />

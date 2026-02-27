@@ -1,0 +1,178 @@
+---
+title: "You Don't Lack a Model, You Lack a Collaboration Protocol: Claude Code Parallel Engineering Playbook"
+description: "Use parallel execution, plan-first delivery, and memory compounding to turn Claude Code into a reliable parallel engineering system."
+slug: "claude-code-parallel-engineering-workflow"
+date: "2026-02-27"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+
+# You Don't Lack a Model, You Lack a Collaboration Protocol: Claude Code Parallel Engineering Playbook
+
+> **Drive intelligence, gain leverage.**
+> You are not hitting a model ceiling. You are still using serial-era habits for parallel-era tools.
+
+## 0x00. The Matrix (Agitate)
+
+This default path probably feels familiar:
+
+- handle requirements, bugs, refactors, and verification in one session;
+- mix planning and implementation, then push forward even after drift;
+- explain rules in chat but never persist them in `CLAUDE.md`;
+- switch across Slack, CI, logs, and terminal while fixing issues;
+- overload the main agent until context gets saturated by noise.
+
+This is not a motivation problem.
+
+It is protocol debt and psychic entropy: you think you are making progress, but you are amplifying bad feedback loops.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+The highest-leverage way to use Claude Code is not writing longer prompts. It is establishing a parallel engineering protocol.
+
+- **Parallel surface**: use `git worktree` or multi-checkout to run implementation, verification, and analysis in parallel.
+- **Plan first**: review plan mode before implementation; when drift appears, return to planning immediately.
+- **Memory compounding**: write every correction back to `CLAUDE.md` and project notes so the same mistake is not repeated.
+
+## 0x02. The System: Prerequisites
+
+- [ ] Claude Code CLI installed and runnable via `claude`
+- [ ] Git initialized locally for worktree parallelism
+- [ ] Project supports executable `lint/test/build` verification commands
+- [ ] `CLAUDE.md` (project rules) and `docs/NOTES.md` (task memory) prepared
+- [ ] Required credentials configured as needed
+
+## 0x03. The Execution: Deployment
+
+```bash
+claude --version
+```
+
+```bash
+claude
+```
+
+```text
+/init
+```
+
+```markdown
+# CLAUDE.md
+
+## Verification Protocol
+- After each change batch, run:
+  1) npm run lint
+  2) npm run test
+  3) npm run build
+- If any check fails, fix root cause and rerun all checks.
+
+## Context Hygiene
+- If plan drifts, switch to plan mode and re-plan.
+- Use /compact to keep only implementation plan and latest error.
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+ENABLE_TOOL_SEARCH=auto:10
+```
+
+## 0x04. The Workflow
+
+### Scenario 1: Parallel implementation + plan review
+
+Goal: deliver complex features with stable parallel lanes.
+
+```bash
+git worktree add ../proj-feature-a -b feature-a
+git worktree add ../proj-verify verify-a
+git worktree list
+```
+
+```text
+In the feature-a session:
+- Start with plan mode and define input, constraints, acceptance criteria, rollback, and verification commands.
+- Review the plan only.
+- Execute implementation only after plan approval.
+```
+
+```text
+Expected:
+- implementation and verification lanes remain isolated
+- drift is detected early and moved back to planning
+- change reports include "what changed + verification + rollback path"
+```
+
+### Scenario 2: Evidence-driven bug healing
+
+Goal: replace guessing with evidence loops.
+
+```text
+Feed Claude Code direct evidence:
+- Slack bug thread
+- failing CI output
+- docker logs
+```
+
+```text
+Prompt:
+Go fix the failing CI tests.
+Return: changed files, verification commands, and why this fix is root-cause level.
+```
+
+```text
+Expected:
+- root cause before edits
+- automatic lint/test/build execution
+- auditable explanation for the fix
+```
+
+## 0x05. Troubleshooting
+
+- Error: long sessions drift and decision quality degrades (Context Bloat)
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+/memory
+```
+
+- Error: repeated mistakes as if the agent has no memory
+  - Fix:
+
+```text
+Update your CLAUDE.md so you don't make that mistake again.
+```
+
+```markdown
+In CLAUDE.md add: error pattern, trigger, verification command, forbidden action
+```
+
+- Error: main session collapses under sub-task load
+  - Fix:
+
+```text
+use subagents
+```
+
+```text
+Offload independent tasks to subagents; keep main session for spec alignment and final acceptance.
+```
+
+## 0x06. The Ascension
+
+You do not need to chase the next stronger model.
+
+You need a stable compounding protocol: parallel execution, plan-first delivery, memory persistence, and evidence loops.
+
+Do one thing today: split your next complex task into 3 parallel lanes, plan first, then implement, and write every recurring error back into `CLAUDE.md`.
+
+When the system starts enforcing discipline for you, you move from busyness to leverage.
+
+**Drive intelligence, gain leverage.**
+
+<AdPlaceholder />
