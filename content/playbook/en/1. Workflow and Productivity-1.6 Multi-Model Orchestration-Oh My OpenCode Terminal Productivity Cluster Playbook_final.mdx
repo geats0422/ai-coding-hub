@@ -1,0 +1,232 @@
+---
+title: "Stop Hand-Rolling Multi-Model Orchestration: Oh My OpenCode Terminal Productivity Cluster Playbook"
+description: "Upgrade OpenCode CLI into a parallel orchestration hub with multi-agent execution, evidence feedback, and unified acceptance gates."
+slug: "oh-my-opencode-terminal-productivity-cluster-playbook"
+date: "2026-03-02"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import orchestrationMapImage from '../assets/oh-my-opencode-terminal-productivity-cluster/oh-my-opencode-orchestration-map.svg'
+import troubleshootingMapImage from '../assets/oh-my-opencode-terminal-productivity-cluster/oh-my-opencode-troubleshooting-map.svg'
+
+# Stop Hand-Rolling Multi-Model Orchestration: Oh My OpenCode Terminal Productivity Cluster Playbook
+
+<img src={orchestrationMapImage} alt="Oh My OpenCode terminal multi-model orchestration map" />
+
+> **Drive intelligence, gain leverage.**
+> You do not lack models. You lack an execution system that binds models, agents, and validation into one steel cable.
+
+## 0x00. The Matrix (Agitate)
+
+Your multi-model development probably looks like this:
+
+- Claude handles reasoning, Gemini handles vision, another model checks docs.
+- You keep switching between windows and repeating prompts.
+- One requirement is revised three times, but no one owns final validation.
+- As tasks get harder, token burn rises and output quality becomes unstable.
+
+Last week, while racing to finish remote coursework for Mesa Community College, I was juggling OpenCode terminal sessions, Cloudflare DNS updates, and PayPal/Wise integration logs. At 1:30 AM, the model was still saying "check your configuration," and I could not even remember which config I had just changed.
+
+Your brain short-circuits.
+
+This is not a "work harder" problem.
+
+It is the cost of missing an orchestration layer: every model is busy, but no system is enforcing order.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+The core value of `Oh My OpenCode` is not adding one more alias. It upgrades OpenCode CLI into a parallel scheduling hub.
+
+- **Multi-agent concurrent orchestration**: distribute exploration, retrieval, review, and implementation to specialized subagents while the main agent enforces spec and acceptance.
+- **Terminal-native execution loop**: use OpenCode CLI `run/agent/attach` workflows to complete planning, execution, and verification in one terminal chain.
+- **Evidence-driven decisions**: feed docs, logs, and test outputs back into the main session to reduce gut-feel changes.
+
+> Notes
+> The "7 dedicated subagents in parallel" setup is a valid engineering concept, but exact agent count and default role mapping must be confirmed against your local configuration (**needs verification**).
+> Prefer official model version naming, such as `Claude Opus 4.6`, `Gemini 3.1 Pro`, and `Claude Sonnet 4.6`.
+
+## 0x02. The System: Prerequisites
+
+- [ ] OpenCode CLI is installed (`opencode --version` works)
+- [ ] At least one model provider API key is ready
+- [ ] Oh My OpenCode is installed from official GitHub Releases/README only
+- [ ] Git is enabled in the project (for branch/session isolation)
+- [ ] Local LSP is enabled (for structure-aware constraints in complex work)
+
+## 0x03. The Execution: Deployment
+
+### Pre-install checks (recommended)
+
+```bash
+# 1) Only trust the official domain (expect 200/3xx)
+curl -I https://opencode.ai/install
+```
+
+```bash
+# 2) Download locally first, do not pipe directly to shell
+curl -fsSL https://opencode.ai/install -o ./opencode-install.sh
+```
+
+```text
+# 3) Review ./opencode-install.sh in your local editor
+# Focus on: download URLs, execution entry points, write paths
+```
+
+```bash
+# 4) Execute only after review
+bash ./opencode-install.sh
+```
+
+> Notes
+> On Windows, prefer `scoop` / `choco` installation paths and avoid directly executing shell scripts.
+
+```bash
+# OpenCode CLI install (official docs)
+curl -fsSL https://opencode.ai/install | bash
+```
+
+```bash
+opencode --version
+```
+
+```bash
+opencode
+```
+
+```text
+/init
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+GOOGLE_API_KEY=<YOUR_API_KEY_HERE>
+OPENAI_API_KEY=<YOUR_API_KEY_HERE>
+```
+
+```text
+# Use the official repository README / Releases for Oh My OpenCode install commands (needs verification)
+# Official repo: https://github.com/code-yeongyu/oh-my-opencode
+```
+
+## 0x04. The Workflow
+
+### Scenario: vague request input -> automatic retrieval -> parallel implementation
+
+Goal: provide one vague request and let the system decompose and execute in parallel.
+
+```text
+Requirement: build a D1 database app with complex API authorization.
+Constraints:
+1) Support API key + fine-grained permissions
+2) Every auth failure must be logged to audit trail
+3) Admin UI must show key metrics in real time
+```
+
+```text
+Scheduling strategy (example):
+- Librarian: pull latest GitHub docs and implementation examples
+- Explore: scan existing auth patterns in current repository
+- Build/UI Agent: generate backend interfaces and frontend components in parallel
+- Main Agent: enforce spec alignment and acceptance gates only
+```
+
+```text
+Expected:
+- In one session, produce design, executable code, verification commands, and risk list
+- Main agent outputs "changed files + verification results + rollback path"
+```
+
+> Notes
+> "Backend UI engine synchronous frontend rendering" may differ by plugin version. Confirm implementation against local version docs (**needs verification**).
+
+## 0x05. Troubleshooting
+
+<img src={troubleshootingMapImage} alt="Oh My OpenCode troubleshooting map" />
+
+- Error: multi-model concurrency triggers token meltdown and quality collapse
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+```
+
+```text
+Split long chains into 2-3 subtask sessions. Do not force retrieval, implementation, and review into one context window.
+```
+
+- Error: accidental deletion of `.open-code` / `.opencode` config files, or recursive dead loops in agents
+  - Fix:
+
+```text
+1) Enable local LSP + read-only review agent as a structure guard
+2) Add key configs to "never delete" rules
+3) Force changed-files output after each execution round
+```
+
+```bash
+git status
+```
+
+```bash
+git diff
+```
+
+- Error: plugin installed from pseudo-official mirror with uncontrolled source
+  - Fix:
+
+```text
+Download only from official repo and Releases:
+https://github.com/code-yeongyu/oh-my-opencode
+```
+
+## 0x06. The Ascension
+
+What you need to upgrade is not one model endpoint. It is your orchestration capability.
+
+Do one thing today:
+
+Step 1: send your most vague and procrastinated requirement to the main agent, open retrieval and implementation subagents in parallel, and require executable code, verification commands, and rollback path in the same round.
+
+Step 2: remove distractions.
+
+Step 3: at the end of each round, write recurring error patterns back into `CLAUDE.md` so the next round starts with learned constraints.
+
+When you stop re-explaining context repeatedly, productivity starts compounding.
+
+**Drive intelligence, gain leverage.**
+
+---
+
+## Sources (Official Evidence and Status)
+
+### Verified (Official / Checkable)
+
+1. `https://opencode.ai/docs/`
+   - OpenCode is a terminal-first open source AI coding agent and supports CLI/TUI.
+
+2. `https://opencode.ai/docs/cli/`
+   - CLI usage for `opencode`, `opencode run`, `opencode agent`, and `opencode attach`.
+
+3. `https://opencode.ai/docs/commands/`
+   - Supports custom commands under `.opencode/commands/*.md`.
+
+4. `https://github.com/code-yeongyu/oh-my-opencode`
+   - README includes warnings about pseudo-official sites; official downloads should come from GitHub Releases.
+
+### Needs Verification
+
+1. "Exactly 7 dedicated subagents in parallel by default"
+   - Architecturally plausible, but default behavior must be confirmed by version.
+
+2. Whether "Sonnet retrieval role" is an official default responsibility
+   - No official source currently confirms this as a fixed default role.
+
+3. Implementation details for "backend UI engine sync rendering frontend components"
+   - May vary across versions and local plugin hooks.
+
+<AdPlaceholder />

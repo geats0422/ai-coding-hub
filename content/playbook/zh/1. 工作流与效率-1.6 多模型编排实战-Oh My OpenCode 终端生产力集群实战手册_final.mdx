@@ -1,0 +1,232 @@
+---
+title: "别再手搓多模型编排：Oh My OpenCode 终端生产力集群实战手册"
+description: "把 OpenCode CLI 升级为并行调度中枢，用多代理编排、证据回流和统一验收闭环提升终端研发效率。"
+slug: "oh-my-opencode-terminal-productivity-cluster-playbook"
+date: "2026-03-02"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import orchestrationMapImage from '../assets/oh-my-opencode-terminal-productivity-cluster/oh-my-opencode-orchestration-map.svg'
+import troubleshootingMapImage from '../assets/oh-my-opencode-terminal-productivity-cluster/oh-my-opencode-troubleshooting-map.svg'
+
+# 别再手搓多模型编排：Oh My OpenCode 终端生产力集群实战手册
+
+<img src={orchestrationMapImage} alt="Oh My OpenCode 终端多模型编排示意图" />
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 你不是缺模型。你缺的是一个能把模型、代理、验证闭环拧成一根钢索的执行系统。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+你现在的多模型开发，大概率长这样：
+
+- Claude 负责推理，Gemini 看图，另一个模型查文档
+- 三个窗口来回切，提示词不断重讲
+- 一个需求改三次，验证链路却没人统一收口
+- 任务越复杂，代币烧得越快，结果不稳定
+
+上周我为了赶 Mesa Community College 的远程网课 due，一边盯 OpenCode 终端，一边切 Cloudflare DNS 配置和 PayPal/Wise 接口日志。凌晨一点半，模型还在回我“建议检查配置”，我却连哪份配置刚改过都记不住。
+
+脑子会短路。
+
+这不是“你不够努力”。
+
+这是没有编排层的代价：每个模型都在工作，但没有一个系统在负责秩序。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+`Oh My OpenCode` 的核心价值，不是再加一个命令别名，而是把 OpenCode CLI 升级成并行调度中枢。
+
+- **多代理并发编排**：将探索、检索、审查、实现任务分给不同子代理，主代理只盯规格与验收。
+- **终端内聚执行**：基于 OpenCode CLI 的 `run/agent/attach` 工作流，在同一终端链路完成计划、执行、验证。
+- **证据驱动决策**：把文档检索、日志、测试结果统一回流到主会话，减少“拍脑袋式改动”。
+
+> 注意事项
+> 用户给出的“7 个专用子代理并行”属于可行的工程设想，但代理数量与默认角色分配需按你的本地配置确认（**待验证**）。
+> 模型命名建议使用官方版本号：`Claude Opus 4.6`、`Gemini 3.1 Pro`、`Claude Sonnet 4.6`。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 OpenCode CLI（可执行 `opencode --version`）
+- [ ] 已准备至少一个可用模型 Provider API Key
+- [ ] 已安装 Oh My OpenCode（以官方 GitHub Release/README 为准，第三方镜像站点不可信）
+- [ ] 项目内启用 Git（用于并行分支/会话隔离）
+- [ ] 已启用本地 LSP（用于复杂任务的结构约束与防误删）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+### 安装前置校验（建议先做）
+
+```bash
+# 1) 仅接受官方域名（状态码应为 200/3xx）
+curl -I https://opencode.ai/install
+```
+
+```bash
+# 2) 先下载到本地，不直接管道执行
+curl -fsSL https://opencode.ai/install -o ./opencode-install.sh
+```
+
+```text
+# 3) 用本地编辑器审阅 ./opencode-install.sh
+# 重点检查：下载地址、执行入口、写入路径
+```
+
+```bash
+# 4) 审阅通过后再执行
+bash ./opencode-install.sh
+```
+
+> 注意事项
+> Windows 用户优先使用 `scoop` / `choco` 安装路径，避免直接执行 shell 脚本。
+
+```bash
+# OpenCode CLI 安装（官方文档）
+curl -fsSL https://opencode.ai/install | bash
+```
+
+```bash
+opencode --version
+```
+
+```bash
+opencode
+```
+
+```text
+/init
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+GOOGLE_API_KEY=<YOUR_API_KEY_HERE>
+OPENAI_API_KEY=<YOUR_API_KEY_HERE>
+```
+
+```text
+# Oh My OpenCode 安装命令请以官方仓库 README / Releases 为准（待验证）
+# 官方仓库（可核验）：https://github.com/code-yeongyu/oh-my-opencode
+```
+
+## 0x04. The Workflow (实战推演)
+
+### 场景：模糊需求输入 -> 自动检索 -> 并行实现
+
+目标：你只给一句模糊需求，系统自动拆解并行执行。
+
+```text
+需求：构建一个带复杂 API 鉴权的 D1 数据库应用。
+要求：
+1) 支持 API Key + 细粒度权限
+2) 所有鉴权失败必须记录审计日志
+3) 前端后台管理页实时展示关键指标
+```
+
+```text
+调度策略（示例）：
+- Librarian: 拉取 GitHub 最新文档与实现样例
+- Explore: 扫描本仓库已有鉴权模式
+- Build/UI Agent: 并行生成后端接口与前端组件
+- Main Agent: 只做 Spec 对齐与验收门禁
+```
+
+```text
+Expected:
+- 在一次会话中得到：设计方案、可执行代码、验证命令、风险清单
+- 主代理输出“改动文件 + 验证结果 + 回滚路径”
+```
+
+> 注意事项
+> “UI 引擎后台同步渲染前端组件”在不同插件版本中的实现方式可能不同，请按本地版本文档确认（**待验证**）。
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+<img src={troubleshootingMapImage} alt="Oh My OpenCode 故障排查专用图" />
+
+- Error: 多模型并发导致“代币熔断”，会话突然退化为低质量输出
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+```
+
+```text
+将长链路拆为 2-3 个子任务会话，不要把检索、实现、评审塞进一个上下文窗口
+```
+
+- Error: 复杂任务中误删 `.open-code` / `.opencode` 配置文件，或代理陷入递归死循环
+  - Fix:
+
+```text
+1) 启用本地 LSP + 只读审查代理做结构守卫
+2) 将关键配置加入“禁止删除”规则
+3) 每轮执行后强制输出 changed-files 清单
+```
+
+```bash
+git status
+```
+
+```bash
+git diff
+```
+
+- Error: 使用了伪官方站点安装插件，来源不可控
+  - Fix:
+
+```text
+仅使用官方仓库与 Release 下载：
+https://github.com/code-yeongyu/oh-my-opencode
+```
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+你真正要升级的，不是某个单点模型，而是你的编排能力。
+
+今天就做一件事：
+
+Step 1：把你当前最模糊、最容易拖延的需求丢进主代理，然后同时开文档检索和实现子代理，要求它们在同一轮给出可执行代码、验证命令和回滚路径，别再把思考和执行拆成两天。
+
+Step 2：关掉分心。
+
+Step 3：每轮结束把错误模式回写到 `CLAUDE.md`，让下一轮直接吃到教训。
+
+当你不再反复重讲上下文，生产力才会真正开始复利。
+
+**驭智增效，慧见未来。**
+
+---
+
+## Sources（官方证据与状态）
+
+### 已证实（Official / 可核验）
+
+1. `https://opencode.ai/docs/`
+   - OpenCode 是终端优先的开源 AI coding agent；支持 CLI/TUI。
+
+2. `https://opencode.ai/docs/cli/`
+   - `opencode`、`opencode run`、`opencode agent`、`opencode attach` 等 CLI 用法。
+
+3. `https://opencode.ai/docs/commands/`
+   - 支持 `.opencode/commands/*.md` 自定义命令。
+
+4. `https://github.com/code-yeongyu/oh-my-opencode`
+   - 仓库 README 有“伪官方站点”安全警告；官方下载以 GitHub Releases 为准。
+
+### 待验证（Need Verification）
+
+1. “默认固定 7 个专用子代理并行”
+   - 作为工程架构可行，但是否为默认配置需按具体版本确认。
+
+2. “Sonnet 检索角色（retrieval role）”是否为官方默认职责
+   - 目前未见官方将其定义为固定角色，建议按实际编排描述（**待验证**）。
+
+3. “UI 引擎后台同步渲染前端组件”的实现细节
+   - 不同版本可能通过不同子代理/钩子机制实现，需按本地配置确认。
+
+<AdPlaceholder />
