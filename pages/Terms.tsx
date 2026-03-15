@@ -1,9 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { updateSeo } from '../lib/seo';
 
 export const Terms: React.FC = () => {
   const { language } = useLanguage();
   const isZh = language === 'zh';
+
+  useEffect(() => {
+    updateSeo({
+      title: `${isZh ? '服务条款' : 'Terms of Service'} | AI Coding Hub`,
+      canonicalUrl: 'https://www.aicodinghub.dev/terms',
+    });
+  }, [isZh]);
 
   return (
     <main className="flex-1 py-10 md:py-14">

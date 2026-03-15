@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useLanguage } from '../context/LanguageContext';
+import { updateSeo } from '../lib/seo';
 
 export const Privacy: React.FC = () => {
   const { language } = useLanguage();
 
   const isZh = language === 'zh';
+
+  useEffect(() => {
+    updateSeo({
+      title: `${isZh ? '隐私政策' : 'Privacy Policy'} | AI Coding Hub`,
+      canonicalUrl: 'https://www.aicodinghub.dev/privacy',
+    });
+  }, [isZh]);
 
   return (
     <main className="flex-1 py-10 md:py-14">

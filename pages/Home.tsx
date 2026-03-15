@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Terminal, Zap, Shield, Search } from 'lucide-react';
 import { tools } from '../data/docs';
 import { docEntryRoutes, getDocEntryRoute } from '../data/docEntryRoutes';
 import { useLanguage } from '../context/LanguageContext';
+import { updateSeo } from '../lib/seo';
 
 export const Home = () => {
   const { t, language } = useLanguage();
+
+  useEffect(() => {
+    updateSeo({
+      title: 'AI Coding Hub',
+      canonicalUrl: 'https://www.aicodinghub.dev/',
+    });
+  }, []);
 
   return (
     <div className="flex-1">
@@ -36,7 +44,7 @@ export const Home = () => {
                   placeholder={t('hero.placeholder')}
                   className="w-full h-12 bg-transparent border-none text-foreground placeholder:text-muted-foreground focus:ring-0 px-3 text-base outline-none"
                 />
-                <button className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap">
+                <button type="button" className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap">
                   {t('hero.button')}
                 </button>
              </div>
