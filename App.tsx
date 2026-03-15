@@ -9,10 +9,28 @@ import { CodexDocs } from './pages/CodexDocs';
 import { PlaybookDocs } from './pages/PlaybookDocs';
 import { Privacy } from './pages/Privacy';
 import { Terms } from './pages/Terms';
-import { docEntryRoutes } from './data/docEntryRoutes';
+import { docEntryRoutes, getOptionalDocEntryRoute } from './data/docEntryRoutes';
 import { LanguageProvider } from './context/LanguageContext';
 import { AdConsentProvider } from './context/AdConsentContext';
 import { AdNetworkLoader } from './components/AdNetworkLoader';
+import { NotFoundState } from './components/NotFoundState';
+
+const DocsCategoryRedirect: React.FC = () => {
+  const { category } = useParams<{ category: string }>();
+  const destination = category ? getOptionalDocEntryRoute(category) : null;
+
+  if (!destination) {
+    return (
+      <NotFoundState
+        heading="Documentation page not found"
+        message="The documentation category you requested does not exist."
+        backHref="/"
+      />
+    );
+  }
+
+  return <Navigate to={destination} replace />;
+};
 
 const DocsCategoryRoute: React.FC = () => {
   const { category } = useParams<{ category: string }>();
@@ -37,7 +55,13 @@ const DocsCategoryRoute: React.FC = () => {
     return <PlaybookDocs />;
   }
 
-  return <Navigate to={docEntryRoutes.claude} replace />;
+  return (
+    <NotFoundState
+      heading="Documentation page not found"
+      message="The documentation page you requested does not exist."
+      backHref="/"
+    />
+  );
 };
 
 const App: React.FC = () => {
@@ -49,13 +73,21 @@ const App: React.FC = () => {
           <Layout>
             <Routes>
               <Route path="/" element={<Home />} />
-              <Route path="/docs/:category" element={<DocsCategoryRoute />} />
+              <Route path="/docs/:category" element={<DocsCategoryRedirect />} />
               <Route path="/docs/:category/:slug" element={<DocsCategoryRoute />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/terms" element={<Terms />} />
-              {/* Default redirect to first tool if no ID provided in docs root, or just go home */}
               <Route path="/docs" element={<Navigate to={docEntryRoutes.claude} replace />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
+              <Route
+                path="*"
+                element={
+                  <NotFoundState
+                    heading="Page not found"
+                    message="The page you requested could not be found."
+                    backHref="/"
+                  />
+                }
+              />
             </Routes>
           </Layout>
         </Router>

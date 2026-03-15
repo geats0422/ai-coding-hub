@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import AdPlaceholder from '../components/AdPlaceholder';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
+import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
   title?: string;
@@ -234,25 +236,17 @@ export const ClaudeDocs: React.FC = () => {
   }, [docs]);
 
   const { slug } = useParams<{ slug?: string }>();
-  const hasSlugMatch = Boolean(slug && docs.some((item) => item.slug === slug));
-  const activeDoc = docs.find((item) => item.slug === slug) ?? docs[0];
+  const activeDoc = slug ? docs.find((item) => item.slug === slug) ?? null : null;
 
   useEffect(() => {
     if (!activeDoc) {
       return;
     }
 
-    document.title = `${activeDoc.title} | AI Coding Hub`;
-    const canonicalUrl = `https://www.aicodinghub.dev/docs/claude/${activeDoc.slug}`;
-    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-
-    if (!canonicalLink) {
-      canonicalLink = document.createElement('link');
-      canonicalLink.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonicalLink);
-    }
-
-    canonicalLink.setAttribute('href', canonicalUrl);
+    updateSeo({
+      title: `${activeDoc.title} | AI Coding Hub`,
+      canonicalUrl: `https://www.aicodinghub.dev/docs/claude/${activeDoc.slug}`,
+    });
   }, [activeDoc]);
 
   if (docs.length === 0) {
@@ -264,8 +258,15 @@ export const ClaudeDocs: React.FC = () => {
     );
   }
 
-  if (!hasSlugMatch) {
-    return <Navigate to={`/docs/claude/${docs[0].slug}`} replace />;
+  if (!activeDoc) {
+    return (
+      <NotFoundState
+        heading="Claude Code article not found"
+        message="The Claude Code article you requested does not exist or is no longer available."
+        backHref="/docs/claude"
+        backLabel="Browse Claude Code docs"
+      />
+    );
   }
 
   const ActiveContent = activeDoc.Content;
