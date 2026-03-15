@@ -1,0 +1,214 @@
+---
+title: "Stop Treating Claude Code Like Autocomplete: Superpowers Full-Stack No-Hand-Coding Playbook"
+description: "Use Claude Code + Superpowers to compress vague requirements into design, planning, and verifiable execution for Next.js + Supabase delivery."
+slug: "claude-code-superpowers-fullstack-playbook"
+date: "2026-03-14"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import superpowersWorkflowImage from '../assets/claude-code-superpowers-fullstack-playbook/claude-superpowers-fullstack-workflow.svg'
+
+# Stop Treating Claude Code Like Autocomplete: Superpowers Full-Stack No-Hand-Coding Playbook
+
+<img src={superpowersWorkflowImage} alt="Claude Code Superpowers full-stack workflow diagram" />
+
+> **Drive intelligence, gain leverage.**
+> You do not lack coding ability. You are still trying to drive multi-threaded engineering with single-threaded conversation.
+
+## 0x00. The Matrix (Agitate)
+
+This scenario probably feels familiar:
+
+- You want to build a Next.js + Supabase full-stack app, but the initial requirement is still fuzzy.
+- Claude starts writing code immediately before the architecture and boundaries are settled.
+- Then auth is incomplete, Schema fields are missing, and frontend route state is misaligned.
+- You get trapped in a repair-rewrite-repair loop.
+
+Last week, while rushing Mesa Community College remote coursework at 2 AM, I was still patching API auth in the same session, switching to the Supabase SQL editor and back to the frontend console, and eventually confusing the policy condition I had just edited.
+
+Worse, on the same night I was also stuck trying to detach an old GitHub account `geats0422` from Vercel. I had 17 browser tabs open and Claude was still asking whether I wanted to "try again."
+
+Your brain goes numb.
+
+The problem is not model strength.
+
+The problem is missing methodology: you are approaching this like autocomplete while solving architect-level problems.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+The core of `Claude Code + Superpowers` is not "a few more commands." It is upgrading the workflow from improvisational coding into a hard protocol: design first, plan second, execute last.
+
+- **Brainstorm first**: compress vague requirements into verifiable design documents and data models before implementation.
+- **Plan decomposition**: break the work into 20+ executable tasks with explicit files, steps, and verification commands.
+- **Subagent parallel execution**: keep the main session on spec control while subagents execute in batches and self-check with `npm run build`.
+
+> Notes
+> The exact command shape for `Superpowers` may vary across hosts or versions, such as `/superpowers:brainstorm`, `/superpowers brainstorm`, or skill-based triggers. Confirm syntax against your current version docs (**needs verification**).
+
+## 0x02. The System: Prerequisites
+
+- [ ] Claude Code CLI is installed (`claude --version` works)
+- [ ] Node.js >= 18 and npm are installed
+- [ ] A Supabase project is created and its project URL and API keys are ready
+- [ ] A Next.js project or empty repository is prepared
+- [ ] Superpowers is installed and enabled from the official repository or Marketplace
+
+## 0x03. The Execution: Deployment
+
+```bash
+# 1) Install Claude Code (official macOS/Linux/WSL path)
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+```bash
+# 2) Start Claude Code
+claude
+```
+
+```text
+/init
+```
+
+```env
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=<YOUR_SUPABASE_URL_HERE>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY_HERE>
+SUPABASE_SERVICE_ROLE_KEY=<YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE>
+```
+
+```text
+# 3) Install Superpowers inside the Claude Code session (follow official instructions)
+/plugin install superpowers@claude-plugins-official
+```
+
+## 0x04. The Workflow
+
+### Scenario: from vague requirement to a shippable full-stack app
+
+Goal: build a Next.js + Supabase app with complex API authorization and keep manual coding close to zero.
+
+```text
+# Step A: architecture design (adjust command shape by version)
+/superpowers brainstorm
+
+Requirement: build a D1/Supabase data-layer app with complex API authorization.
+Extra constraints: clarify auth boundaries, failure paths, audit fields, and rollback strategy first. If anything is unclear, keep asking instead of writing code.
+Output: project design doc + database Schema + draft auth strategy.
+```
+
+```text
+# Step B: task dispatch
+/superpowers write-plan
+
+Lock boundaries first.
+```
+
+```text
+# Step C: iterative execution
+/superpowers execute-plan
+
+Execute in batches and return changed files, verification results, and failure reasons every round.
+```
+
+```bash
+# Mandatory self-check after each batch
+npm run build
+```
+
+```text
+Expected:
+- You get a traceable task chain instead of one giant code dump
+- Subagents move in parallel while the main session handles spec alignment and acceptance
+- Every round ends with reproducible build validation
+```
+
+## 0x05. Troubleshooting
+
+- Error: token overflow in large projects suddenly degrades output quality
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+```
+
+```text
+Split execute-plan into smaller batches of 3-5 tasks.
+```
+
+- Error: blank page during early UI rendering because route state is out of sync
+  - Fix:
+
+```text
+Send screenshots, console errors, and current route state to the agent in one bundle.
+```
+
+```bash
+npm run build
+```
+
+```text
+Require the agent to return: root cause, changed files, and verification steps.
+```
+
+- Error: persistence layer never actually takes effect because Schema was generated but not applied
+  - Fix:
+
+```text
+Paste the generated Schema into Supabase SQL Editor and execute it manually.
+```
+
+```sql
+-- Example only, replace with your real Schema
+-- create table ...
+-- create policy ...
+```
+
+## 0x06. The Ascension
+
+What you really want is not "AI writes a few more lines for me."
+
+What you really want is bounded design, traceable execution, and reproducible verification.
+
+Do one thing today:
+
+Run your next full-stack task through `brainstorm -> write-plan -> execute-plan -> build`, then decide whether you still want to go back to pure manual coding.
+
+Do not brute-force it.
+
+**Drive intelligence, gain leverage.**
+
+---
+
+## Sources (Official Evidence and Status)
+
+### Verified (Official)
+
+1. `https://code.claude.com/docs/en/overview`
+   - Claude Code is an agentic coding tool that can read repos, edit files, and run commands.
+
+2. `https://code.claude.com/docs/en/cli-reference`
+   - Core `claude` CLI commands and parameters, including `-c` and `-p`.
+
+3. `https://raw.githubusercontent.com/obra/superpowers/main/README.md`
+   - Superpowers core workflow covers brainstorming, writing plans, and executing plans.
+   - Claude Marketplace install example: `/plugin install superpowers@claude-plugins-official`.
+
+4. `https://raw.githubusercontent.com/obra/superpowers/main/docs/README.opencode.md`
+   - OpenCode integration, skill discovery and loading, and plugin architecture details.
+
+### Needs Verification
+
+1. Whether `/superpowers brainstorm` with a space is the exact command shape in your current environment
+   - It may need to be `/superpowers:brainstorm` or a skill trigger.
+
+2. Whether "strictly zero manual coding" is realistic for complex projects
+   - In practice, manual SQL execution, environment variable setup, and final acceptance may still be required.
+
+3. Whether "20+ tasks" is a fixed output size
+   - Task count depends on actual project complexity and is not guaranteed.
+
+<AdPlaceholder />

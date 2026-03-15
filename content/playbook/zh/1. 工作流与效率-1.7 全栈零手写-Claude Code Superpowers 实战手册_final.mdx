@@ -1,0 +1,214 @@
+---
+title: "别再把 Claude Code 当补全器：Superpowers 全栈零手写实战手册"
+description: "用 Claude Code + Superpowers 把模糊需求压成设计、计划与可验证执行链，加速 Next.js + Supabase 全栈交付。"
+slug: "claude-code-superpowers-fullstack-playbook"
+date: "2026-03-14"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import superpowersWorkflowImage from '../assets/claude-code-superpowers-fullstack-playbook/claude-superpowers-fullstack-workflow.svg'
+
+# 别再把 Claude Code 当补全器：Superpowers 全栈零手写实战手册
+
+<img src={superpowersWorkflowImage} alt="Claude Code Superpowers 全栈工作流示意图" />
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 你并没有缺代码能力。你只是还在用“单线程对话”驱动“多线程工程”。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+你可能很熟悉这个场景：
+
+- 想做一个 Next.js + Supabase 全栈应用，开局需求是糊的
+- Claude 一上来就开始写代码，架构和边界来不及收敛
+- 写完发现鉴权不闭环、Schema 漏字段、前端路由状态错位
+- 你在“修补-重写-再修补”里反复打转
+
+上周我赶 Mesa Community College 的远程网课 due，凌晨两点还在同一个会话里补 API 鉴权，切到 Supabase SQL 编辑器再切回前端控制台，最后连自己刚改的策略条件都看串了。
+
+更离谱的是，同一晚我还在 Vercel 死活解绑不掉旧 GitHub 账号 `geats0422`，浏览器开了 17 个标签，Claude 还在问我要不要“再试一次”。
+
+人会麻。
+
+问题从来不是“模型不够强”。
+
+问题是没有方法论注入：你在用补全器心态，处理架构师级别的问题。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+`Claude Code + Superpowers` 的核心，不是“多几个命令”，而是把工作流从“想到哪写到哪”升级成“先设计、再计划、后执行”的硬协议。
+
+- **头脑风暴先行**：先把模糊需求压成可验证的设计文档与数据模型，减少后续返工。
+- **计划拆解落地**：把大需求拆到 20+ 可执行任务，明确文件、步骤、验证命令。
+- **子代理并行执行**：主会话守规格，子代理分批施工，配合 `npm run build` 快速自检。
+
+> 注意事项
+> `Superpowers` 的具体命令形态在不同宿主或版本可能存在差异（例如 `/superpowers:brainstorm`、`/superpowers brainstorm`，或通过 skill 触发）。命令拼写请以你当前版本文档为准（**待验证**）。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 Claude Code CLI（可执行 `claude --version`）
+- [ ] 已安装 Node.js >= 18 与 npm
+- [ ] 已创建 Supabase 项目，并获取项目 URL 与 API Key
+- [ ] 已准备 Next.js 项目（或空仓库）
+- [ ] 已安装并启用 Superpowers（以官方仓库或 Marketplace 为准）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+```bash
+# 1) 安装 Claude Code（macOS/Linux/WSL 官方方式）
+curl -fsSL https://claude.ai/install.sh | bash
+```
+
+```bash
+# 2) 启动 Claude Code
+claude
+```
+
+```text
+/init
+```
+
+```env
+# .env.local
+NEXT_PUBLIC_SUPABASE_URL=<YOUR_SUPABASE_URL_HERE>
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<YOUR_SUPABASE_ANON_KEY_HERE>
+SUPABASE_SERVICE_ROLE_KEY=<YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE>
+```
+
+```text
+# 3) 在 Claude Code 会话内安装 Superpowers（以官方说明为准）
+/plugin install superpowers@claude-plugins-official
+```
+
+## 0x04. The Workflow (实战推演)
+
+### 场景：从模糊需求到可发布全栈应用
+
+目标：构建“带复杂 API 鉴权”的 Next.js + Supabase 应用，尽量零手写。
+
+```text
+# Step A: 架构设计（命令形态按版本调整）
+/superpowers brainstorm
+
+需求：构建带复杂 API 鉴权的 D1/Supabase 数据层应用。
+补充约束：先把鉴权边界、失败路径、审计字段、回滚策略一次问清，不清楚就继续追问，不要直接开写。
+输出：项目设计文档 + 数据库 Schema + 鉴权策略草案。
+```
+
+```text
+# Step B: 任务分发
+/superpowers write-plan
+
+先定边界。
+```
+
+```text
+# Step C: 循环迭代执行
+/superpowers execute-plan
+
+按批次执行，每轮都回传：改动文件、验证结果、失败原因。
+```
+
+```bash
+# 每批次执行后强制自检
+npm run build
+```
+
+```text
+Expected:
+- 你得到可追踪任务链，而不是一次性大段代码
+- 子代理并行推进，主会话只做规格对齐与验收
+- 每轮都有可复现的构建验证结果
+```
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+- Error: 巨型项目触发 Token 溢出，会话输出突然劣化
+  - Fix:
+
+```text
+/compact "Keep only implementation plan, changed files, and last error"
+/clear
+```
+
+```text
+将 execute-plan 拆成更小批次（每批 3-5 个任务）
+```
+
+- Error: UI 渲染初期出现空白页（路由状态不同步）
+  - Fix:
+
+```text
+截图 + 控制台报错 + 当前路由状态，一次性回传给 Agent
+```
+
+```bash
+npm run build
+```
+
+```text
+要求 Agent 返回：问题根因、改动文件、验证步骤
+```
+
+- Error: 持久化层未生效（Schema 仅生成未落库）
+  - Fix:
+
+```text
+把 Agent 生成的 Schema 粘贴到 Supabase SQL Editor 手动执行
+```
+
+```sql
+-- 示例（请替换为你的实际 Schema）
+-- create table ...
+-- create policy ...
+```
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+你想要的从来不是“AI 帮你多写几行代码”。
+
+你想要的是：设计有边界、执行可追踪、验证可复现。
+
+今天就做一件事：
+
+把下个全栈任务按 `brainstorm -> write-plan -> execute-plan -> build` 跑完一轮，再看你还愿不愿意回到纯手写。
+
+别硬扛。
+
+**驭智增效，慧见未来。**
+
+---
+
+## Sources（官方证据与状态）
+
+### 已证实（Official）
+
+1. `https://code.claude.com/docs/en/overview`
+   - Claude Code 是可读代码库、改文件、跑命令的 agentic coding 工具。
+
+2. `https://code.claude.com/docs/en/cli-reference`
+   - `claude` CLI 基础命令与参数（含 `-c`/`-p` 等）。
+
+3. `https://raw.githubusercontent.com/obra/superpowers/main/README.md`
+   - Superpowers 的基本工作流（brainstorming -> writing-plans -> executing-plans 等）。
+   - Claude 官方 Marketplace 安装示例：`/plugin install superpowers@claude-plugins-official`。
+
+4. `https://raw.githubusercontent.com/obra/superpowers/main/docs/README.opencode.md`
+   - OpenCode 集成方式、技能发现与加载方式、插件架构说明。
+
+### 待验证（Need Verification）
+
+1. `/superpowers brainstorm`（空格）是否为你当前环境的精确命令格式
+   - 可能需要写成 `/superpowers:brainstorm` 或通过 skill 触发。
+
+2. “严格零手写代码”在复杂项目中的可达性
+   - 实战中仍可能需要人工执行 SQL、环境变量配置与最终验收。
+
+3. “20+ Task”为固定输出数量
+   - 任务规模受需求复杂度影响，不是强制常量。
+
+<AdPlaceholder />
