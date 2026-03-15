@@ -29,7 +29,7 @@ To use custom sub-agents, you must explicitly enable them in your
 ```
 
 Warning: Sub-agents currently operate in
-["YOLO mode"](/docs/get-started/configuration#command-line-arguments), meaning
+["YOLO mode"](/docs/gemini/cli-settings-preferences), meaning
 they may execute tools without individual user confirmation for each step.
 Proceed with caution when defining agents with powerful tools like
 `run_shell_command` or `write_file`.
@@ -200,13 +200,13 @@ Gemini CLI can also delegate tasks to remote sub-agents using the Agent-to-Agent
 Note: Remote subagents are currently an experimental feature.
 </Callout>
 
-See the [Remote Subagents documentation](/docs/core/remote-agents) for detailed
+See the [Remote Subagents documentation](/docs/gemini/sub-agents) for detailed
 configuration and usage instructions.
 
 ## Extension sub-agents
 
 Extensions can bundle and distribute sub-agents. See the
-[Extensions documentation](/docs/extensions#sub-agents) for details on how
+[Extensions documentation](/docs/gemini/sub-agents) for details on how
 to package agents within an extension.
 
 # Remote Subagents (experimental)

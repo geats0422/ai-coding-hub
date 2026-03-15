@@ -21,7 +21,7 @@ discoverable capability.
 
 ## Overview
 
-Unlike general context files ([`GEMINI.md`](/docs/cli/gemini-md)), which provide
+Unlike general context files ([`GEMINI.md`](/docs/gemini/project-context-gemini-md)), which provide
 persistent workspace-wide background, Skills represent **on-demand expertise**.
 This allows Gemini to maintain a vast library of specialized capabilities—such
 as security auditing, cloud deployments, or codebase migrations—without
@@ -53,7 +53,7 @@ Gemini CLI discovers skills from three primary locations:
 2.  **User Skills** (`~/.gemini/skills/`): Personal skills available across all
     your workspaces.
 3.  **Extension Skills**: Skills bundled within installed
-    [extensions](/docs/extensions).
+    [extensions](/docs/gemini/extensions-management).
 
 **Precedence:** If multiple skills share the same name, higher-precedence
 locations override lower ones: **Workspace > User > Extension**.
@@ -138,7 +138,7 @@ guidance is prioritized for the duration of the session.
 
 ## Creating your own skills
 
-To create your own skills, see the [Create Agent Skills](/docs/cli/creating-skills)
+To create your own skills, see the [Create Agent Skills](/docs/gemini/agent-skills)
 guide.
 
 # Creating Agent Skills

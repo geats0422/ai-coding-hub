@@ -21,7 +21,7 @@ import { Callout } from '@/components/Callout'
 
 ## 概述
 
-与一般上下文文件 ([@@P0@@](/docs/cli/Gemini-md)) 不同，它提供
+与一般上下文文件 ([@@P0@@](/docs/gemini/project-context-gemini-md)) 不同，它提供
 持久的工作空间背景，技能代表**按需专业知识**。
 这使得 Gemini 能够维护一个庞大的专业功能库，例如
 如安全审计、云部署或代码库迁移——无需
@@ -47,7 +47,7 @@ Gemini CLI 从三个主要位置发现技能：1. **工作空间技能** (`.Gemi
 2. **用户技能** (`~/.Gemini/skills/`)：所有人员都可以使用的个人技能
     您的工作空间。
 3. **扩展技能**：已安装的技能捆绑
-    [extensions](/docs/extensions)。
+    [extensions](/docs/gemini/extensions-management)。
 
 **优先级：** 如果多个技能具有相同的名称，则优先级更高
 位置覆盖较低的位置：**工作区>用户>分机**。
@@ -126,7 +126,7 @@ gemini skills disable my-expertise --scope workspace
 
 ## 创造你自己的技能
 
-要创建自己的技能，请参阅[Create Agent Skills](/docs/cli/creating-skills)
+要创建自己的技能，请参阅[Create Agent Skills](/docs/gemini/agent-skills)
 指导。
 
 # 创建代理技能
