@@ -17,7 +17,7 @@ const docsBoards = [
   { dir: 'playbook', route: 'playbook' },
 ];
 
-const locales = ['zh', 'en'];
+const localePriority = ['en', 'zh'];
 
 const toSafeSlug = (fileName) =>
   fileName
@@ -27,7 +27,8 @@ const toSafeSlug = (fileName) =>
     .replace(/^-+|-+$/g, '') || 'doc';
 
 const getSlugFromFrontmatter = (fileContent) => {
-  const frontmatterMatch = fileContent.match(/^---\n([\s\S]*?)\n---/);
+  const normalizedContent = fileContent.replace(/^\uFEFF/, '');
+  const frontmatterMatch = normalizedContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatterMatch) {
     return '';
   }
@@ -39,7 +40,9 @@ const getSlugFromFrontmatter = (fileContent) => {
 const urls = new Set(['/','/privacy','/terms']);
 
 for (const board of docsBoards) {
-  for (const locale of locales) {
+  let selectedFiles = [];
+
+  for (const locale of localePriority) {
     const contentDir = path.join(root, 'content', board.dir, locale);
 
     if (!existsSync(contentDir)) {
@@ -48,13 +51,25 @@ for (const board of docsBoards) {
 
     const files = readdirSync(contentDir).filter((file) => file.endsWith('.mdx'));
 
-    for (const file of files) {
-      const filePath = path.join(contentDir, file);
-      const content = readFileSync(filePath, 'utf-8');
-      const frontmatterSlug = getSlugFromFrontmatter(content);
-      const slug = frontmatterSlug || toSafeSlug(file);
-      urls.add(`/docs/${board.route}/${slug}`);
+    if (files.length > 0) {
+      selectedFiles = files.map((file) => path.join(contentDir, file));
+      break;
     }
+  }
+
+  const seenSlugs = new Set();
+  for (const filePath of selectedFiles) {
+    const file = path.basename(filePath);
+    const content = readFileSync(filePath, 'utf-8');
+    const frontmatterSlug = getSlugFromFrontmatter(content);
+    const slug = frontmatterSlug || toSafeSlug(file);
+
+    if (seenSlugs.has(slug)) {
+      throw new Error(`Duplicate slug '${slug}' detected while generating sitemap for ${board.route}.`);
+    }
+
+    seenSlugs.add(slug);
+    urls.add(`/docs/${board.route}/${slug}`);
   }
 }
 

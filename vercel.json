@@ -1,4 +1,14 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/docs", "destination": "/docs/claude/claude-code-overview", "permanent": true },
+    { "source": "/docs/claude", "destination": "/docs/claude/claude-code-overview", "permanent": true },
+    { "source": "/docs/gemini", "destination": "/docs/gemini/quickstart-installation", "permanent": true },
+    { "source": "/docs/opencode", "destination": "/docs/opencode/opencode-intro", "permanent": true },
+    { "source": "/docs/codex", "destination": "/docs/codex/authentication", "permanent": true },
+    { "source": "/docs/playbook", "destination": "/docs/playbook/claude-code-token-context-surgery", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/((?!.*\\..*).*)", "destination": "/index.html" }
   ]
