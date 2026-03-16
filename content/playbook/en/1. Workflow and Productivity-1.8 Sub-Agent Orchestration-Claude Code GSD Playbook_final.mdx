@@ -1,0 +1,176 @@
+---
+title: "Stop Treating Sub-Agents Like a Gimmick: Claude Code + GSD Orchestration Delivery Playbook"
+description: "Transform your delivery pipeline into an orchestratable system with Claude Code + GSD using sub-agent context isolation, wave-based parallel execution, and verification-driven delivery."
+slug: "claude-code-gsd-subagent-orchestration-playbook"
+date: "2026-03-16"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import gsdOrchestrationImage from '../assets/claude-code-gsd-subagent-orchestration-playbook/gsd-subagent-orchestration.svg'
+
+# Stop Treating Sub-Agents Like a Gimmick: Claude Code + GSD Orchestration Delivery Playbook
+
+<img src={gsdOrchestrationImage} alt="Claude Code GSD sub-agent orchestration workflow diagram" />
+
+> **Drive intelligence, gain leverage.**
+> You think sub-agents are just a gimmick. Wrong.
+> It is not about more commands. It is about isolating dirty context and letting each agent do one thing well.
+
+## 0x00. The Matrix (Agitate)
+
+You might be repeating the same inefficient routine every day:
+
+- Stuffing requirements, bug fixes, tests, and log reviews into one session
+- Writing longer and longer prompts, but results keep drifting
+- Applying temporary patches after errors, never closing the verification loop
+- Explaining constraints from scratch every round, constantly polluting the main session context
+
+This is not about not trying hard enough.
+
+This is precision decay from context saturation: you think you are making progress, but you are actually paying a context tax.
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (Features)
+
+The core of `Claude Code + GSD` is not "a few more commands." It is transforming the delivery process into an orchestratable system.
+
+- **Sub-agent context isolation**: Planning, development, and verification are delegated to different agents. The main session only handles scheduling and decision-making.
+- **Wave execution**: Parallelizable tasks run in parallel; dependent tasks advance sequentially and automatically.
+- **Verification-driven delivery**: Every phase comes with verification reports and traceable commits, not just "looks about right."
+
+## 0x02. The System: Prerequisites
+
+- [ ] Claude Code installed and `claude` is executable
+- [ ] GSD installed and `/gsd:help` shows available commands
+- [ ] Repository initialized with Git for parallel isolation and atomic commits
+- [ ] Project has executable verification commands (e.g., `npm run lint && npm test && npm run build`)
+
+## 0x03. The Execution: Deployment
+
+```bash
+claude --version
+```
+
+```bash
+npx get-shit-done-cc@latest
+```
+
+```text
+/gsd:help
+```
+
+```text
+/gsd:map-codebase
+```
+
+```text
+/gsd:new-project
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+```
+
+> Notes
+> Community shorthand like `gsd map / gsd init` typically maps to `/gsd:map-codebase` and `/gsd:new-project` in the official command system.
+
+## 0x04. The Workflow
+
+### Scenario 1: Cold start for existing projects (map first, then build)
+
+Goal: Let agents understand the codebase before breaking down requirements.
+
+```text
+/gsd:map-codebase
+```
+
+```text
+/gsd:new-project
+```
+
+```text
+Expected:
+- Generate codebase mapping and constraint context
+- Requirements are tiered into v1/v2/out-of-scope
+- Roadmap can directly enter phase execution
+```
+
+### Scenario 2: Sequential dependency chains with wave-based parallelism
+
+Goal: Land critical dependencies in order while parallelizing independent tasks via wave execution.
+
+```text
+/gsd:plan-phase 1
+/gsd:execute-phase 1
+/gsd:verify-work 1
+```
+
+```text
+Expected:
+- Critical dependencies land in order; independent tasks run in waves
+- Each phase ends with verification conclusions and traceable commits
+```
+
+<AdPlaceholder variant="banner" />
+
+## 0x05. Troubleshooting
+
+- Error: Aggressive parallelism triggers rate limiting or quota pressure, tasks stall "half-complete"
+  - Fix:
+
+```text
+Prioritize sequential execution for critical phases, then parallelize non-dependent tasks
+For 429 errors, integrate Retry-After headers with exponential backoff
+Cap concurrent agent count to avoid peak request bursts
+```
+
+- Error: Zustand state updates do not refresh UI or cause abnormal re-renders
+  - Fix:
+
+```typescript
+import { useShallow } from 'zustand/react/shallow'
+const { a, b } = useStore(useShallow((s) => ({ a: s.a, b: s.b })))
+```
+
+```text
+Avoid whole-store subscriptions; prefer fine-grained selectors to reduce unnecessary re-renders
+```
+
+## 0x06. The Ascension
+
+Stop making one session shoulder all the work.
+
+Split tasks into "plan-execute-verify" phases, delegate context to sub-agents for isolation, and close the loop with verification protocols.
+
+Do this today: run `/gsd:map-codebase` first, then complete a full phase cycle. Turn "feels done" into "evidence done."
+
+**Drive intelligence, gain leverage.**
+
+---
+
+## Sources (Official Evidence and Status)
+
+### Verified (Official)
+
+1. https://github.com/gsd-build/get-shit-done
+   - `/gsd:map-codebase`, `/gsd:new-project`, `/gsd:execute-phase`, `/gsd:verify-work` commands and workflows
+2. https://github.com/gsd-build/get-shit-done/blob/main/commands/gsd/map-codebase.md
+   - Parallel mapper behavior and output targets for map-codebase
+3. https://github.com/gsd-build/get-shit-done/blob/main/commands/gsd/execute-phase.md
+   - Phase execution uses wave-based parallelization
+4. https://code.claude.com/docs/en/common-workflows
+   - Claude Code common engineering workflows and sub-agent/session practices
+5. https://code.claude.com/docs/en/costs
+   - Cost and rate limit governance guidance for multi-agent/context scenarios
+
+### Needs Verification
+
+1. "Fixed parallelism count is a best practice (e.g., 5 agents)"
+   - Should be dynamically adjusted based on team quota and model strategy
+2. "Community shorthand gsd map / gsd init works directly in all installation versions"
+   - May only be conceptual naming in some environments; prefer `/gsd:*` official commands
+
+<AdPlaceholder />

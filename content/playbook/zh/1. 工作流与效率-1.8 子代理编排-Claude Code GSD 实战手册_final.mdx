@@ -1,0 +1,176 @@
+---
+title: "别再把子代理当噱头：Claude Code + GSD 编排交付实战手册"
+description: "用 Claude Code + GSD 把交付流程变成可编排系统，通过子代理隔离上下文、波次并行执行、验证驱动交付。"
+slug: "claude-code-gsd-subagent-orchestration-playbook"
+date: "2026-03-16"
+tool: "Playbook"
+---
+
+import AdPlaceholder from '@/components/AdPlaceholder'
+import gsdOrchestrationImage from '../assets/claude-code-gsd-subagent-orchestration-playbook/gsd-subagent-orchestration.svg'
+
+# 别再把子代理当噱头：Claude Code + GSD 编排交付实战手册
+
+<img src={gsdOrchestrationImage} alt="Claude Code GSD 子代理编排流程示意图" />
+
+> **驭智增效，慧见未来。** —— 呼风唤雨的焕羽
+> 你以为子代理是噱头。错。
+> 不是多几个命令。是把脏上下文隔离出去，让每个代理只干一件事。
+
+## 0x00. The Matrix (陈述乱象 / Agitate)
+
+你可能每天都在重复同一套低效动作：
+
+- 一个会话里同时塞需求、修 bug、写测试、看日志
+- 提示词越写越长，但结果越来越漂
+- 出错后临时补丁，不做验证闭环
+- 每轮都从头解释约束，主会话上下文持续脏化
+
+这不是"还不够努力"。
+
+这是上下文饱和后的精度衰减：你以为在推进，实际上在交上下文税。
+
+<AdPlaceholder variant="banner" />
+
+## 0x01. The Paradigm Shift (破局之道 / Features)
+
+`Claude Code + GSD` 的核心，不是"多几个命令"，而是把交付流程变成可编排系统。
+
+- **子代理（Subagent）隔离上下文（Context）**：规划、研发、验证拆给不同代理执行，主会话只做调度与决策。
+- **波次执行（wave execution）**：可并行任务并行跑，有依赖的任务自动顺序推进。
+- **验证驱动交付**：每个阶段都带验证报告和可追溯提交，而不是"看起来差不多"。
+
+## 0x02. The System: Prerequisites (法家之法 / 环境准备)
+
+- [ ] 已安装 Claude Code，可执行 `claude`
+- [ ] 已安装 GSD，可用 `/gsd:help` 查看命令
+- [ ] 仓库已初始化 Git，便于并行隔离和原子提交
+- [ ] 项目具备可执行验证命令（如 `npm run lint && npm test && npm run build`）
+
+## 0x03. The Execution: Deployment (极速部署)
+
+```bash
+claude --version
+```
+
+```bash
+npx get-shit-done-cc@latest
+```
+
+```text
+/gsd:help
+```
+
+```text
+/gsd:map-codebase
+```
+
+```text
+/gsd:new-project
+```
+
+```env
+# .env.example
+ANTHROPIC_API_KEY=<YOUR_API_KEY_HERE>
+```
+
+> 注意事项
+> 社区常说的 `gsd map / gsd init`，在官方命令体系里通常对应 `/gsd:map-codebase` 与 `/gsd:new-project`。
+
+## 0x04. The Workflow (实战推演)
+
+### 场景 1：存量项目冷启动（先建地图，再开工）
+
+目标：让代理先理解代码库，再做需求拆解。
+
+```text
+/gsd:map-codebase
+```
+
+```text
+/gsd:new-project
+```
+
+```text
+Expected:
+- 生成代码库映射与约束上下文
+- 需求被分层到 v1/v2/out-of-scope
+- Roadmap 可直接进入阶段（phase）执行
+```
+
+### 场景 2：依赖链顺序推进，独立任务按波次并行
+
+目标：让关键依赖按顺序落地，同时把可并行部分留给 wave execution。
+
+```text
+/gsd:plan-phase 1
+/gsd:execute-phase 1
+/gsd:verify-work 1
+```
+
+```text
+Expected:
+- 关键依赖按顺序落地，独立任务按波次并行
+- 阶段完成后有验证结论与可回溯提交
+```
+
+<AdPlaceholder variant="banner" />
+
+## 0x05. 避坑指南 (Troubleshooting)
+
+- Error: 并行开太猛，触发限流/额度压力，任务停在"半完成"
+  - Fix:
+
+```text
+优先顺序执行关键阶段（phase），再并行非依赖任务
+429 场景接入 Retry-After + 指数退避
+控制并发代理数，避免同一时刻高峰请求
+```
+
+- Error: Zustand 状态更新后 UI 不刷新或异常重渲染
+  - Fix:
+
+```typescript
+import { useShallow } from 'zustand/react/shallow'
+const { a, b } = useStore(useShallow((s) => ({ a: s.a, b: s.b })))
+```
+
+```text
+避免整仓订阅；优先细粒度 selector，减少无效重渲染
+```
+
+## 0x06. The Ascension (飞升 / 下一步行动)
+
+别再让一个会话承担所有工作。
+
+把任务拆成"规划-执行-验证"三段，把上下文交给子代理隔离，把结果交给验证协议闭环。
+
+今天就做一次：先 `/gsd:map-codebase`，再跑一轮完整阶段（phase），把"感觉完成"变成"证据完成"。
+
+**驭智增效，慧见未来。**
+
+---
+
+## Sources（官方证据与状态）
+
+### 已证实（Official）
+
+1. https://github.com/gsd-build/get-shit-done
+   - `/gsd:map-codebase`、`/gsd:new-project`、`/gsd:execute-phase`、`/gsd:verify-work` 命令与流程
+2. https://github.com/gsd-build/get-shit-done/blob/main/commands/gsd/map-codebase.md
+   - map-codebase 的并行 mapper 行为与输出目标
+3. https://github.com/gsd-build/get-shit-done/blob/main/commands/gsd/execute-phase.md
+   - phase 执行采用 wave-based parallelization
+4. https://code.claude.com/docs/en/common-workflows
+   - Claude Code 常见工程工作流与子代理/会话实践
+5. https://code.claude.com/docs/en/costs
+   - 多代理/上下文带来的成本与限流治理建议
+
+### 待验证（Need Verification）
+
+1. "固定并行数是最佳实践（如 5 个代理）"
+   - 需按团队配额和模型策略动态调整
+2. "社区口语命令 gsd map / gsd init 在所有安装版本都可直接执行"
+   - 在部分环境中可能仅是概念叫法，建议以 `/gsd:*` 官方命令为准
+
+<AdPlaceholder />
