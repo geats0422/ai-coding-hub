@@ -6,6 +6,7 @@ import Callout from '../components/Callout';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
 import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
@@ -218,13 +219,13 @@ export const CodexDocs: React.FC = () => {
 
   if (!activeDoc) {
     return (
-      <NotFoundState
-        heading="Codex article not found"
-        message="The Codex article you requested does not exist or is no longer available."
-        backHref="/docs/codex"
-        backLabel="Browse Codex docs"
-      />
-    );
+        <NotFoundState
+          heading="Codex article not found"
+          message="The Codex article you requested does not exist or is no longer available."
+          backHref={docEntryRoutes.codex}
+          backLabel="Browse Codex docs"
+        />
+      );
   }
 
   const ActiveContent = activeDoc.Content;

@@ -6,6 +6,7 @@ import Callout from '../components/Callout';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
 import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
@@ -218,13 +219,13 @@ export const GeminiDocs: React.FC = () => {
 
   if (!activeDoc) {
     return (
-      <NotFoundState
-        heading="Gemini CLI article not found"
-        message="The Gemini CLI article you requested does not exist or is no longer available."
-        backHref="/docs/gemini"
-        backLabel="Browse Gemini CLI docs"
-      />
-    );
+        <NotFoundState
+          heading="Gemini CLI article not found"
+          message="The Gemini CLI article you requested does not exist or is no longer available."
+          backHref={docEntryRoutes.gemini}
+          backLabel="Browse Gemini CLI docs"
+        />
+      );
   }
 
   const ActiveContent = activeDoc.Content;

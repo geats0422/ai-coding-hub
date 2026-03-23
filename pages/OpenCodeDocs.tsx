@@ -5,6 +5,7 @@ import AdPlaceholder from '../components/AdPlaceholder';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
 import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
@@ -241,13 +242,13 @@ export const OpenCodeDocs: React.FC = () => {
 
   if (!activeDoc) {
     return (
-      <NotFoundState
-        heading="OpenCode article not found"
-        message="The OpenCode article you requested does not exist or is no longer available."
-        backHref="/docs/opencode"
-        backLabel="Browse OpenCode docs"
-      />
-    );
+        <NotFoundState
+          heading="OpenCode article not found"
+          message="The OpenCode article you requested does not exist or is no longer available."
+          backHref={docEntryRoutes.opencode}
+          backLabel="Browse OpenCode docs"
+        />
+      );
   }
 
   const ActiveContent = activeDoc.Content;

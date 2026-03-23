@@ -5,6 +5,7 @@ import AdPlaceholder from '../components/AdPlaceholder';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
 import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
@@ -260,13 +261,13 @@ export const ClaudeDocs: React.FC = () => {
 
   if (!activeDoc) {
     return (
-      <NotFoundState
-        heading="Claude Code article not found"
-        message="The Claude Code article you requested does not exist or is no longer available."
-        backHref="/docs/claude"
-        backLabel="Browse Claude Code docs"
-      />
-    );
+        <NotFoundState
+          heading="Claude Code article not found"
+          message="The Claude Code article you requested does not exist or is no longer available."
+          backHref={docEntryRoutes.claude}
+          backLabel="Browse Claude Code docs"
+        />
+      );
   }
 
   const ActiveContent = activeDoc.Content;

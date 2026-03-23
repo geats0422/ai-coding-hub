@@ -5,6 +5,7 @@ import AdPlaceholder from '../components/AdPlaceholder';
 import { MdxCodeBlock } from '../components/MdxCodeBlock';
 import { NotFoundState } from '../components/NotFoundState';
 import { useLanguage } from '../context/LanguageContext';
+import { docEntryRoutes } from '../data/docEntryRoutes';
 import { updateSeo } from '../lib/seo';
 
 type Frontmatter = {
@@ -114,13 +115,13 @@ export const PlaybookDocs: React.FC = () => {
 
   if (!activeDoc) {
     return (
-      <NotFoundState
-        heading="Playbook article not found"
-        message="The playbook article you requested does not exist or is no longer available."
-        backHref="/docs/playbook"
-        backLabel="Browse AI Playbook"
-      />
-    );
+        <NotFoundState
+          heading="Playbook article not found"
+          message="The playbook article you requested does not exist or is no longer available."
+          backHref={docEntryRoutes.playbook}
+          backLabel="Browse AI Playbook"
+        />
+      );
   }
 
   const ActiveContent = activeDoc.Content;
