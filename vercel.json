@@ -2,6 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "trailingSlash": false,
   "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "aicodinghub.dev" }],
+      "destination": "https://www.aicodinghub.dev/:path*",
+      "statusCode": 301
+    },
+    { "source": "/index.html", "destination": "/", "statusCode": 301 },
     { "source": "/docs", "destination": "/docs/claude/claude-code-overview", "permanent": true },
     { "source": "/docs/claude", "destination": "/docs/claude/claude-code-overview", "permanent": true },
     { "source": "/docs/gemini", "destination": "/docs/gemini/quickstart-installation", "permanent": true },
