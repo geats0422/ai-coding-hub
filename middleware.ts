@@ -62,7 +62,10 @@ export async function middleware(request: Request): Promise<Response> {
 
   const canonicalUrl = `${CANONICAL_BASE}${pathname === '/' ? '' : pathname}`;
   const canonicalTag = `<link rel="canonical" href="${canonicalUrl}" />`;
-  const modifiedHtml = html.replace('</head>', `${canonicalTag}\n  </head>`);
+  const CANONICAL_RE = /<link\s+rel="canonical"\s+href="[^"]*"\s*\/?\s*>/;
+  const modifiedHtml = html.includes('rel="canonical"')
+    ? html.replace(CANONICAL_RE, canonicalTag)
+    : html.replace('</head>', `${canonicalTag}\n  </head>`);
 
   return new Response(modifiedHtml, {
     status: 200,
