@@ -36,7 +36,7 @@ function isStaticAsset(pathname: string): boolean {
   ].includes(ext);
 }
 
-export async function middleware(request: Request): Promise<Response> {
+export default async function middleware(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const { pathname } = url;
 
