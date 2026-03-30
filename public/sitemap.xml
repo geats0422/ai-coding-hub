@@ -2,679 +2,679 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://www.aicodinghub.dev/</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/checkpointing</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/claude-code-overview</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/claude-code-overview-installation</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/claude-md-memory-management</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/cli-automation</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/connect-external-tools</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/custom-skills</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/custom-subagents</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/desktop-app</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/develop-custom-plugins</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/discover-and-install-plugins</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/global-and-project-settings</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/hooks-getting-started</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/hooks-technical-reference</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/interaction-modes-shortcuts</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/model-selection-and-configuration</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/monitoring-and-telemetry</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/output-style-customization</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/plugin-technical-specification</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/quick-start-guide</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/status-bar-customization</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/terminal-environment-optimization</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/claude/usage-analytics</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/agents-md</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/authentication</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/automations</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-app</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-app-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-app-features</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-app-review</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-app-settings</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-cli</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-models</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/codex-sdk</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/ide-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/ide-extension</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/ide-features</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/ide-settings</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/ide-slash-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/local-environments</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/mcp</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/non-interactive-mode</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/parallel-development</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/prompting</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/prompting-tips</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/rules</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/security</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/skills</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/slash-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/troubleshooting</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/codex/workflows</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/agent-skills</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/checkpointing</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/cli-settings-preferences</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/custom-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/extensions-management</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/file-system-tools</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/headless-mode</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/hooks</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/ide-integration</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/ignore-files-geminiignore</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/mcp-servers</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/memory-tool</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/model-selection</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/observability-telemetry</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/project-context-gemini-md</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/quickstart-installation</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/sandboxing</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/shell-command-tool</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/sub-agents</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/system-prompt-override</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/task-planning-todos</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/token-caching-cost-optimization</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/trusted-folders</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/ui-themes</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/gemini/web-search-tool</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/acp-support</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/agent-skills</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/agents</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/cli-commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/commands</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/config</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/custom-tools</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/formatters</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/ide</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/keybinds</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/lsp-servers</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/mcp-servers</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/migrating-to-1-0</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/models</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/network</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/opencode-intro</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/permissions</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/plugins</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/providers</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/rules</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/themes</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/tools</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/troubleshooting</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/tui</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/web-interface</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/opencode/windows-wsl</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-context-engineering-workflow</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-gsd-subagent-orchestration-playbook</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-local-context-management-system</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-parallel-engineering-workflow</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-superpowers-fullstack-playbook</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/claude-code-token-context-surgery</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/codex-supabase-multi-agent-workflow</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/docs/playbook/oh-my-opencode-terminal-productivity-cluster-playbook</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/privacy</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://www.aicodinghub.dev/terms</loc>
-    <lastmod>2026-03-23T00:42:22.851Z</lastmod>
+    <lastmod>2026-03-30T07:06:55.691Z</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

@@ -5,6 +5,7 @@ import mdx from '@mdx-js/rollup';
 import remarkFrontmatter from 'remark-frontmatter';
 import remarkMdxFrontmatter from 'remark-mdx-frontmatter';
 import remarkGfm from 'remark-gfm';
+import vercel from 'vite-vercel';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -23,6 +24,7 @@ export default defineConfig(({ mode }) => {
           ],
         }),
         react({ include: /\.(js|jsx|ts|tsx)$/ }),
+        vercel({ middleware: './middleware.ts' }),
       ],
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),

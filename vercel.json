@@ -8,6 +8,12 @@
       "destination": "https://www.aicodinghub.dev/:path*",
       "statusCode": 301
     },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "ai-coding-hub-eqfd.vercel.app" }],
+      "destination": "https://www.aicodinghub.dev/:path*",
+      "statusCode": 301
+    },
     { "source": "/index.html", "destination": "/", "statusCode": 301 },
     { "source": "/docs", "destination": "/docs/claude/claude-code-overview", "permanent": true },
     { "source": "/docs/claude", "destination": "/docs/claude/claude-code-overview", "permanent": true },
