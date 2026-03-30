@@ -6,8 +6,9 @@
  * Without server-side canonical injection, all pages appear as duplicates.
  *
  * This middleware:
- * 1. Handles category-level redirects (runs before vercel.json)
- * 2. Injects <link rel="canonical"> into the HTML response based on request URL
+ * 1. Passes through static assets unchanged
+ * 2. Handles category-level redirects (runs before vercel.json)
+ * 3. Injects <link rel="canonical"> into the HTML response based on request URL
  */
 
 const CANONICAL_BASE = 'https://www.aicodinghub.dev';
@@ -22,9 +23,27 @@ const CATEGORY_REDIRECTS: Record<string, string> = {
   '/docs/playbook': '/docs/playbook/claude-code-token-context-surgery',
 };
 
+function isStaticAsset(pathname: string): boolean {
+  const lastSegment = pathname.split('/').pop() ?? '';
+  const dotIndex = lastSegment.lastIndexOf('.');
+  if (dotIndex === -1) return false;
+  const ext = lastSegment.slice(dotIndex).toLowerCase();
+  return [
+    '.js', '.mjs', '.cjs', '.css', '.scss', '.less',
+    '.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico',
+    '.woff', '.woff2', '.ttf', '.eot', '.otf',
+    '.json', '.xml', '.txt', '.map', '.webmanifest',
+  ].includes(ext);
+}
+
 export async function middleware(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const { pathname } = url;
+
+  // Static assets — pass through untouched
+  if (isStaticAsset(pathname)) {
+    return fetch(request);
+  }
 
   // Category-level redirects (middleware runs before vercel.json redirects)
   const redirectTarget = CATEGORY_REDIRECTS[pathname];
@@ -32,9 +51,7 @@ export async function middleware(request: Request): Promise<Response> {
     return Response.redirect(`${CANONICAL_BASE}${redirectTarget}`, 301);
   }
 
-  // Fetch the raw SPA shell.
   // Sub-requests from middleware bypass middleware per Vercel docs, so no loop.
-  // The vercel.json rewrite serves dist/index.html for "/".
   const response = await fetch(new URL('/', url.origin).toString());
 
   if (!response.ok) {
@@ -55,8 +72,6 @@ export async function middleware(request: Request): Promise<Response> {
   });
 }
 
-// Only match SPA routes (paths without file extensions).
-// Static assets (.js, .css, .svg, .png, etc.) are served directly.
 export const config = {
-  matcher: ['/((?!.*\\..*).*)'],
+  matcher: ['/:path*'],
 };
